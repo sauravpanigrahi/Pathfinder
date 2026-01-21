@@ -1,0 +1,96 @@
+from fastapi import  HTTPException,APIRouter
+from sqlalchemy.orm import Session
+from fastapi import Depends
+from config.db import Sessionlocal
+from Schema.student import Users
+from Schema.studentdetails import Details
+from Schema.project import ProjectDetails
+from Schema.experience import Experience
+from Schema.profileupdate import ProfileUpdate
+from dotenv import load_dotenv
+load_dotenv()
+def get_db():
+    db = Sessionlocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+router = APIRouter(
+    prefix="/profile",
+    tags=["profile"]
+)
+@router.get("/{uid}")
+def get_student_profile(uid: str, db: Session = Depends(get_db)):
+    user = db.query(Users).filter(Users.uid == uid).first()
+    if not user:
+        print("❌ User not found")
+        raise HTTPException(status_code=404, detail="User not found")
+
+    userdetails = db.query(Details).filter(Details.uid == uid).first()
+    if not userdetails:
+        print("❌ User details not found")
+        raise HTTPException(status_code=404, detail="User details not found")
+
+    print("✅ Profile found")
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "details": {
+            "id": userdetails.id,
+            "phone_number": userdetails.phone_number,
+            "date_of_birth": userdetails.date_of_birth,
+            "address": userdetails.address,
+            "bio": userdetails.bio,
+            "qualification": userdetails.qualification,
+            "graduation_year": userdetails.graduation_year,
+            "college_university": userdetails.college_university,
+            "linkedin_url": userdetails.linkedin_url,
+            "github_url": userdetails.github_url,
+        }
+    }
+@router.get("/check/{userID}")
+def profilecheck(userID: str, db: Session = Depends(get_db)):
+    project = db.query(ProjectDetails).filter(ProjectDetails.stud_uid == userID).first()
+    experience = db.query(Experience).filter(Experience.stud_uid == userID).first()
+
+    message = None
+    if project is None:
+        message = "Add project to your profile"
+    elif experience is None:
+        message = "Add experience to your profile"
+
+    return {
+        "project": project is not None,
+        "experience": experience is not None,
+        "message": message
+    }
+@router.put("/update/{userID}")
+def update_profile(userID: str,payload: ProfileUpdate,db: Session = Depends(get_db)):
+    # 1️⃣ Fetch user
+    user = db.query(Users).filter(Users.uid == userID).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    # 2️⃣ Update Users table
+    if payload.name is not None:
+        user.name = payload.name
+    if payload.email is not None:
+        user.email = payload.email
+    # 3️⃣ Fetch details
+    details = db.query(Details).filter(Details.uid == userID).first()
+    if not details:
+        raise HTTPException(status_code=404, detail="User details not found")
+    # 4️⃣ Update Details table dynamically
+    if payload.details:
+        for field, value in payload.details.model_dump(exclude_unset=True).items():
+            setattr(details, field, value)
+    # 5️⃣ Commit changes
+    try:
+        db.commit()
+        db.refresh(user)
+        db.refresh(details)
+        return {"message": "Profile updated successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))

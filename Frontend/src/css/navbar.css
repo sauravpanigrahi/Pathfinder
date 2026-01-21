@@ -1,0 +1,51 @@
+.profile-btn {
+  border: 2px solid #1976d2 !important;
+  border-radius: 20px !important;
+  padding: 6px 16px !important;
+  position: relative;
+  animation: pulseBorder 2s infinite;
+}
+
+/* Animation */
+@keyframes pulseBorder {
+  0% {
+    box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(25, 118, 210, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(25, 118, 210, 0);
+  }
+}
+.profile-btn {
+  border-radius: 18px !important;
+}
+
+/* Tooltip box */
+.profile-hint {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff3cd;
+  color: #856404;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  white-space: nowrap;
+  z-index: 1000;
+}
+
+/* Arrow */
+.profile-hint::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent #901f15 transparent;
+}

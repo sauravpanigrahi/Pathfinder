@@ -1,0 +1,1354 @@
+[
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain event delegation",
+    "answer": "Event delegation is a technique involving adding event listeners to a parent element instead of adding them to the descendant elements. The listener will fire whenever the event is triggered on the descendant elements due to event bubbling up the DOM. The benefits of this technique are:\n\n- Memory footprint goes down because only one single handler is needed on the parent element, rather than having to attach event handlers on each descendant.\n- There is no need to unbind the handler from elements that are removed and to bind the event for new elements.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain how `this` works in JavaScript",
+    "answer": "There's no simple explanation for `this`; it is one of the most confusing concepts in JavaScript. A hand-wavey explanation is that the value of `this` depends on how the function is called. I have read many explanations on `this` online, and I found [Arnav Aggrawal](https://medium.com/@arnav_aggarwal)'s explanation to be the clearest. The following rules are applied:\n\n1. If the `new` keyword is used when calling the function, `this` inside the function is a brand new object.\n2. If `apply`, `call`, or `bind` are used to call/create a function, `this` inside the function is the object that is passed in as the argument.\n3. If a function is called as a method, such as `obj.method()` — `this` is the object that the function is a property of.\n4. If a function is invoked as a free function invocation, meaning it was invoked without any of the conditions present above, `this` is the global object. In a browser, it is the `window` object. If in strict mode (`'use strict'`), `this` will be `undefined` instead of the global object.\n5. If multiple of the above rules apply, the rule that is higher wins and will set the `this` value.\n6. If the function is an ES2015 arrow function, it ignores all the rules above and receives the `this` value of its surrounding scope at the time it is created.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain how prototypal inheritance works",
+    "answer": "All JavaScript objects have a `__proto__` property with the exception of objects created with `Object.create(null)`, that is a reference to another object, which is called the object's \"prototype\". When a property is accessed on an object and if the property is not found on that object, the JavaScript engine looks at the object's `__proto__`, and the `__proto__`'s `__proto__` and so on, until it finds the property defined on one of the `__proto__`s or until it reaches the end of the prototype chain. This behavior simulates classical inheritance, but it is really more of [delegation than inheritance](https://davidwalsh.name/javascript-objects).\n\n#### Example of Prototypal Inheritance\n\n```js\n// Parent object constructor.\nfunction Animal(name) {\n  this.name = name;\n}\n\n// Add a method to the parent object's prototype.\nAnimal.prototype.makeSound = function () {\n  console.log('The ' + this.constructor.name + ' makes a sound.');\n};\n\n// Child object constructor.\nfunction Dog(name) {\n  Animal.call(this, name); // Call the parent constructor.\n}\n\n// Set the child object's prototype to be the parent's prototype.\nObject.setPrototypeOf(Dog.prototype, Animal.prototype);\n\n// Add a method to the child object's prototype.\nDog.prototype.bark = function () {\n  console.log('Woof!');\n};\n\n// Create a new instance of Dog.\nconst bolt = new Dog('Bolt');\n\n// Call methods on the child object.\nconsole.log(bolt.name); // \"Bolt\"\nbolt.makeSound(); // \"The Dog makes a sound.\"\nbolt.bark(); // \"Woof!\"\n```\n\nThings to note are:\n\n- `.makeSound` is not defined on `Dog`, so the engine goes up the prototype chain and finds `.makeSound` off the inherited `Animal`.\n- Using `Object.create` to build the inheritance chain is no longer recommended. Use `Object.setPrototypeOf` instead.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What do you think of AMD vs CommonJS?",
+    "answer": "Both are ways to implement a module system, which was not natively present in JavaScript until ES2015 came along. CommonJS is synchronous while AMD (Asynchronous Module Definition) is obviously asynchronous. CommonJS is designed with server-side development in mind while AMD, with its support for asynchronous loading of modules, is more intended for browsers.\n\nI find AMD syntax to be quite verbose and CommonJS is closer to the style you would write import statements in other languages. Most of the time, I find AMD unnecessary, because if you served all your JavaScript into one concatenated bundle file, you wouldn't benefit from the async loading properties. Also, CommonJS syntax is closer to Node style of writing modules and there is less context-switching overhead when switching between client side and server side JavaScript development.\n\nI'm glad that with ES2015 modules, that has support for both synchronous and asynchronous loading, we can finally just stick to one approach. Although it hasn't been fully rolled out in browsers and in Node, we can always use transpilers to convert our code.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain why the following doesn't work as an IIFE: `function foo(){ }();`. What needs to be changed to properly make it an IIFE?",
+    "answer": "IIFE stands for Immediately Invoked Function Expressions. The JavaScript parser reads `function foo(){ }();` as `function foo(){ }` and `();`, where the former is a _function declaration_ and the latter (a pair of parentheses) is an attempt at calling a function but there is no name specified, hence it throws `Uncaught SyntaxError: Unexpected token )`.\n\nHere are two ways to fix it that involves adding more parentheses: `(function foo(){ })()` and `(function foo(){ }())`. Statements that begin with `function` are considered to be _function declarations_; by wrapping this function within `()`, it becomes a _function expression_ which can then be executed with the subsequent `()`. These functions are not exposed in the global scope and you can even omit its name if you do not need to reference itself within the body.\n\nYou might also use `void` operator: `void function foo(){ }();`. Unfortunately, there is one issue with such approach. The evaluation of given expression is always `undefined`, so if your IIFE function returns anything, you can't use it. An example:\n\n```js\nconst foo = void (function bar() {\n  return 'foo';\n})();\n\nconsole.log(foo); // undefined\n",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What's the difference between a variable that is: `null`, `undefined` or undeclared? How would you go about checking for any of these states?",
+    "answer": "**Undeclared** variables are created when you assign a value to an identifier that is not previously created using `var`, `let` or `const`. Undeclared variables will be defined globally, outside of the current scope. In strict mode, a `ReferenceError` will be thrown when you try to assign to an undeclared variable. Undeclared variables are bad just like how global variables are bad. Avoid them at all cost! To check for them, wrap its usage in a `try`/`catch` block.\n\n```js\nfunction foo() {\n  x = 1; // Throws a ReferenceError in strict mode\n}\n\nfoo();\nconsole.log(x); // 1\n```\n\nA variable that is `undefined` is a variable that has been declared, but not assigned a value. It is of type `undefined`. If a function does not return any value as the result of executing it is assigned to a variable, the variable also has the value of `undefined`. To check for it, compare using the strict equality (`===`) operator or `typeof` which will give the `'undefined'` string. Note that you should not be using the abstract equality operator to check, as it will also return `true` if the value is `null`.\n\n```js\nvar foo;\nconsole.log(foo); // undefined\nconsole.log(foo === undefined); // true\nconsole.log(typeof foo === 'undefined'); // true\n\nconsole.log(foo == null); // true. Wrong, don't use this to check!\n\nfunction bar() {}\nvar baz = bar();\nconsole.log(baz); // undefined\n```\n\nA variable that is `null` will have been explicitly assigned to the `null` value. It represents no value and is different from `undefined` in the sense that it has been explicitly assigned. To check for `null,` simply compare using the strict equality operator. Note that like the above, you should not be using the abstract equality operator (`==`) to check, as it will also return `true` if the value is `undefined`.\n\n```js\nvar foo = null;\nconsole.log(foo === null); // true\nconsole.log(typeof foo === 'object'); // true\n\nconsole.log(foo == undefined); // true. Wrong, don't use this to check!\n```\n\nAs a personal habit, I never leave my variables undeclared or unassigned. I will explicitly assign `null` to them after declaring if I don't intend to use it yet. If you use a linter in your workflow, it will usually also be able to check that you are not referencing undeclared variables.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What is a closure, and how/why would you use one?",
+    "answer": "A closure is the combination of a function and the lexical environment within which that function was declared. The word \"lexical\" refers to the fact that lexical scoping uses the location where a variable is declared within the source code to determine where that variable is available. Closures are functions that have access to the outer (enclosing) function's variables—scope chain even after the outer function has returned.\n\n**Why would you use one?**\n\n- Data privacy / emulating private methods with closures. Commonly used in the [module pattern](https://addyosmani.com/resources/essentialjsdesignpatterns/book/#modulepatternjavascript).\n- [Partial applications or currying](https://medium.com/javascript-scene/curry-or-partial-application-8150044c78b8#.l4b6l1i3x).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Can you describe the main difference between a `.forEach` loop and a `.map()` loop and why you would pick one versus the other?",
+    "answer": "To understand the differences between the two, let's look at what each function does.\n\n**`forEach`**\n\n- Iterates through the elements in an array.\n- Executes a callback for each element.\n- Does not return a value.\n\n```js\nconst a = [1, 2, 3];\nconst doubled = a.forEach((num, index) => {\n  // Do something with num and/or index.\n});\n\n// doubled = undefined\n```\n\n**`map`**\n\n- Iterates through the elements in an array.\n- \"Maps\" each element to a new element by calling the function on each element, creating a new array as a result.\n\n```js\nconst a = [1, 2, 3];\nconst doubled = a.map((num) => {\n  return num * 2;\n});\n\n// doubled = [2, 4, 6]\n```\n\nThe main difference between `.forEach` and `.map()` is that `.map()` returns a new array. If you need the result, but do not wish to mutate the original array, `.map()` is the clear choice. If you simply need to iterate over an array, `forEach` is a fine choice.\n\n#### References\n\n- https://codeburst.io/javascript-map-vs-foreach-f38111822c0f?gi=c9bc30cbec28",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What's a typical use case for anonymous functions?",
+    "answer": "They can be used in IIFEs to encapsulate some code within a local scope so that variables declared in it do not leak to the global scope.\n\n```js\n(function () {\n  // Some code here.\n})();\n```\n\nAs a callback that is used once and does not need to be used anywhere else. The code will seem more self-contained and readable when handlers are defined right inside the code calling them, rather than having to search elsewhere to find the function body.\n\n```js\nsetTimeout(function () {\n  console.log('Hello world!');\n}, 1000);\n```\n\nArguments to functional programming constructs or Lodash (similar to callbacks).\n\n```js\nconst arr = [1, 2, 3];\nconst double = arr.map(function (el) {\n  return el * 2;\n});\nconsole.log(double); // [2, 4, 6]\n```\n",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "How do you organize your code? (module pattern, classical inheritance?)",
+    "answer": "In the past, I've used Backbone for my models which encourages a more OOP approach, creating Backbone models and attaching methods to them.\n\nThe module pattern is still great, but these days, I use React/Redux which utilize a single-directional data flow based on Flux architecture. I would represent my app's models using plain objects and write utility pure functions to manipulate these objects. State is manipulated using actions and reducers like in any other Redux application.\n\nI avoid using classical inheritance where possible. When and if I do, I stick to [these rules](https://medium.com/@dan_abramov/how-to-use-classes-and-sleep-at-night-9af8de78ccb4).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What's the difference between host objects and native objects?",
+    "answer": "Native objects are objects that are part of the JavaScript language defined by the ECMAScript specification, such as `String`, `Math`, `RegExp`, `Object`, `Function`, etc.\n\nHost objects are provided by the runtime environment (browser or Node), such as `window`, `XMLHTTPRequest`, etc.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Difference between: `function Person(){}`, `var person = Person()`, and `var person = new Person()`?",
+    "answer": "This question is pretty vague. My best guess at its intention is that it is asking about constructors in JavaScript. Technically speaking, `function Person(){}` is just a normal function declaration. The convention is to use PascalCase for functions that are intended to be used as constructors.\n\n`var person = Person()` invokes the `Person` as a function, and not as a constructor. Invoking as such is a common mistake if the function is intended to be used as a constructor. Typically, the constructor does not return anything, hence invoking the constructor like a normal function will return `undefined` and that gets assigned to the variable intended as the instance.\n\n`var person = new Person()` creates an instance of the `Person` object using the `new` operator, which inherits from `Person.prototype`. An alternative would be to use `Object.create`, such as: `Object.create(Person.prototype)`.\n\n```js\nfunction Person(name) {\n  this.name = name;\n}\n\nvar person = Person('John');\nconsole.log(person); // undefined\nconsole.log(person.name); // Uncaught TypeError: Cannot read property 'name' of undefined\n\nvar person = new Person('John');\nconsole.log(person); // Person { name: \"John\" }\nconsole.log(person.name); // \"john\"\n```\n",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What's the difference between `.call` and `.apply`?",
+    "answer": "Both `.call` and `.apply` are used to invoke functions and the first parameter will be used as the value of `this` within the function. However, `.call` takes in comma-separated arguments as the next arguments while `.apply` takes in an array of arguments as the next argument. An easy way to remember this is C for `call` and comma-separated and A for `apply` and an array of arguments.\n\n```js\nfunction add(a, b) {\n  return a + b;\n}\n\nconsole.log(add.call(null, 1, 2)); // 3\nconsole.log(add.apply(null, [1, 2])); // 3\n```",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain `Function.prototype.bind`.",
+    "answer": "Taken word-for-word from [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind):\n\n> The `bind()` method creates a new function that, when called, has its `this` keyword set to the provided value, with a given sequence of arguments preceding any provided when the new function is called.\n\nIn my experience, it is most useful for binding the value of `this` in methods of classes that you want to pass into other functions. This is frequently done in React components.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "When would you use `document.write()`?",
+    "answer": "`document.write()` writes a string of text to a document stream opened by `document.open()`. When `document.write()` is executed after the page has loaded, it will call `document.open` which clears the whole document (`<head>` and `<body>` removed!) and replaces the contents with the given parameter value. Hence it is usually considered dangerous and prone to misuse.\n\nThere are some answers online that explain `document.write()` is being used in analytics code or [when you want to include styles that should only work if JavaScript is enabled](https://www.quirksmode.org/blog/archives/2005/06/three_javascrip_1.html). It is even being used in HTML5 boilerplate to [load scripts in parallel and preserve execution order](https://github.com/paulirish/html5-boilerplate/wiki/Script-Loading-Techniques#documentwrite-script-tag)! However, I suspect those reasons might be outdated and in the modern day, they can be achieved without using `document.write()`. Please do correct me if I'm wrong about this.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What's the difference between feature detection, feature inference, and using the UA string?",
+    "answer": "**Feature Detection**\n\nFeature detection involves working out whether a browser supports a certain block of code, and running different code depending on whether it does (or doesn't), so that the browser can always provide a working experience rather crashing/erroring in some browsers. For example:\n\n```js\nif ('geolocation' in navigator) {\n  // Can use navigator.geolocation\n} else {\n  // Handle lack of feature\n}\n```\n\n[Modernizr](https://modernizr.com/) is a great library to handle feature detection.\n\n**Feature Inference**\n\nFeature inference checks for a feature just like feature detection, but uses another function because it assumes it will also exist, e.g.:\n\n```js\nif (document.getElementsByTagName) {\n  element = document.getElementById(id);\n}\n```\n\nThis is not really recommended. Feature detection is more foolproof.\n\n**UA String**\n\nThis is a browser-reported string that allows the network protocol peers to identify the application type, operating system, software vendor or software version of the requesting software user agent. It can be accessed via `navigator.userAgent`. However, the string is tricky to parse and can be spoofed. For example, Chrome reports both as Chrome and Safari. So to detect Safari you have to check for the Safari string and the absence of the Chrome string. Avoid this method.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain Ajax in as much detail as possible.",
+    "answer": "Ajax (asynchronous JavaScript and XML) is a set of web development techniques using many web technologies on the client side to create asynchronous web applications. With Ajax, web applications can send data to and retrieve from a server asynchronously (in the background) without interfering with the display and behavior of the existing page. By decoupling the data interchange layer from the presentation layer, Ajax allows for web pages, and by extension web applications, to change content dynamically without the need to reload the entire page. In practice, modern implementations commonly use JSON instead of XML, due to the advantages of JSON being native to JavaScript.\n\nThe `XMLHttpRequest` API is frequently used for the asynchronous communication or these days, the `fetch()` API.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What are the advantages and disadvantages of using Ajax?",
+    "answer": "**Advantages**\n\n- Better interactivity. New content from the server can be changed dynamically without the need to reload the entire page.\n- Reduce connections to the server since scripts and stylesheets only have to be requested once.\n- State can be maintained on a page. JavaScript variables and DOM state will persist because the main container page was not reloaded.\n- Basically most of the advantages of an SPA.\n\n**Disadvantages**\n\n- Dynamic webpages are harder to bookmark.\n- Does not work if JavaScript has been disabled in the browser.\n- Some webcrawlers do not execute JavaScript and would not see content that has been loaded by JavaScript.\n- Webpages using Ajax to fetch data will likely have to combine the fetched remote data with client-side templates to update the DOM. For this to happen, JavaScript will have to be parsed and executed on the browser, and low-end mobile devices might struggle with this.\n- Basically most of the disadvantages of an SPA.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain how JSONP works (and how it's not really Ajax).",
+    "answer": "JSONP (JSON with Padding) is a method commonly used to bypass the cross-domain policies in web browsers because Ajax requests from the current page to a cross-origin domain is not allowed.\n\nJSONP works by making a request to a cross-origin domain via a `<script>` tag and usually with a `callback` query parameter, for example: `https://example.com?callback=printData`. The server will then wrap the data within a function called `printData` and return it to the client.\n\n```html\n<!-- https://mydomain.com -->\n<script>\n  function printData(data) {\n    console.log(`My name is ${data.name}!`);\n  }\n</script>\n\n<script src=\"https://example.com?callback=printData\"></script>\n```\n\n```js\n// File loaded from https://example.com?callback=printData\nprintData({ name: 'Yang Shun' });\n```\n\nThe client has to have the `printData` function in its global scope and the function will be executed by the client when the response from the cross-origin domain is received.\n\nJSONP can be unsafe and has some security implications. As JSONP is really JavaScript, it can do everything else JavaScript can do, so you need to trust the provider of the JSONP data.\n\nThese days, [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) is the recommended approach and JSONP is seen as a hack.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Have you ever used JavaScript templating? If so, what libraries have you used?",
+    "answer": "Yes. Handlebars, Underscore, Lodash, AngularJS, and JSX. I disliked templating in AngularJS because it made heavy use of strings in the directives and typos would go uncaught. JSX is my new favorite as it is closer to JavaScript and there is barely any syntax to learn. Nowadays, you can even use ES2015 template string literals as a quick way for creating templates without relying on third-party code.\n\n```js\nconst template = `<div>My name is: ${name}</div>`;\n```\n\nHowever, do be aware of a potential XSS in the above approach as the contents are not escaped for you, unlike in templating libraries.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain \"hoisting\".",
+    "answer": "Hoisting is a term used to explain the behavior of variable declarations in your code. Variables declared or initialized with the `var` keyword will have their declaration \"moved\" up to the top of their module/function-level scope, which we refer to as hoisting. However, only the declaration is hoisted, the assignment (if there is one), will stay where it is.\n\nNote that the declaration is not actually moved - the JavaScript engine parses the declarations during compilation and becomes aware of declarations and their scopes. It is just easier to understand this behavior by visualizing the declarations as being hoisted to the top of their scope. Let's explain with a few examples.\n\n```js\nconsole.log(foo); // undefined\nvar foo = 1;\nconsole.log(foo); // 1\n```\n\nFunction declarations have the body hoisted while the function expressions (written in the form of variable declarations) only has the variable declaration hoisted.\n\n```js\n// Function Declaration\nconsole.log(foo); // [Function: foo]\nfoo(); // 'FOOOOO'\nfunction foo() {\n  console.log('FOOOOO');\n}\nconsole.log(foo); // [Function: foo]\n\n// Function Expression\nconsole.log(bar); // undefined\nbar(); // Uncaught TypeError: bar is not a function\nvar bar = function () {\n  console.log('BARRRR');\n};\nconsole.log(bar); // [Function: bar]\n```\n\nVariables declared via `let` and `const` are hoisted as well. However, unlike `var` and `function`, they are not initialized and accessing them before the declaration will result in a `ReferenceError` exception. The variable is in a \"temporal dead zone\" from the start of the block until the declaration is processed.\n\n```js\nx; // undefined\ny; // Reference error: y is not defined\n\nvar x = 'local';\nlet y = 'local';\n```\n",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Describe event bubbling.",
+    "answer": "When an event triggers on a DOM element, it will attempt to handle the event if there is a listener attached, then the event is bubbled up to its parent and the same thing happens. This bubbling occurs up the element's ancestors all the way to the `document`. Event bubbling is the mechanism behind event delegation.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What's the difference between an \"attribute\" and a \"property\"?",
+    "answer": "Attributes are defined on the HTML markup but properties are defined on the DOM. To illustrate the difference, imagine we have this text field in our HTML: `<input type=\"text\" value=\"Hello\">`.\n\n```js\nconst input = document.querySelector('input');\nconsole.log(input.getAttribute('value')); // Hello\nconsole.log(input.value); // Hello\n```\n\nBut after you change the value of the text field by adding \"World!\" to it, this becomes:\n\n```js\nconsole.log(input.getAttribute('value')); // Hello\nconsole.log(input.value); // Hello World!",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Why is extending built-in JavaScript objects not a good idea?",
+    "answer": "Extending a built-in/native JavaScript object means adding properties/functions to its `prototype`. While this may seem like a good idea at first, it is dangerous in practice. Imagine your code uses a few libraries that both extend the `Array.prototype` by adding the same `contains` method, the implementations will overwrite each other and your code will break if the behavior of these two methods is not the same.\n\nThe only time you may want to extend a native object is when you want to create a polyfill, essentially providing your own implementation for a method that is part of the JavaScript specification but might not exist in the user's browser due to it being an older browser.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Difference between document `load` event and document `DOMContentLoaded` event?",
+    "answer": "The `DOMContentLoaded` event is fired when the initial HTML document has been completely loaded and parsed, without waiting for stylesheets, images, and subframes to finish loading.\n\n`window`'s `load` event is only fired after the DOM and all dependent resources and assets have loaded.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What is the difference between `==` and `===`?",
+    "answer": "`==` is the abstract equality operator while `===` is the strict equality operator. The `==` operator will compare for equality after doing any necessary type conversions. The `===` operator will not do type conversion, so if two values are not the same type `===` will simply return `false`. When using `==`, funky things can happen, such as:\n\n```js\n1 == '1'; // true\n1 == [1]; // true\n1 == true; // true\n0 == ''; // true\n0 == '0'; // true\n0 == false; // true\n```\n\nMy advice is never to use the `==` operator, except for convenience when comparing against `null` or `undefined`, where `a == null` will return `true` if `a` is `null` or `undefined`.\n\n```js\nvar a = null;\nconsole.log(a == null); // true\nconsole.log(a == undefined); // true",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain the same-origin policy with regards to JavaScript.",
+    "answer": "The same-origin policy prevents JavaScript from making requests across domain boundaries. An origin is defined as a combination of URI scheme, hostname, and port number. This policy prevents a malicious script on one page from obtaining access to sensitive data on another web page through that page's Document Object Model.\n\n#### References\n\n- https://en.wikipedia.org/wiki/Same-origin_policy",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Make this work:",
+    "answer": "```js\nduplicate([1, 2, 3, 4, 5]); // [1,2,3,4,5,1,2,3,4,5]\n```\n\n```js\nfunction duplicate(arr) {\n  return arr.concat(arr);\n}\n\nduplicate([1, 2, 3, 4, 5]); // [1,2,3,4,5,1,2,3,4,5]\n```\n\nOr with ES6:\n\n```js\nconst duplicate = (arr) => [...arr, ...arr];\n\nduplicate([1, 2, 3, 4, 5]); // [1,2,3,4,5,1,2,3,4,5]\n```",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Why is it called a Ternary expression, what does the word \"Ternary\" indicate?",
+    "answer": "\"Ternary\" indicates three, and a ternary expression accepts three operands, the test condition, the \"then\" expression and the \"else\" expression. Ternary expressions are not specific to JavaScript and I'm not sure why it is even in this list.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What is `\"use strict\";`? What are the advantages and disadvantages to using it?",
+    "answer": "'use strict' is a statement used to enable strict mode to entire scripts or individual functions. Strict mode is a way to opt into a restricted variant of JavaScript.\n\nAdvantages:\n\n- Makes it impossible to accidentally create global variables.\n- Makes assignments which would otherwise silently fail to throw an exception.\n- Makes attempts to delete undeletable properties throw an exception (where before the attempt would simply have no effect).\n- Requires that function parameter names be unique.\n- `this` is undefined in the global context.\n- It catches some common coding bloopers, throwing exceptions.\n- It disables features that are confusing or poorly thought out.\n\nDisadvantages:\n\n- Many missing features that some developers might be used to.\n- No more access to `function.caller` and `function.arguments`.\n- Concatenation of scripts written in different strict modes might cause issues.\n\nOverall, I think the benefits outweigh the disadvantages, and I never had to rely on the features that strict mode blocks. I would recommend using strict mode.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Create a for loop that iterates up to `100` while outputting **\"fizz\"** at multiples of `3`, **\"buzz\"** at multiples of `5` and **\"fizzbuzz\"** at multiples of `3` and `5`.",
+    "answer": "Check out this version of FizzBuzz by [Paul Irish](https://gist.github.com/jaysonrowe/1592432#gistcomment-790724).\n\n```js\nfor (let i = 1; i <= 100; i++) {\n  let f = i % 3 == 0,\n    b = i % 5 == 0;\n  console.log(f ? (b ? 'FizzBuzz' : 'Fizz') : b ? 'Buzz' : i);\n}\n```\n\nI would not advise you to write the above during interviews though. Just stick with the long but clear approach. For more wacky versions of FizzBuzz, check out the reference link below.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Why is it, in general, a good idea to leave the global scope of a website as-is and never touch it?",
+    "answer": "Every script has access to the global scope, and if everyone uses the global namespace to define their variables, collisions will likely occur. Use the module pattern (IIFEs) to encapsulate your variables within a local namespace.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Why would you use something like the `load` event? Does this event have disadvantages? Do you know any alternatives, and why would you use those?",
+    "answer": "The `load` event fires at the end of the document loading process. At this point, all of the objects in the document are in the DOM, and all the images, scripts, links and sub-frames have finished loading.\n\nThe DOM event `DOMContentLoaded` will fire after the DOM for the page has been constructed, but do not wait for other resources to finish loading. This is preferred in certain cases when you do not need the full page to be loaded before initializing.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain what a single page app is and how to make one SEO-friendly.",
+    "answer": "The below is taken from the awesome [Grab Front End Guide](https://github.com/grab/front-end-guide), which coincidentally, is written by me!\n\nWeb developers these days refer to the products they build as web apps, rather than websites. While there is no strict difference between the two terms, web apps tend to be highly interactive and dynamic, allowing the user to perform actions and receive a response to their action. Traditionally, the browser receives HTML from the server and renders it. When the user navigates to another URL, a full-page refresh is required and the server sends fresh new HTML to the new page. This is called server-side rendering.\n\nHowever, in modern SPAs, client-side rendering is used instead. The browser loads the initial page from the server, along with the scripts (frameworks, libraries, app code) and stylesheets required for the whole app. When the user navigates to other pages, a page refresh is not triggered. The URL of the page is updated via the [HTML5 History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API). New data required for the new page, usually in JSON format, is retrieved by the browser via [AJAX](https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting/Network_requests) requests to the server. The SPA then dynamically updates the page with the data via JavaScript, which it has already downloaded in the initial page load. This model is similar to how native mobile apps work.\n\nThe benefits:\n\n- The app feels more responsive and users do not see the flash between page navigations due to full-page refreshes.\n- Fewer HTTP requests are made to the server, as the same assets do not have to be downloaded again for each page load.\n- Clear separation of the concerns between the client and the server; you can easily build new clients for different platforms (e.g. mobile, chatbots, smart watches) without having to modify the server code. You can also modify the technology stack on the client and server independently, as long as the API contract is not broken.\n\nThe downsides:\n\n- Heavier initial page load due to the loading of framework, app code, and assets required for multiple pages.\n- There's an additional step to be done on your server which is to configure it to route all requests to a single entry point and allow client-side routing to take over from there.\n- SPAs are reliant on JavaScript to render content, but not all search engines execute JavaScript during crawling, and they may see empty content on your page. This inadvertently hurts the Search Engine Optimization (SEO) of your app. However, most of the time, when you are building apps, SEO is not the most important factor, as not all the content needs to be indexable by search engines. To overcome this, you can either server-side render your app or use services such as [Prerender](https://prerender.io/) to \"render your javascript in a browser, save the static HTML, and return that to the crawlers\".",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What is the extent of your experience with Promises and/or their polyfills?",
+    "answer": "Possess working knowledge of it. A promise is an object that may produce a single value sometime in the future: either a resolved value or a reason that it's not resolved (e.g., a network error occurred). A promise may be in one of 3 possible states: fulfilled, rejected, or pending. Promise users can attach callbacks to handle the fulfilled value or the reason for rejection.\n\nSome common polyfills are `$.deferred`, Q and Bluebird but not all of them comply with the specification. ES2015 supports Promises out of the box and polyfills are typically not needed these days.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What are the pros and cons of using Promises instead of callbacks?",
+    "answer": "**Pros**\n\n- Avoid callback hell which can be unreadable.\n- Makes it easy to write sequential asynchronous code that is readable with `.then()`.\n- Makes it easy to write parallel asynchronous code with `Promise.all()`.\n- With promises, these scenarios which are present in callbacks-only coding, will not happen:\n  - Call the callback too early\n  - Call the callback too late (or never)\n  - Call the callback too few or too many times\n  - Fail to pass along any necessary environment/parameters\n  - Swallow any errors/exceptions that may happen\n\n**Cons**\n\n- Slightly more complex code (debatable).\n- In older browsers where ES2015 is not supported, you need to load a polyfill in order to use it.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What are some of the advantages/disadvantages of writing JavaScript code in a language that compiles to JavaScript?",
+    "answer": "Some examples of languages that compile to JavaScript include CoffeeScript, Elm, ClojureScript, PureScript, and TypeScript.\n\nAdvantages:\n\n- Fixes some of the longstanding problems in JavaScript and discourages JavaScript anti-patterns.\n- Enables you to write shorter code, by providing some syntactic sugar on top of JavaScript, which I think ES5 lacks, but ES2015 is awesome.\n- Static types are awesome (in the case of TypeScript) for large projects that need to be maintained over time.\n\nDisadvantages:\n\n- Require a build/compile process as browsers only run JavaScript and your code will need to be compiled into JavaScript before being served to browsers.\n- Debugging can be a pain if your source maps do not map nicely to your pre-compiled source.\n- Most developers are not familiar with these languages and will need to learn it. There's a ramp up cost involved for your team if you use it for your projects.\n- Smaller community (depends on the language), which means resources, tutorials, libraries, and tooling would be harder to find.\n- IDE/editor support might be lacking.\n- These languages will always be behind the latest JavaScript standard.\n- Developers should be cognizant of what their code is being compiled to — because that is what would actually be running, and that is what matters in the end.\n\nPractically, ES2015 has vastly improved JavaScript and made it much nicer to write. I don't really see the need for CoffeeScript these days.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What tools and techniques do you use for debugging JavaScript code?",
+    "answer": "- React and Redux\n  - [React Devtools](https://github.com/facebook/react-devtools)\n  - [Redux Devtools](https://github.com/reduxjs/redux-devtools)\n- Vue\n  - [Vue Devtools](https://github.com/vuejs/devtools-v6)\n- JavaScript\n  - Chrome Devtools\n  - `debugger` statement\n  - Good old `console.log` debugging",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What language constructions do you use for iterating over object properties and array items?",
+    "answer": "For objects:\n\n- `for-in` loops - `for (var property in obj) { console.log(property); }`. However, this will also iterate through its inherited properties, and you will add an `obj.hasOwnProperty(property)` check before using it.\n- `Object.keys()` - `Object.keys(obj).forEach(function (property) { ... })`. `Object.keys()` is a static method that will lists all enumerable properties of the object that you pass it.\n- `Object.getOwnPropertyNames()` - `Object.getOwnPropertyNames(obj).forEach(function (property) { ... })`. `Object.getOwnPropertyNames()` is a static method that will lists all enumerable and non-enumerable properties of the object that you pass it.\n\nFor arrays:\n\n- `for` loops - `for (var i = 0; i < arr.length; i++)`. The common pitfall here is that `var` is in the function scope and not the block scope and most of the time you would want block scoped iterator variable. ES2015 introduces `let` which has block scope and it is recommended to use that instead. So this becomes: `for (let i = 0; i < arr.length; i++)`.\n- `forEach` - `arr.forEach(function (el, index) { ... })`. This construct can be more convenient at times because you do not have to use the `index` if all you need is the array elements. There are also the `every` and `some` methods which will allow you to terminate the iteration early.\n- `for-of` loops - `for (let elem of arr) { ... }`. ES6 introduces a new loop, the `for-of` loop, that allows you to loop over objects that conform to the [iterable protocol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#The_iterable_protocol) such as `String`, `Array`, `Map`, `Set`, etc. It combines the advantages of the `for` loop and the `forEach()` method. The advantage of the `for` loop is that you can break from it, and the advantage of `forEach()` is that it is more concise than the `for` loop because you don't need a counter variable. With the `for-of` loop, you get both the ability to break from a loop and a more concise syntax.\n\nMost of the time, I would prefer the `.forEach` method, but it really depends on what you are trying to do. Before ES6, we used `for` loops when we needed to prematurely terminate the loop using `break`. But now with ES6, we can do that with `for-of` loops. I would use `for` loops when I need even more flexibility, such as incrementing the iterator more than once per loop.\n\nAlso, when using the `for-of` loop, if you need to access both the index and value of each array element, you can do so with the ES6 Array `entries()` method and destructuring:\n\n```js\nconst arr = ['a', 'b', 'c'];\n\nfor (let [index, elem] of arr.entries()) {\n  console.log(index, ': ', elem);\n}",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain the difference between mutable and immutable objects.",
+    "answer": "Immutability is a core principle in functional programming, and has lots to offer to object-oriented programs as well. A mutable object is an object whose state can be modified after it is created. An immutable object is an object whose state cannot be modified after it is created.\n\n#### What is an example of an immutable object in JavaScript?\n\nIn JavaScript, some built-in types (numbers, strings) are immutable, but custom objects are generally mutable.\n\nSome built-in immutable JavaScript objects are `Math`, `Date`.\n\nHere are a few ways to add/simulate immutability on plain JavaScript objects.\n\n**Object Constant Properties**\n\nBy combining `writable: false` and `configurable: false`, you can essentially create a constant (cannot be changed, redefined or deleted) as an object property, like:\n\n```js\nlet myObject = {};\nObject.defineProperty(myObject, 'number', {\n  value: 42,\n  writable: false,\n  configurable: false,\n});\nconsole.log(myObject.number); // 42\nmyObject.number = 43;\nconsole.log(myObject.number); // 42\n```\n\n**Prevent Extensions**\n\nIf you want to prevent an object from having new properties added to it, but otherwise leave the rest of the object's properties alone, call `Object.preventExtensions(...)`:\n\n```js\nvar myObject = {\n  a: 2,\n};\n\nObject.preventExtensions(myObject);\n\nmyObject.b = 3;\nmyObject.b; // undefined\n```\n\nIn non-strict mode, the creation of `b` fails silently. In strict mode, it throws a `TypeError`.\n\n**Seal**\n\n`Object.seal()` creates a \"sealed\" object, which means it takes an existing object and essentially calls `Object.preventExtensions()` on it, but also marks all its existing properties as `configurable: false`.\n\nSo, not only can you not add any more properties, but you also cannot reconfigure or delete any existing properties (though you can still modify their values).\n\n**Freeze**\n\n`Object.freeze()` creates a frozen object, which means it takes an existing object and essentially calls `Object.seal()` on it, but it also marks all \"data accessor\" properties as writable:false, so that their values cannot be changed.\n\nThis approach is the highest level of immutability that you can attain for an object itself, as it prevents any changes to the object or to any of its direct properties (though, as mentioned above, the contents of any referenced other objects are unaffected).\n\n```js\nvar immutable = Object.freeze({});\n```\n\nFreezing an object does not allow new properties to be added to an object and prevents from removing or altering the existing properties. `Object.freeze()` preserves the enumerability, configurability, writability and the prototype of the object. It returns the passed object and does not create a frozen copy.\n\n#### What are the pros and cons of immutability?\n\n**Pros**\n\n- Easier change detection - Object equality can be determined in a performant and easy manner through referential equality. This is useful for comparing object differences in React and Redux.\n- Programs with immutable objects are less complicated to think about, since you don't need to worry about how an object may evolve over time.\n- Defensive copies are no longer necessary when immutable objects are returning from or passed to functions, since there is no possibility an immutable object will be modified by it.\n- Easy sharing via references - One copy of an object is just as good as another, so you can cache objects or reuse the same object multiple times.\n- Thread-safe - Immutable objects can be safely used between threads in a multi-threaded environment since there is no risk of them being modified in other concurrently running threads.\n- Using libraries like ImmutableJS, objects are modified using structural sharing and less memory is needed for having multiple objects with similar structures.\n\n**Cons**\n\n- Naive implementations of immutable data structures and its operations can result in extremely poor performance because new objects are created each time. It is recommended to use libraries for efficient immutable data structures and operations that leverage on structural sharing.\n- Allocation (and deallocation) of many small objects rather than modifying existing ones can cause a performance impact. The complexity of either the allocator or the garbage collector usually depends on the number of objects on the heap.\n- Cyclic data structures such as graphs are difficult to build. If you have two objects which can't be modified after initialization, how can you get them to point to each other?",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain the difference between synchronous and asynchronous functions.",
+    "answer": "Synchronous functions are blocking while asynchronous functions are not. In synchronous functions, statements complete before the next statement is run. In this case, the program is evaluated exactly in order of the statements and execution of the program is paused if one of the statements take a very long time.\n\nAsynchronous functions usually accept a callback as a parameter and execution continue on the next line immediately after the asynchronous function is invoked. The callback is only invoked when the asynchronous operation is complete and the call stack is empty. Heavy duty operations such as loading data from a web server or querying a database should be done asynchronously so that the main thread can continue executing other operations instead of blocking until that long operation to complete (in the case of browsers, the UI will freeze).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What is event loop? What is the difference between call stack and task queue?",
+    "answer": "The event loop is a single-threaded loop that monitors the call stack and checks if there is any work to be done in the task queue. If the call stack is empty and there are callback functions in the task queue, a function is dequeued and pushed onto the call stack to be executed.\n\nIf you haven't already checked out Philip Robert's [talk on the Event Loop](https://2014.jsconf.eu/speakers/philip-roberts-what-the-heck-is-the-event-loop-anyway.html), you should. It is one of the most viewed videos on JavaScript.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Explain the differences on the usage of `foo` between `function foo() {}` and `var foo = function() {}`",
+    "answer": "The former is a function declaration while the latter is a function expression. The key difference is that function declarations have its body hoisted but the bodies of function expressions are not (they have the same hoisting behavior as variables). For more explanation on hoisting, refer to the question above [on hoisting](#explain-hoisting). If you try to invoke a function expression before it is defined, you will get an `Uncaught TypeError: XXX is not a function` error.\n\n**Function Declaration**\n\n```js\nfoo(); // 'FOOOOO'\nfunction foo() {\n  console.log('FOOOOO');\n}\n```\n\n**Function Expression**\n\n```js\nfoo(); // Uncaught TypeError: foo is not a function\nvar foo = function () {\n  console.log('FOOOOO');\n};",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What are the differences between variables created using `let`, `var` or `const`?",
+    "answer": "Variables declared using the `var` keyword are scoped to the function in which they are created, or if created outside of any function, to the global object. `let` and `const` are _block scoped_, meaning they are only accessible within the nearest set of curly braces (function, if-else block, or for-loop).\n\n```js\nfunction foo() {\n  // All variables are accessible within functions.\n  var bar = 'bar';\n  let baz = 'baz';\n  const qux = 'qux';\n\n  console.log(bar); // bar\n  console.log(baz); // baz\n  console.log(qux); // qux\n}\n\nconsole.log(bar); // ReferenceError: bar is not defined\nconsole.log(baz); // ReferenceError: baz is not defined\nconsole.log(qux); // ReferenceError: qux is not defined\n```\n\n```js\nif (true) {\n  var bar = 'bar';\n  let baz = 'baz';\n  const qux = 'qux';\n}\n\n// var declared variables are accessible anywhere in the function scope.\nconsole.log(bar); // bar\n// let and const defined variables are not accessible outside of the block they were defined in.\nconsole.log(baz); // ReferenceError: baz is not defined\nconsole.log(qux); // ReferenceError: qux is not defined\n```\n\n`var` allows variables to be hoisted, meaning they can be referenced in code before they are declared. `let` and `const` will not allow this, instead throwing an error.\n\n```js\nconsole.log(foo); // undefined\n\nvar foo = 'foo';\n\nconsole.log(baz); // ReferenceError: can't access lexical declaration 'baz' before initialization\n\nlet baz = 'baz';\n\nconsole.log(bar); // ReferenceError: can't access lexical declaration 'bar' before initialization\n\nconst bar = 'bar';\n```\n\nRedeclaring a variable with `var` will not throw an error, but `let` and `const` will.\n\n```js\nvar foo = 'foo';\nvar foo = 'bar';\nconsole.log(foo); // \"bar\"\n\nlet baz = 'baz';\nlet baz = 'qux'; // Uncaught SyntaxError: Identifier 'baz' has already been declared\n```\n\n`let` and `const` differ in that `let` allows reassigning the variable's value while `const` does not.\n\n```js\n// This is fine.\nlet foo = 'foo';\nfoo = 'bar';\n\n// This causes an exception.\nconst baz = 'baz';\nbaz = 'qux';",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What are the differences between ES6 class and ES5 function constructors?",
+    "answer": "Let's first look at example of each:\n\n```js\n// ES5 Function Constructor\nfunction Person(name) {\n  this.name = name;\n}\n\n// ES6 Class\nclass Person {\n  constructor(name) {\n    this.name = name;\n  }\n}\n```\n\nFor simple constructors, they look pretty similar.\n\nThe main difference in the constructor comes when using inheritance. If we want to create a `Student` class that subclasses `Person` and add a `studentId` field, this is what we have to do in addition to the above.\n\n```js\n// ES5 Function Constructor\nfunction Student(name, studentId) {\n  // Call constructor of superclass to initialize superclass-derived members.\n  Person.call(this, name);\n\n  // Initialize subclass's own members.\n  this.studentId = studentId;\n}\n\nStudent.prototype = Object.create(Person.prototype);\nStudent.prototype.constructor = Student;\n\n// ES6 Class\nclass Student extends Person {\n  constructor(name, studentId) {\n    super(name);\n    this.studentId = studentId;\n  }\n}\n```\n\nIt's much more verbose to use inheritance in ES5 and the ES6 version is easier to understand and remember.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Can you offer a use case for the new arrow => function syntax? How does this new syntax differ from other functions?",
+    "answer": "One obvious benefit of arrow functions is to simplify the syntax needed to create functions, without a need for the `function` keyword. The `this` within arrow functions is also bound to the enclosing scope which is different compared to regular functions where the `this` is determined by the object calling it. Lexically-scoped `this` is useful when invoking callbacks especially in React components.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What advantage is there for using the arrow syntax for a method in a constructor?",
+    "answer": "The main advantage of using an arrow function as a method inside a constructor is that the value of `this` gets set at the time of the function creation and can't change after that. So, when the constructor is used to create a new object, `this` will always refer to that object. For example, let's say we have a `Person` constructor that takes a first name as an argument has two methods to `console.log` that name, one as a regular function and one as an arrow function:\n\n```js\nconst Person = function (firstName) {\n  this.firstName = firstName;\n  this.sayName1 = function () {\n    console.log(this.firstName);\n  };\n  this.sayName2 = () => {\n    console.log(this.firstName);\n  };\n};\n\nconst john = new Person('John');\nconst dave = new Person('Dave');\n\njohn.sayName1(); // John\njohn.sayName2(); // John\n\n// The regular function can have its 'this' value changed, but the arrow function cannot\njohn.sayName1.call(dave); // Dave (because \"this\" is now the dave object)\njohn.sayName2.call(dave); // John\n\njohn.sayName1.apply(dave); // Dave (because 'this' is now the dave object)\njohn.sayName2.apply(dave); // John\n\njohn.sayName1.bind(dave)(); // Dave (because 'this' is now the dave object)\njohn.sayName2.bind(dave)(); // John\n\nvar sayNameFromWindow1 = john.sayName1;\nsayNameFromWindow1(); // undefined (because 'this' is now the window object)\n\nvar sayNameFromWindow2 = john.sayName2;\nsayNameFromWindow2(); // John\n```\n\nThe main takeaway here is that `this` can be changed for a normal function, but the context always stays the same for an arrow function. So even if you are passing around your arrow function to different parts of your application, you wouldn't have to worry about the context changing.\n\nThis can be particularly helpful in React class components. If you define a class method for something such as a click handler using a normal function, and then you pass that click handler down into a child component as a prop, you will need to also bind `this` in the constructor of the parent component. If you instead use an arrow function, there is no need to also bind \"this\", as the method will automatically get its \"this\" value from its enclosing lexical context. (See this article for an excellent demonstration and sample code: https://machnicki.medium.com/handle-events-in-react-with-arrow-functions-ede88184bbb).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What is the definition of a higher-order function?",
+    "answer": "A higher-order function is any function that takes one or more functions as arguments, which it uses to operate on some data, and/or returns a function as a result. Higher-order functions are meant to abstract some operation that is performed repeatedly. The classic example of this is `map`, which takes an array and a function as arguments. `map` then uses this function to transform each item in the array, returning a new array with the transformed data. Other popular examples in JavaScript are `forEach`, `filter`, and `reduce`. A higher-order function doesn't just need to be manipulating arrays as there are many use cases for returning a function from another function. `Function.prototype.bind` is one such example in JavaScript.\n\n**Map**\n\nLet say we have an array of names which we need to transform each string to uppercase.\n\n```js\nconst names = ['irish', 'daisy', 'anna'];\n```\n\nThe imperative way will be as such:\n\n```js\nconst transformNamesToUppercase = function (names) {\n  const results = [];\n  for (let i = 0; i < names.length; i++) {\n    results.push(names[i].toUpperCase());\n  }\n  return results;\n};\ntransformNamesToUppercase(names); // ['IRISH', 'DAISY', 'ANNA']\n```\n\nUse `.map(transformerFn)` makes the code shorter and more declarative.\n\n```js\nconst transformNamesToUppercase = function (names) {\n  return names.map((name) => name.toUpperCase());\n};\ntransformNamesToUppercase(names); // ['IRISH', 'DAISY', 'ANNA']",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Can you give an example for destructuring an object or an array?",
+    "answer": "Destructuring is an expression available in ES6 which enables a succinct and convenient way to extract values of Objects or Arrays and place them into distinct variables.\n\n**Array destructuring**\n\n```js\n// Variable assignment.\nconst foo = ['one', 'two', 'three'];\n\nconst [one, two, three] = foo;\nconsole.log(one); // \"one\"\nconsole.log(two); // \"two\"\nconsole.log(three); // \"three\"\n```\n\n```js\n// Swapping variables\nlet a = 1;\nlet b = 3;\n\n[a, b] = [b, a];\nconsole.log(a); // 3\nconsole.log(b); // 1\n```\n\n**Object destructuring**\n\n```js\n// Variable assignment.\nconst o = { p: 42, q: true };\nconst { p, q } = o;\n\nconsole.log(p); // 42\nconsole.log(q); // true",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "ES6 Template Literals offer a lot of flexibility in generating strings, can you give an example?",
+    "answer": "Template literals help make it simple to do string interpolation, or to include variables in a string. Before ES2015, it was common to do something like this:\n\n```js\nvar person = { name: 'Tyler', age: 28 };\nconsole.log(\n  'Hi, my name is ' + person.name + ' and I am ' + person.age + ' years old!',\n);\n// 'Hi, my name is Tyler and I am 28 years old!'\n```\n\nWith template literals, you can now create that same output like this instead:\n\n```js\nconst person = { name: 'Tyler', age: 28 };\nconsole.log(`Hi, my name is ${person.name} and I am ${person.age} years old!`);\n// 'Hi, my name is Tyler and I am 28 years old!'\n```\n\nNote that you use backticks, not quotes, to indicate that you are using a template literal and that you can insert expressions inside the `${}` placeholders.\n\nA second helpful use case is in creating multi-line strings. Before ES2015, you could create a multi-line string like this:\n\n```js\nconsole.log('This is line one.\\nThis is line two.');\n// This is line one.\n// This is line two.\n```\n\nOr if you wanted to break it up into multiple lines in your code so you didn't have to scroll to the right in your text editor to read a long string, you could also write it like this:\n\n```js\nconsole.log('This is line one.\\n' + 'This is line two.');\n// This is line one.\n// This is line two.\n```\n\nTemplate literals, however, preserve whatever spacing you add to them. For example, to create that same multi-line output that we created above, you can simply do:\n\n```js\nconsole.log(`This is line one.\nThis is line two.`);\n// This is line one.\n// This is line two.\n```\n\nAnother use case of template literals would be to use as a substitute for templating libraries for simple variable interpolations:\n\n```js\nconst person = { name: 'Tyler', age: 28 };\ndocument.body.innerHTML = `\n  <div>\n    <p>Name: ${person.name}</p>\n    <p>Age: ${person.age}</p>\n  </div>\n`;\n```\n\n**Note that your code may be susceptible to XSS by using `.innerHTML`. Sanitize your data before displaying it if it came from a user!**",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Can you give an example of a curry function and why this syntax offers an advantage?",
+    "answer": "Currying is a pattern where a function with more than one parameter is broken into multiple functions that, when called in series, will accumulate all of the required parameters one at a time. This technique can be useful for making code written in a functional style easier to read and compose. It's important to note that for a function to be curried, it needs to start out as one function, then broken out into a sequence of functions that each accepts one parameter.\n\n```js\nfunction curry(fn) {\n  if (fn.length === 0) {\n    return fn;\n  }\n\n  function _curried(depth, args) {\n    return function (newArgument) {\n      if (depth - 1 === 0) {\n        return fn(...args, newArgument);\n      }\n      return _curried(depth - 1, [...args, newArgument]);\n    };\n  }\n\n  return _curried(fn.length, []);\n}\n\nfunction add(a, b) {\n  return a + b;\n}\n\nvar curriedAdd = curry(add);\nvar addFive = curriedAdd(5);\n\nvar result = [0, 1, 2, 3, 4, 5].map(addFive); // [5, 6, 7, 8, 9, 10]",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "What are the benefits of using spread syntax and how is it different from rest syntax?",
+    "answer": "ES6's spread syntax is very useful when coding in a functional paradigm as we can easily create copies of arrays or objects without resorting to `Object.create`, `slice`, or a library function. This language feature is used often in Redux and RxJS projects.\n\n```js\nfunction putDookieInAnyArray(arr) {\n  return [...arr, 'dookie'];\n}\n\nconst result = putDookieInAnyArray(['I', 'really', \"don't\", 'like']); // [\"I\", \"really\", \"don't\", \"like\", \"dookie\"]\n\nconst person = {\n  name: 'Todd',\n  age: 29,\n};\n\nconst copyOfTodd = { ...person };\n```\n\nES6's rest syntax offers a shorthand for including an arbitrary number of arguments to be passed to a function. It is like an inverse of the spread syntax, taking data and stuffing it into an array rather than unpacking an array of data, and it works in function arguments, as well as in array and object destructuring assignments.\n\n```js\nfunction addFiveToABunchOfNumbers(...numbers) {\n  return numbers.map((x) => x + 5);\n}\n\nconst result = addFiveToABunchOfNumbers(4, 5, 6, 7, 8, 9, 10); // [9, 10, 11, 12, 13, 14, 15]\n\nconst [a, b, ...rest] = [1, 2, 3, 4]; // a: 1, b: 2, rest: [3, 4]\n\nconst { e, f, ...others } = {\n  e: 1,\n  f: 2,\n  g: 3,\n  h: 4,\n}; // e: 1, f: 2, others: { g: 3, h: 4 }",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "How can you share code between files?",
+    "answer": "This depends on the JavaScript environment.\n\nOn the client (browser environment), as long as the variables/functions are declared in the global scope (`window`), all scripts can refer to them. Alternatively, adopt the Asynchronous Module Definition (AMD) via RequireJS for a more modular approach.\n\nOn the server (Node.js), the common way has been to use CommonJS. Each file is treated as a module and it can export variables and functions by attaching them to the `module.exports` object.\n\nES2015 defines a module syntax which aims to replace both AMD and CommonJS. This will eventually be supported in both browser and Node environments.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Why might you want to create static class members?",
+    "answer": "Static class members (properties/methods) are not tied to a specific instance of a class and have the same value regardless of which instance is referring to it. Static properties are typically configuration variables and static methods are usually pure utility functions which do not depend on the state of the instance.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "javascript",
+    "topic": "general",
+    "question": "Other Answers",
+    "answer": "- https://github.com/sudheerj/javascript-interview-questions\n- http://flowerszhong.github.io/2013/11/20/javascript-questions.html",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "What does a DOCTYPE do?",
+    "answer": "**DOCTYPE** is an abbreviation for **Document Type**. A DOCTYPE is always associated to a **DTD** - for **Document Type Definition**.\n\nA DTD defines how documents of a certain type should be structured (i.e. a `button` can contain a `span` but not a `div`), whereas a DOCTYPE declares what DTD a document _supposedly_ respects (i.e. this document respects the HTML DTD).\n\nFor webpages, the DOCTYPE declaration is required. It is used to tell user agents what version of the HTML specifications your document respects. Once a user agent has recognized a correct DOCTYPE, it will trigger the **no-quirks mode** matching this DOCTYPE for reading the document. If a user agent doesn't recognize a correct DOCTYPE, it will trigger the **quirks mode**.\n\nThe DOCTYPE declaration for the HTML5 standards is `<!DOCTYPE html>`.\n\n#### References\n\n- https://html.spec.whatwg.org/multipage/syntax.html#the-doctype\n- https://html.spec.whatwg.org/multipage/xhtml.html\n- https://quirks.spec.whatwg.org/",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "How do you serve a page with content in multiple languages?",
+    "answer": "I will assume that it is asking about the most common case, which is how to serve a page with content available in multiple languages, but the content within the page should be displayed only in one consistent language.\n\nWhen an HTTP request is made to a server, the requesting user agent usually sends information about language preferences, such as in the `Accept-Language` header. The server can then use this information to return a version of the document in the appropriate language if such an alternative is available. The returned HTML document should also declare the `lang` attribute in the `<html>` tag, such as `<html lang=\"en\">...</html>`.\n\nOf course this is useless for letting a search engine know that the same content is available in different languages, and so you must also make use of the `hreflang` attribute in the `<head>`. Eg. `<link rel=\"alternate\" hreflang=\"de\" href=\"http://de.example.com/page.html\" />`\n\nIn the back end, the HTML markup will contain `i18n` placeholders and content for the specific language stored in YML or JSON formats. The server then dynamically generates the HTML page with content in that particular language, usually with the help of a back end framework.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "What kind of things must you be wary of when designing or developing for multilingual sites?",
+    "answer": "- Use `lang` attribute in your HTML.\n- Directing users to their native language - Allow a user to change his country/language easily without hassle.\n- Text in raster-based images (e.g. png, gif, jpg, etc.), is not a scalable approach - Placing text in an image is still a popular way to get good-looking, non-system fonts to display on any computer. However, to translate image text, each string of text will need to have a separate image created for each language. Anything more than a handful of replacements like this can quickly get out of control.\n- Restrictive words/sentence length - Some content can be longer when written in another language. Be wary of layout or overflow issues in the design. It's best to avoid designing where the amount of text would make or break a design. Character counts come into play with things like headlines, labels, and buttons. They are less of an issue with free-flowing text such as body text or comments.\n- Be mindful of how colors are perceived - Colors are perceived differently across languages and cultures. The design should use color appropriately.\n- Formatting dates and currencies - Calendar dates are sometimes presented in different ways. Eg. \"May 31, 2012\" in the U.S. vs. \"31 May 2012\" in parts of Europe.\n- Do not concatenate translated strings - Do not do anything like `\"The date today is \" + date`. It will break in languages with different word order. Use a template string with parameters substitution for each language instead. For example, look at the following two sentences in English and Chinese respectively: `I will travel on {% date %}` and `{% date %} 我会出发`. Note that the position of the variable is different due to grammar rules of the language.\n- Language reading direction - In English, we read from left-to-right, top-to-bottom, in traditional Japanese, text is read up-to-down, right-to-left.\n- Useful-to-have - include the locale in the path (e.g en_US, zh_CN, etc).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "What are `data-` attributes good for?",
+    "answer": "Before JavaScript frameworks became popular, front end developers used `data-` attributes to store extra data within the DOM itself, without other hacks such as non-standard attributes, extra properties on the DOM. It is intended to store custom data private to the page or application, for which there are no more appropriate attributes or elements.\n\nThese days, using `data-` attributes is generally not encouraged. One reason is that users can modify the data attribute easily by using inspect element in the browser. The data model is better stored within JavaScript itself and stay updated with the DOM via data binding possibly through a library or a framework.\n\nHowever, one perfectly valid use of data attributes, is to add a hook for _end to end_ testing frameworks such as Selenium and Capybara without having to create a meaningless classes or ID attributes. The element needs a way to be found by a particular Selenium spec and something like `data-selector='the-thing'` is a valid way to do so without convoluting the semantic markup otherwise.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "Consider HTML5 as an open web platform. What are the building blocks of HTML5?",
+    "answer": "- Semantics - Allowing you to describe more precisely what your content is.\n- Connectivity - Allowing you to communicate with the server in new and innovative ways.\n- Offline and storage - Allowing webpages to store data on the client-side locally and operate offline more efficiently.\n- Multimedia - Making video and audio first-class citizens in the Open Web.\n- 2D/3D graphics and effects - Allowing a much more diverse range of presentation options.\n- Performance and integration - Providing greater speed optimization and better usage of computer hardware.\n- Device access - Allowing for the usage of various input and output devices.\n- Styling - Letting authors write more sophisticated themes.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "Describe the difference between a `cookie`, `sessionStorage` and `localStorage`.",
+    "answer": "All the above-mentioned technologies are key-value storage mechanisms on the client side. They are only able to store values as strings.\n\n|  | `cookie` | `localStorage` | `sessionStorage` |\n| --- | --- | --- | --- |\n| Initiator | Client or server. Server can use `Set-Cookie` header | Client | Client |\n| Expiry | Manually set | Forever | On tab close |\n| Persistent across browser sessions | Depends on whether expiration is set | Yes | No |\n| Sent to server with every HTTP request | Cookies are automatically being sent via `Cookie` header | No | No |\n| Capacity (per domain) | 4kb | 5MB | 5MB |\n| Accessibility | Any window | Any window | Same tab |\n\n_Note: If the user decides to clear browsing data via whatever mechanism provided by the browser, this will clear out any `cookie`, `localStorage`, or `sessionStorage` stored. It's important to keep this in mind when designing for local persistance, especially when comparing to alternatives such as server side storing in a database or similar (which of course will persist despite user actions).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "Describe the difference between `<script>`, `<script async>` and `<script defer>`.",
+    "answer": "- `<script>` - HTML parsing is blocked, the script is fetched and executed immediately, HTML parsing resumes after the script is executed.\n- `<script async>` - The script will be fetched in parallel to HTML parsing and executed as soon as it is available (potentially before HTML parsing completes). Use `async` when the script is independent of any other scripts on the page, for example, analytics.\n- `<script defer>` - The script will be fetched in parallel to HTML parsing and executed when the page has finished parsing. If there are multiple of them, each deferred script is executed in the order they were encountered in the document. If a script relies on a fully-parsed DOM, the `defer` attribute will be useful in ensuring that the HTML is fully parsed before executing. A deferred script must not contain `document.write`.\n\nNote: The `async` and `defer` attributes are ignored for scripts that have no `src` attribute.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "Why is it generally a good idea to position CSS `<link>`s between `<head></head>` and JS `<script>`s just before `</body>`? Do you know any exceptions?",
+    "answer": "**Placing `<link>`s in the `<head>`**\n\nPutting `<link>`s in the `<head>` is part of proper specification in building an optimized website. When a page first loads, HTML and CSS are being parsed simultaneously; HTML creates the DOM (Document Object Model) and CSS creates the CSSOM (CSS Object Model). Both are needed to create the visuals in a website, allowing for a quick \"first meaningful paint\" timing. This progressive rendering is a category optimization sites are measured in their performance scores. Putting stylesheets near the bottom of the document is what prohibits progressive rendering in many browsers. Some browsers block rendering to avoid having to repaint elements of the page if their styles change. The user is then stuck viewing a blank white page. Other times there can be flashes of unstyled content (FOUC), which show a webpage with no styling applied.\n\n**Placing `<script>`s just before `</body>`**\n\n`<script>` tags block HTML parsing while they are being downloaded and executed which can slow down your page. Placing the scripts at the bottom will allow the HTML to be parsed and displayed to the user first.\n\nAn exception for positioning of `<script>`s at the bottom is when your script contains `document.write()`, but these days it's not a good practice to use `document.write()`. Also, placing `<script>`s at the bottom means that the browser cannot start downloading the scripts until the entire document is parsed. This ensures your code that needs to manipulate DOM elements will not throw an error and halt the entire script. If you need to put `<script>`s in the `<head>`, use the `defer` attribute, which will achieve the same effect of running the script only after the HTML is parsed but the browser can download the script earlier.\n\nKeep in mind that putting scripts just before the closing `</body>` tag will create the illusion that the page loads faster on an empty cache (since the scripts won't block downloading the rest of the document). However, if you have some code you want to run during page load, it will only start executing after the entire page has loaded. If you put those scripts in the `<head>` tag, they would start executing before - so on a primed cache the page would actually appear to load faster.\n\n**`<head>` and `<body>` tags are now optional**\n\nAs per the HTML5 specification, certain HTML tags like `<head>` and `<body>` are optional. Google's style guide even recommends removing them to save bytes. However, this practice is still not widely adopted and the performance gain is likely to be minimal and for most sites it's not likely going to matter.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "What is progressive rendering?",
+    "answer": "Progressive rendering is the name given to techniques used to improve the performance of a webpage (in particular, improve perceived load time) to render content for display as quickly as possible.\n\nIt used to be much more prevalent in the days before broadband internet but it is still used in modern development as mobile data connections are becoming increasingly popular (and unreliable)!\n\nExamples of such techniques:\n\n- Lazy loading of images - Images on the page are not loaded all at once. JavaScript will be used to load an image when the user scrolls into the part of the page that displays the image.\n- Prioritizing visible content (or above-the-fold rendering) - Include only the minimum CSS/content/scripts necessary for the amount of page that would be rendered in the users browser first to display as quickly as possible, you can then use deferred scripts or listen for the `DOMContentLoaded`/`load` event to load in other resources and content.\n- Async HTML fragments - Flushing parts of the HTML to the browser as the page is constructed on the back end. More details on the technique can be found [here](https://innovation.ebayinc.com/stories/async-fragments-rediscovering-progressive-html-rendering-with-marko/).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "Why you would use a `srcset` attribute in an image tag? Explain the process the browser uses when evaluating the content of this attribute.",
+    "answer": "You would use the `srcset` attribute when you want to serve different images to users depending on their device display width - serve higher quality images to devices with retina display enhances the user experience while serving lower resolution images to low-end devices increase performance and decrease data wastage (because serving a larger image will not have any visible difference). For example: `<img srcset=\"small.jpg 500w, medium.jpg 1000w, large.jpg 2000w\" src=\"...\" alt=\"\">` tells the browser to display the small, medium or large `.jpg` graphic depending on the client's resolution. The first value is the image name and the second is the width of the image in pixels. For a device width of 320px, the following calculations are made:\n\n- 500 / 320 = 1.5625\n- 1000 / 320 = 3.125\n- 2000 / 320 = 6.25\n\nIf the client's resolution is 1x, 1.5625 is the closest, and `500w` corresponding to `small.jpg` will be selected by the browser.\n\nIf the resolution is retina (2x), the browser will use the closest resolution above the minimum. Meaning it will not choose the 500w (1.5625) because it is greater than 1 and the image might look bad. The browser would then choose the image with a resulting ratio closer to 2 which is 1000w (3.125).\n\n`srcset`s solve the problem whereby you want to serve smaller image files to narrow screen devices, as they don't need huge images like desktop displays do — and also optionally that you want to serve different resolution images to high density/low-density screens.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "Have you used different HTML templating languages before?",
+    "answer": "Yes, Pug (formerly Jade), ERB, Slim, Handlebars, Jinja, Liquid, and EJS just to name a few. In my opinion, they are more or less the same and provide similar functionality of escaping content and helpful filters for manipulating the data to be displayed. Most templating engines will also allow you to inject your own filters in the event you need custom processing before display.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "Other Answers",
+    "answer": "- https://neal.codes/blog/front-end-interview-questions-html/\n- http://peterdoes.it/2015/12/03/a-personal-exercise-front-end-job-interview-questions-and-my-answers-all/",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "What is the difference between canvas and SVG?",
+    "answer": "Canvas is raster-based, working with pixels, while SVG is vector-based, employing mathematical descriptions of shapes. Canvas employs imperative drawing, where each step is specified with JavaScript, ideal for dynamic and interactive graphics like animations and games.\n\nConversely, SVG uses declarative drawing, with shapes and paths defined directly in HTML, making it more accessible and SEO-friendly. Canvas is optimal for complex scenes due to its lower overhead, but scaling may lead to image quality loss. SVG, being resolution-independent, adapts to various screen sizes without sacrificing quality.\n\nUltimately, canvas suits dynamic, performance-intensive graphics, while SVG excels in scalable, resolution-independent graphics, with inherent accessibility and SEO advantages.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "html",
+    "topic": "general",
+    "question": "What are empty elements in HTML?",
+    "answer": "Empty elements in HTML are elements that do not contain any content between their opening and closing tags. Instead, they are self-closing tags, meaning they have a forward slash (`/`) before the closing angle bracket (`>`). Some common examples of empty elements include:\n\n- `<img>`: Used to embed images into the document.\n- `<input>`: Used to accept user input.\n- `<br>`: Used to insert line breaks or forced line breaks.\n- `<hr>`: Used to create horizontal rules or separators.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What is CSS selector specificity and how does it work?",
+    "answer": "The browser determines what styles to show on an element depending on the specificity of CSS rules. We assume that the browser has already determined the rules that match a particular element. Among the matching rules, the specificity, four comma-separate values, `a, b, c, d` are calculated for each rule based on the following:\n\n1. `a` is whether inline styles are being used. If the property declaration is an inline style on the element, `a` is 1, else 0.\n2. `b` is the number of ID selectors.\n3. `c` is the number of classes, attributes and pseudo-classes selectors.\n4. `d` is the number of tags and pseudo-elements selectors.\n\nThe resulting specificity is not a score, but a matrix of values that can be compared column by column. When comparing selectors to determine which has the highest specificity, look from left to right, and compare the highest value in each column. So a value in column `b` will override values in columns `c` and `d`, no matter what they might be. As such, specificity of `0,1,0,0` would be greater than one of `0,0,10,10`.\n\nIn the cases of equal specificity: the latest rule is the one that counts. If you have written the same rule into your stylesheet (regardless of internal or external) twice, then the lower rule in your style sheet is closer to the element to be styled, it is deemed to be more specific and therefore will be applied.\n\nI would write CSS rules with low specificity so that they can be easily overridden if necessary. When writing CSS UI component library code, it is important that they have low specificities so that users of the library can override them without using too complicated CSS rules just for the sake of increasing specificity or resorting to `!important`.\n\n#### References\n\n- https://www.smashingmagazine.com/2007/07/css-specificity-things-you-should-know/\n- https://www.sitepoint.com/css-selectors-specificity/",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What's the difference between \"resetting\" and \"normalizing\" CSS? Which would you choose, and why?",
+    "answer": "- **Resetting** - Resetting is meant to strip all default browser styling on elements. For e.g. `margin`s, `padding`s, `font-size`s of all elements are reset to be the same. You will have to redeclare styling for common typographic elements.\n- **Normalizing** - Normalizing preserves useful default styles rather than \"unstyling\" everything. It also corrects bugs for common browser dependencies.\n\nI would choose resetting when I have a very customized or unconventional site design such that I need to do a lot of my own styling and do not need any default styling to be preserved.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Describe `float`s and how they work.",
+    "answer": "Float is a CSS positioning property. Floated elements remain a part of the flow of the page, and will affect the positioning of other elements (e.g. text will flow around floated elements), unlike `position: absolute` elements, which are removed from the flow of the page.\n\nThe CSS `clear` property can be used to be positioned below `left`/`right`/`both` floated elements.\n\nIf a parent element contains nothing but floated elements, its height will be collapsed to nothing. It can be fixed by clearing the float after the floated elements in the container but before the close of the container.\n\nThe `.clearfix` hack uses a clever CSS [pseudo selector](#describe-pseudo-elements-and-discuss-what-they-are-used-for) (`::after`) to clear floats. Rather than setting the overflow on the parent, you apply an additional class `clearfix` to it. Then apply this CSS:\n\n```css\n.clearfix::after {\n  content: ' ';\n  visibility: hidden;\n  display: block;\n  height: 0;\n  clear: both;\n}\n```\n\nAlternatively, give `overflow: auto` or `overflow: hidden` property to the parent element which will establish a new block formatting context inside the children and it will expand to contain its children.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Describe `z-index` and how stacking context is formed.",
+    "answer": "The `z-index` property in CSS controls the vertical stacking order of elements that overlap. `z-index` only affects elements that have a `position` value which is not `static`.\n\nWithout any `z-index` value, elements stack in the order that they appear in the DOM (the lowest one down at the same hierarchy level appears on top). Elements with non-static positioning (and their children) will always appear on top of elements with default static positioning, regardless of HTML hierarchy.\n\nA stacking context is an element that contains a set of layers. Within a local stacking context, the `z-index` values of its children are set relative to that element rather than to the document root. Layers outside of that context — i.e. sibling elements of a local stacking context — can't sit between layers within it. If an element B sits on top of element A, a child element of element A, element C, can never be higher than element B even if element C has a higher `z-index` than element B.\n\nEach stacking context is self-contained - after the element's contents are stacked, the whole element is considered in the stacking order of the parent stacking context. A handful of CSS properties trigger a new stacking context, such as `opacity` less than 1, `filter` that is not `none`, and `transform` that is not`none`.\n\n_Note: What exactly qualifies an element to create a stacking context is listed in this long set of [rules](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_positioned_layout/Stacking_context#The_stacking_context).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Describe Block Formatting Context (BFC) and how it works.",
+    "answer": "A Block Formatting Context (BFC) is part of the visual CSS rendering of a web page in which block boxes are laid out. Floats, absolutely positioned elements, `inline-blocks`, `table-cells`, `table-caption`s, and elements with `overflow` other than `visible` (except when that value has been propagated to the viewport) establish new block formatting contexts.\n\nKnowing how to establish a block formatting context is important, because without doing so, the containing box will not [contain floated children](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_display/Block_formatting_context#Make_float_content_and_alongside_content_the_same_height). This is similar to collapsing margins, but more insidious as you will find entire boxes collapsing in odd ways.\n\nA BFC is an HTML box that satisfies at least one of the following conditions:\n\n- The value of `float` is not `none`.\n- The value of `position` is neither `static` nor `relative`.\n- The value of `display` is `table-cell`, `table-caption`, `inline-block`, `flex`, or `inline-flex`, `grid`, or `inline-grid`.\n- The value of `overflow` is not `visible`.\n\nIn a BFC, each box's left outer edge touches the left edge of the containing block (for right-to-left formatting, right edges touch).\n\nVertical margins between adjacent block-level boxes in a BFC collapse. Read more on [collapsing margins](https://www.sitepoint.com/collapsing-margins/).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What are the various clearing techniques and which is appropriate for what context?",
+    "answer": "- Empty `div` method - `<div style=\"clear:both;\"></div>`.\n- Clearfix method - Refer to the `.clearfix` class above.\n- `overflow: auto` or `overflow: hidden` method - Parent will establish a new block formatting context and expand to contains its floated children.\n\nIn large projects, I would write a utility `.clearfix` class and use them in places where I need it. `overflow: hidden` might clip children if the children is taller than the parent and is not very ideal.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Explain CSS sprites, and how you would implement them on a page or site.",
+    "answer": "CSS sprites combine multiple images into one single larger image. It is a commonly-used technique for icons (Gmail uses it). How to implement it:\n\n1. Use a sprite generator that packs multiple images into one and generate the appropriate CSS for it.\n1. Each image would have a corresponding CSS class with `background-image`, `background-position` and `background-size` properties defined.\n1. To use that image, add the corresponding class to your element.\n\n**Advantages:**\n\n- Reduce the number of HTTP requests for multiple images (only one single request is required per spritesheet). But with HTTP2, loading multiple images is no longer much of an issue.\n- Advance downloading of assets that won't be downloaded until needed, such as images that only appear upon `:hover` pseudo-states. Blinking wouldn't be seen.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "How would you approach fixing browser-specific styling issues?",
+    "answer": "- After identifying the issue and the offending browser, use a separate style sheet that only loads when that specific browser is being used. This technique requires server-side rendering though.\n- Use libraries like Bootstrap that already handles these styling issues for you.\n- Use `autoprefixer` to automatically add vendor prefixes to your code.\n- Use Reset CSS or Normalize.css.\n- If you're using Postcss (or a similar transpiling library), there may be plugins which allow you to opt in for using modern CSS syntax (and even W3C proposals) that will transform those sections of your code into corresponding safe code that will work in the targets you've used.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "How do you serve your pages for feature-constrained browsers? What techniques/processes do you use?",
+    "answer": "- Graceful degradation - The practice of building an application for modern browsers while ensuring it remains functional in older browsers.\n- Progressive enhancement - The practice of building an application for a base level of user experience, but adding functional enhancements when a browser supports it.\n- Use [caniuse.com](https://caniuse.com/) to check for feature support.\n- Autoprefixer for automatic vendor prefix insertion.\n- Feature detection using [Modernizr](https://modernizr.com/).\n- Use CSS Feature queries [@support](https://developer.mozilla.org/en-US/docs/Web/CSS/@supports)",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What are the different ways to visually hide content (and make it available only for screen readers)?",
+    "answer": "These techniques are related to accessibility (a11y).\n\n- `width: 0; height: 0`. Make the element not take up any space on the screen at all, resulting in not showing it.\n- `position: absolute; left: -99999px`. Position it outside of the screen.\n- `text-indent: -9999px`. This only works on text within the `block` elements. This is a widely used and famous trick, but it comes with [some downsides](https://zeldman.com/2012/03/01/replacing-the-9999px-hack-new-image-replacement/) like causing performance issues, so you might want to consider using `text-indent: 100%` instead.\n- Meta tags. For example by using Schema.org, RDF, and JSON-LD.\n- WAI-ARIA. A W3C technical specification that specifies how to increase the accessibility of web pages.\n\nEven if WAI-ARIA is the ideal solution, I would go with the `absolute` positioning approach, as it has the least caveats, works for most elements and it's an easy technique.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Have you ever used a grid system, and if so, what do you prefer?",
+    "answer": "Before Flex became popular (around 2014), the `float`-based grid system was the most reliable because it still has the most browser support among the alternative existing systems (flex, grid). Bootstrap was using the `float` approach until Bootstrap 4 which switched to the `flex`-based approach. As of writing (2020), `flex` is the recommended approach for building grid systems and has [decent browser support](https://caniuse.com/#search=flex).\n\nFor the adventurous, they can look into [CSS Grid Layout](https://css-tricks.com/snippets/css/complete-guide-grid/), which uses the shiny new `grid` property; it is even better than `flex` for building grid layouts and will be the de facto way to do so in the future.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Have you used or implemented media queries or mobile-specific layouts/CSS?",
+    "answer": "Yes. An example would be transforming a stacked pill navigation into a fixed-bottom tab navigation beyond a certain breakpoint.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Are you familiar with styling SVG?",
+    "answer": "Yes, there are several ways to color shapes (including specifying attributes on the object) using inline CSS, an embedded CSS section, or an external CSS file. Most SVG you'll find around the web use inline CSS, but there are advantages and disadvantages associated with each type.\n\nBasic coloring can be done by setting two attributes on the node: `fill` and `stroke`. `fill` sets the color inside the object and `stroke` sets the color of the line drawn around the object. You can use the same CSS color naming schemes that you use in HTML, whether that's color names (that is `red`), RGB values (that is `rgb(255,0,0)`), Hex values, RGBA values, etc.\n\n```html\n<rect\n  x=\"10\"\n  y=\"10\"\n  width=\"100\"\n  height=\"100\"\n  stroke=\"blue\"\n  fill=\"purple\"\n  fill-opacity=\"0.5\"\n  stroke-opacity=\"0.8\" />\n```\n\nThe above `fill=\"purple\"` is an example of a _presentational attribute_. Interestingly, and unlike inline styles like `style=\"fill: purple\"` which also happens to be an attribute, presentational attributes can be [overriden by CSS](https://css-tricks.com/presentation-attributes-vs-inline-styles/) styles defined in a stylesheet. So, if you did something like `svg { fill: blue; }` it would override the purple fill we've defined.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Can you give an example of an @media property other than screen?",
+    "answer": "Yes, there are four types of @media properties (including _screen_):\n\n- `all` - for all media type devices\n- `print` - for printers\n- `speech` - for screenreaders that \"reads\" the page out loud\n- `screen` - for computer screens, tablets, smart-phones etc.\n\nHere is an example of `print` media type's usage:\n\n```css\n@media print {\n  body {\n    color: black;\n  }\n}\n```\n\n#### References\n\n- https://developer.mozilla.org/en-US/docs/Web/CSS/@media#Syntax",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What are some of the \"gotchas\" for writing efficient CSS?",
+    "answer": "Firstly, understand that browsers match selectors from rightmost (key selector) to left. Browsers filter out elements in the DOM according to the key selector and traverse up its parent elements to determine matches. The shorter the length of the selector chain, the faster the browser can determine if that element matches the selector. Hence avoid key selectors that are tag and universal selectors. They match a large number of elements and browsers will have to do more work in determining if the parents do match.\n\n[BEM (Block Element Modifier)](https://en.bem.info/) methodology recommends that everything has a single class, and, where you need hierarchy, that gets baked into the name of the class as well, this naturally makes the selector efficient and easy to override.\n\nBe aware of which CSS properties [trigger](https://csstriggers.com/) reflow, repaint, and compositing. Avoid writing styles that change the layout (trigger reflow) where possible.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What are the advantages/disadvantages of using CSS preprocessors?",
+    "answer": "**Advantages:**\n\n- CSS is made more maintainable.\n- Easy to write nested selectors.\n- Variables for consistent theming. Can share theme files across different projects.\n- Mixins to generate repeated CSS.\n- Sass features like loops, lists, and maps can make configuration easier and less verbose.\n- Splitting your code into multiple files. CSS files can be split up too but doing so will require an HTTP request to download each CSS file.\n\n**Disadvantages:**\n\n- Requires tools for preprocessing. Re-compilation time can be slow.\n- Not writing currently and potentially usable CSS. For example, by using something like [postcss-loader](https://github.com/webpack-contrib/postcss-loader) with [webpack](https://webpack.js.org/), you can write potentially future-compatible CSS, allowing you to use things like CSS variables instead of Sass variables. Thus, you're learning new skills that could pay off if/when they become standardized.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Describe what you like and dislike about the CSS preprocessors you have used.",
+    "answer": "**Likes:**\n\n- Mostly the advantages mentioned above.\n- Less is written in JavaScript, which plays well with Node.\n\n**Dislikes:**\n\n- I use Sass via `node-sass`, which is a binding for LibSass written in C++. I have to frequently recompile it when switching between node versions.\n- In Less, variable names are prefixed with `@`, which can be confused with native CSS keywords like `@media`, `@import` and `@font-face` rule.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "How would you implement a web design comp that uses non-standard fonts?",
+    "answer": "Use `@font-face` and define `font-family` for different `font-weight`s.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Explain how a browser determines what elements match a CSS selector.",
+    "answer": "This part is related to the above about [writing efficient CSS](#what-are-some-of-the-gotchas-for-writing-efficient-css). Browsers match selectors from rightmost (key selector) to left. Browsers filter out elements in the DOM according to the key selector and traverse up its parent elements to determine matches. The shorter the length of the selector chain, the faster the browser can determine if that element matches the selector.\n\nFor example with this selector `p span`, browsers firstly find all the `<span>` elements and traverse up its parent all the way up to the root to find the `<p>` element. For a particular `<span>`, as soon as it finds a `<p>`, it knows that the `<span>` matches and can stop its matching.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Describe pseudo-elements and discuss what they are used for.",
+    "answer": "A CSS pseudo-element is a keyword added to a selector that lets you style a specific part of the selected element(s). They can be used for decoration (`:first-line`, `:first-letter`) or adding elements to the markup (combined with `content: ...`) without having to modify the markup (`:before`, `:after`).\n\n- `:first-line` and `:first-letter` can be used to decorate text.\n- Used in the `.clearfix` hack as shown above to add a zero-space element with `clear: both`.\n- Triangular arrows in tooltips use `:before` and `:after`. Encourages separation of concerns because the triangle is considered part of styling and not really the DOM.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Explain your understanding of the box model and how you would tell the browser in CSS to render your layout in different box models.",
+    "answer": "The CSS box model describes the rectangular boxes that are generated for elements in the document tree and laid out according to the visual formatting model. Each box has a content area (e.g. text, an image, etc.) and optional surrounding `padding`, `border`, and `margin` areas.\n\nThe CSS box model is responsible for calculating:\n\n- How much space a block element takes up.\n- Whether or not borders and/or margins overlap, or collapse.\n- A box's dimensions.\n\nThe box model has the following rules:\n\n- The dimensions of a block element are calculated by `width`, `height`, `padding`, `border`s, and `margin`s.\n- If no `height` is specified, a block element will be as high as the content it contains, plus `padding` (unless there are floats, for which see below).\n- If no `width` is specified, a non-floated block element will expand to fit the width of its parent minus `padding`.\n- The `height` of an element is calculated by the content's `height`.\n- The `width` of an element is calculated by the content's `width`.\n- By default, `padding`s and `border`s are not part of the `width` and `height` of an element.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What does `* { box-sizing: border-box; }` do? What are its advantages?",
+    "answer": "- By default, elements have `box-sizing: content-box` applied, and only the content size is being accounted for.\n- `box-sizing: border-box` changes how the `width` and `height` of elements are being calculated, `border` and `padding` are also being included in the calculation.\n- The `height` of an element is now calculated by the content's `height` + vertical `padding` + vertical `border` width.\n- The `width` of an element is now calculated by the content's `width` + horizontal `padding` + horizontal `border` width.\n- Taking into account `padding`s and `border`s as part of our box model resonates better with how designers actually imagine content in grids.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What is the CSS `display` property and can you give a few examples of its use?",
+    "answer": "- `none`, `block`, `inline`, `inline-block`, `flex`, `grid`, `table`, `table-row`, `table-cell`, `list-item`.\n\n| `display` | Description |\n| :-- | :-- |\n| `none` | Does not display an element (the element no longer affects the layout of the document). All child element are also no longer displayed. The document is rendered as if the element did not exist in the document tree |\n| `block` | The element consumes the whole line in the block direction (which is usually horizontal) |\n| `inline` | Elements can be laid out beside each other |\n| `inline-block` | Similar to `inline`, but allows some `block` properties like setting `width` and `height` |\n| `table` | Behaves like the `<table>` element |\n| `table-row` | Behaves like the `<tr>` element |\n| `table-cell` | Behaves like the `<td>` element |\n| `list-item` | Behaves like a `<li>` element which allows it to define `list-style-type` and `list-style-position` |",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What's the difference between `inline` and `inline-block`?",
+    "answer": "I shall throw in a comparison with `block` for good measure.\n\n|  | `block` | `inline-block` | `inline` |\n| --- | --- | --- | --- |\n| Size | Fills up the width of its parent container. | Depends on content. | Depends on content. |\n| Positioning | Start on a new line and tolerates no HTML elements next to it (except when you add `float`) | Flows along with other content and allows other elements beside it. | Flows along with other content and allows other elements beside it. |\n| Can specify `width` and `height` | Yes | Yes | No. Will ignore if being set. |\n| Can be aligned with `vertical-align` | No | Yes | Yes |\n| Margins and paddings | All sides respected. | All sides respected. | Only horizontal sides respected. Vertical sides, if specified, do not affect layout. Vertical space it takes up depends on `line-height`, even though the `border` and `padding` appear visually around the content. |\n| Float | - | - | Becomes like a `block` element where you can set vertical margins and paddings. |",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What's the difference between a `relative`, `fixed`, `absolute` and `static`ally positioned element?",
+    "answer": "A positioned element is an element whose computed `position` property is either `relative`, `absolute`, `fixed` or `sticky`.\n\n- `static` - The default position; the element will flow into the page as it normally would. The `top`, `right`, `bottom`, `left` and `z-index` properties do not apply.\n- `relative` - The element's position is adjusted relative to itself, without changing layout (and thus leaving a gap for the element where it would have been had it not been positioned).\n- `absolute` - The element is removed from the flow of the page and positioned at a specified position relative to its closest positioned ancestor if any, or otherwise relative to the initial containing block. Absolutely positioned boxes can have margins, and they do not collapse with any other margins. These elements do not affect the position of other elements.\n- `fixed` - The element is removed from the flow of the page and positioned at a specified position relative to the viewport and doesn't move when scrolled.\n- `sticky` - Sticky positioning is a hybrid of relative and fixed positioning. The element is treated as `relative` positioned until it crosses a specified threshold, at which point it is treated as `fixed` positioned.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "What existing CSS frameworks have you used locally, or in production? How would you change/improve them?",
+    "answer": "- **Bootstrap** - Slow release cycle. Bootstrap 4 has been in alpha for almost 2 years. Add a spinner button component, as it is widely used.\n- **Semantic UI** - Source code structure makes theme customization extremely hard to understand. Its unconventional theming system is a pain to customize. Hardcoded config path within the vendor library. Not well-designed for overriding variables unlike in Bootstrap.\n- **Bulma** - A lot of non-semantic and superfluous classes and markup required. Not backward compatible. Upgrading versions breaks the app in subtle manners.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Have you played around with the new CSS Flexbox or Grid specs?",
+    "answer": "Yes. Flexbox is mainly meant for 1-dimensional layouts while Grid is meant for 2-dimensional layouts.\n\nFlexbox solves many common problems in CSS, such as vertical centering of elements within a container, sticky footer, etc. Bootstrap and Bulma are based on Flexbox, and it is probably the recommended way to create layouts these days. Have tried Flexbox before but ran into some browser incompatibility issues (Safari) in using `flex-grow`, and I had to rewrite my code using `inline-blocks` and math to calculate the widths in percentages, it wasn't a nice experience.\n\nGrid is by far the most intuitive approach for creating grid-based layouts (it better be!) but browser support is not wide at the moment.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Can you explain the difference between coding a website to be responsive versus using a mobile-first strategy?",
+    "answer": "Note that these two 2 approaches are not exclusive.\n\nMaking a website responsive means that some elements will respond by adapting its size or other functionality according to the device's screen size, typically the viewport width, through CSS media queries, for example, making the font size smaller on smaller devices.\n\n```css\n@media (min-width: 601px) {\n  .my-class {\n    font-size: 24px;\n  }\n}\n\n@media (max-width: 600px) {\n  .my-class {\n    font-size: 12px;\n  }\n}\n```\n\nA mobile-first strategy is also responsive, however it agrees we should default and define all the styles for mobile devices, and only add specific responsive rules to other devices later. Following the previous example:\n\n```css\n.my-class {\n  font-size: 12px;\n}\n\n@media (min-width: 600px) {\n  .my-class {\n    font-size: 24px;\n  }\n}\n```\n\nA mobile-first strategy has 2 main advantages:\n\n- It's more performant on mobile devices, since all the rules applied for them don't have to be validated against any media queries.\n- It forces to write cleaner code in respect to responsive CSS rules.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "How is responsive design different from adaptive design?",
+    "answer": "Both responsive and adaptive design attempt to optimize the user experience across different devices, adjusting for different viewport sizes, resolutions, usage contexts, control mechanisms, and so on.\n\nResponsive design works on the principle of flexibility - a single fluid website that can look good on any device. Responsive websites use media queries, flexible grids, and responsive images to create a user experience that flexes and changes based on a multitude of factors. Like a single ball growing or shrinking to fit through several different hoops.\n\nAdaptive design is more like the modern definition of progressive enhancement. Instead of one flexible design, adaptive design detects the device and other features and then provides the appropriate feature and layout based on a predefined set of viewport sizes and other characteristics. The site detects the type of device used and delivers the pre-set layout for that device. Instead of a single ball going through several different-sized hoops, you'd have several different balls to use depending on the hoop size.\n\nBoth have these methods have some issues that need to be weighed:\n\n- Responsive design can be quite challenging, as you're essentially using a single albeit responsive layout to fit all situations. How to set the media query breakpoints is one such challenge. Do you use standardized breakpoint values? Or, do you use breakpoints that make sense to your particular layout? What if that layout changes?\n- Adaptive design generally requires user agent sniffing, or DPI detection, etc., all of which can prove unreliable.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Have you ever worked with retina graphics? If so, when and what techniques did you use?",
+    "answer": "_Retina_ is just a marketing term to refer to high resolution screens with a pixel ratio bigger than 1. The key thing to know is that using a pixel ratio means these displays are emulating a lower resolution screen in order to show elements with the same size. Nowadays we consider all mobile devices _retina_ defacto displays.\n\nBrowsers by default render DOM elements according to the device resolution, except for images.\n\nIn order to have crisp, good-looking graphics that make the best of retina displays we need to use high resolution images whenever possible. However using always the highest resolution images will have an impact on performance as more bytes will need to be sent over the wire.\n\nTo overcome this problem, we can use responsive images, as specified in HTML5. It requires making available different resolution files of the same image to the browser and let it decide which image is best, using the html attribute `srcset` and optionally `sizes`, for instance:\n\n```html\n<div responsive-background-image>\n  <img\n    src=\"/images/test-1600.jpg\"\n    sizes=\"\n      (min-width: 768px) 50vw,\n      (min-width: 1024px) 66vw,\n      100vw\"\n    srcset=\"\n      /images/test-400.jpg   400w,\n      /images/test-800.jpg   800w,\n      /images/test-1200.jpg 1200w\n    \" />\n</div>\n```\n\nIt is important to note that browsers which don't support HTML5's `srcset` (i.e. IE11) will ignore it and use `src` instead. If we really need to support IE11 and we want to provide this feature for performance reasons, we can use a JavaScript polyfill, e.g. Picturefill (link in the references).\n\nFor icons, I would also opt to use SVGs and icon fonts where possible, as they render very crisply regardless of resolution.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Is there any reason you'd want to use `translate()` instead of `absolute` positioning, or vice-versa? And why?",
+    "answer": "`translate()` is a value of CSS `transform`. Changing `transform` or `opacity` does not trigger browser reflow or repaint but does trigger compositions; whereas changing the absolute positioning triggers `reflow`. `transform` causes the browser to create a GPU layer for the element but changing absolute positioning properties uses the CPU. Hence `translate()` is more efficient and will result in shorter paint times for smoother animations.\n\nWhen using `translate()`, the element still occupies its original space (sort of like `position: relative`), unlike in changing the absolute positioning.\n\n#### References\n\n- https://www.paulirish.com/2012/why-moving-elements-with-translate-is-better-than-posabs-topleft/",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "css",
+    "topic": "general",
+    "question": "Other Answers",
+    "answer": "- https://neal.codes/blog/front-end-interview-css-questions/\n- https://quizlet.com/28293152/front-end-interview-questions-css-flash-cards/\n- http://peterdoes.it/2015/12/03/a-personal-exercise-front-end-job-interview-questions-and-my-answers-all/",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Requirements exploration",
+    "answer": "Every system design interview (even for non-front end as well) should start with requirements gathering/clarifying requirements about the question, which is usually left underspecified on purpose. You are recommended to spend at least a few minutes clarifying the requirements. Do not start drawing the architecture before you are clear about the requirements!\n\nThankfully, components have well-defined scope and not try to do too many things. You likely have used such a component yourself and possibly know what you need from such a component.\n\nSome considerations:\n\n- What devices should the system support? Desktop web, mobile web, etc\n- What's the primary device that users will access the system on?\n- Which browsers should we support?\n- Do we need to support internationalization?\n- How much styling customization do we want to allow?",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Architecture / High-level design",
+    "answer": "Architecture for front end interviews are typically focused on the client-side architecture, and not on large scale distributed systems where databases, load balancers and servers are involved.\n\nFor components, list down the various subcomponents that will exist within it and what data is being passed among each component.\n\nLet's take an image carousel example. Subcomponents within an image carousel would be:\n\n- **Main image**: An image that displays the photo in focus\n- **Thumbnail**: Smaller images below the (Will there be thumbnails? You will only know if you clarified requirements earlier)\n- **Image store**: A client side cache of the list of photos to display\n\nIf you have a whiteboard/online drawing tool, it would also be helpful to draw diagrams to illustrate the entities and their relationships. Which subcomponent communicates with which when a user interaction occurs.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Data model",
+    "answer": "Data model for components will refer to the component state. The concept of state should be familiar to most front end developers who have used front end UI libraries/frameworks such as React, Angular, Vue, Svelte, etc. In every of these libraries/frameworks, state is a common concept.\n\nDeciding what data to put in state is essential to doing well for this portion. Few factors to consider when deciding what goes into component state:\n\n- State is allowed to change over time during the lifecycle of the component, typically as a result of user interactions.\n- Each component should maintain its own independent state which allows **multiple instances** of the component to coexist on a single page. The state of a component instance should not affect the state of another instance.\n- Components are easier to reason about (read/understand) the fewer the fields there are in the state. We should strive to reduce the amount of state needed. If a component uses a value which can be derived from another piece of state, then that value should most likely not be part of the state. For example if your component is rendering a list of items and you want to display a message when there are no items to render, there shouldn't be an additional `isEmpty` state because it can be derived from the length of the `items`.\n- If a component has multiple subcomponents, it'll be best if it's possible to consolidate the state within the top level and the rest of the components are pure and stateless.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Interface definition (API)",
+    "answer": "The key idea behind components is for them to be reused and abstract complexities. Good components are designed in a way that they can be reused in multiple scenarios, and users do not have to know how they work internally before using them. In the case of components, API refers to configuration options that the component developer would expose to other developers for specification.\n\n- What are the configuration options you would allow for the component? (`props` in React). What would be reasonable defaults?\n- Follow the [Open-closed principle](https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle) - the component should be open for extension but closed for modification.\n- If your component is meant to be part of a UI library that doesn't bother about the appearance and leaves the styling to the user, extra care has to go into the design of the props and to allow users to customize the look and feel of the components. There are a few ways to go about this in React:\n  - [Composition](https://tkdodo.eu/blog/component-composition-is-great-btw) - Props which accept React components which also promotes code reuse.\n  - [Render props](https://www.patterns.dev/react/render-props-pattern/) are function props that a component uses to know what to render. It also helps in reusing behavior without bothering about the appearance.\n  - `className` or `style` props - Allows users to inject class names and/or styling attributes to inner DOM elements. This could have negative consequences but is still a common way of allowing user to customize component appearance.\n- Possible configuration options:\n  - Lifecycle/event hooks - `onClick`, `onChange`, `onBlur`, `onFocus`, etc.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Optimization and deep dives",
+    "answer": "With the basics of the component covered, we can now delve into specific areas that may require special attention. It is important to note that due to time constraints, it may not be possible to cover every area, and not all areas may be highly relevant to the specific component at hand.\n\nShowing knowledge about these areas and being able to dive deep into them are traits of senior front end engineers.\n\n#### User experience (UX)\n\nUX might not fall squarely under engineering but good front end engineers have good understanding of UX and building UI with great UX. There are too many UX practices to be aware of, but the most common ones/low hanging fruits are:\n\n- Reflect state of the component to the user - If there's a pending background request, show a spinner. If there's an error, make sure to display it instead of silently failing.\n- Display an empty state if there are no items in a list, instead of not rendering anything.\n- Destructive actions should have a confirmation step, especially irreversible ones.\n- Disable interactive elements if they trigger an async request! Prevents double firing of events in the case of accidental double clicking (possible for people with motor disabilities).\n- If there are search inputs involved, each keystroke should not fire a network request.\n- Handle extreme cases\n  - Strings can be really long/short and your UI should not look weird in either case. For long strings, they can have their contents truncated and hidden behind a \"View more\" button.\n  - If there are many items to display within a component, they shouldn't all be displayed on the screen at once and making the page extremely long/wide. Paginate the items or contain them within a container with a maximum width/height.\n- Keyboard friendliness - This involves making sure the component is keyboard-friendly\n  - Add shortcuts to make the component more usable by keyboard-only users\n  - Ensure that elements can be focused and tab order within the component is correct\n- Accessibility is part of UX but will be covered in a later section\n\n#### Performance\n\nIn front end, performance typically refers to a few things - loading speed, how fast the UI responds to user interactions, memory space (heap) required by the component.\n\n- **Loading speed**: The less JavaScript the component contains, the less JavaScript the browser has to download to load the component and the lower the network request time. It's also important to modularize components and allow users to download only the necessary JavaScript modules needed for their use case.\n- **Responsiveness to user interactions**\n  - If a user interaction results in displaying of data that has to be loaded over the network, there will be a delay between the user interaction and updating of the UI. Minimizing that delay or removing it entirely is the key to improving responsiveness.\n  - JavaScript in a browser is single-threaded. The browser can only do execute one line of code at any one time. The less work (JavaScript executed, DOM updates) the component has to do when a user does something on the page, the faster the component can update the UI to respond to the changes.\n- **Memory space**: The more memory your component takes up on the page, the slower the browser performs and the experience will feel sluggish/janky. If your component has to render hundreds/thousands of items (e.g. number of images in a carousel, number of items in a selector), memory space might become significant.\n\n**Optimization tips**\n\n- **Render only what is displayed on the screen**: For example, in a selector, only a few items are displayed to the user even if the list can contain hundreds of elements. Rendering all of them into the browser would be a waste of processing power and memory space. We can leverage a technique called windowing/virtualization to emulate a list with many elements while only rendering a few as possible to make the final result look as if there was no optimization done (especially preserving scroll height). Read more about virtualization [here](https://web.dev/articles/virtualize-long-lists-react-window).\n- **Lazy loading/load only necessary data**: For example, in a photo gallery component, a user can have hundreds and thousands of photos, but it won't be feasible to load all of them eagerly. Most likely the user won't be browsing all of them in that session too. An optimization could be to load only the ones that the user is likely to view, or those that are within the viewport (which we call \"above the fold\"). The rest of the photos can be loaded on demand, which introduces responsiveness delay, but the next tip will help you to handle that.\n- **Preloading/prefetching data ahead of time**: For example, in an image carousel where there are too many images to load beforehand, an optimization could be to load the next image ahead of time while the user is still on the current image, such that when the user clicks the \"Next\" button, there's no network delay needed because the next image has already been loaded. This technique can also be modified to load the next N images to handle the case where users click \"Next\" in rapid succession.\n\n#### Accessibility (a11y)\n\nAccessibility (a11y) is the practice of making your websites usable by as many people as possible.\n\n- Color contrasts (e.g. color blindness)\n- Keyboard friendliness (e.g. people with limited fine motor control)\n- Visual Impairment (e.g. blind)\n- Transcripts for audio (e.g. deaf)\n\nNot everyone surfs the web the same way; some people use screenreaders and keyboards exclusively (no mouse)! Here are some basic tips for achieving a11y in UI components:\n\n- Foreground colors should have sufficient contrast from the background colors\n- Use the right HTML tags for semanticness, or the right `aria-role` attributes\n- Clickable items should have `tabindex` attribute (so that they are focusable) and also \"cursor: pointer\" styling to indicate that they can be clicked on\n- Images should have `alt` text, which will be read out by screen readers and act as a fallback description if the image fails to load\n- `aria-label`s help to provide context to elements which are non-obvious to non-visual users. E.g. an icon button without any text label within it should have an `aria-label` attribute so that the intention is clear for users who can't see the icon\n\na11y is one of the most commonly neglected areas as most of the time they're invisible to the developer. Showing knowledge of a11y and possessing the skills to create accessible components will definitely reflect well on you. More reading on [Web Accessibility](https://www.w3.org/WAI/fundamentals/accessibility-intro/).\n\n#### Internationalization (i18n)\n\nInternationalization (i18n) is the design and development of a product, application or document content that enables easy localization for target audiences that vary in culture, region, or language. Typically components shouldn't have to worry about i18n unless under few specific circumstances:\n\n- **Component uses strings**: Strings used in the component shouldn't be hardcoded to a specific language (e.g. \"Prev\"/\"Next\" in the controls of a photo gallery component). The strings can be specified as a prop with the English version as default\n- **Order of content matters**: Does your component support RTL (right to left) languages like Arabic and Hebrew?\n\n#### Multi-device support\n\nIs the component expected to be used on mobile web? Mobile devices have unique constraints - they have less powerful hardware and viewport size is smaller. Hence things could be done differently to allow the component to work better on mobile devices - making a conscious effort to:\n\n- Not use too much memory - using too much memory makes the device perform slower\n- Increasing the hit box of interactive elements - fingers have an easier time tapping on the right element\n\n#### Security\n\nMost of the time, components aren't exposed to security vulnerabilities, but it can still happen. Here are the more common security vulnerabilities you should be aware of:\n\n- XSS - Is your component vulnerable to cross-site scripting (XSS)? E.g. Do you render user input via `.innerHTML` or `dangerouslySetInnerHTML` (React-specific)?\n- CSRF (Cross-Site Request Forgery)\n- Clickjacking\n- [`rel=noopener`](https://mathiasbynens.github.io/rel-noopener/)",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Requirements exploration",
+    "answer": "Every system design interview should start with clarifying requirements about the question, which is usually left vague intentionally. Some considerations:\n\n- What devices should the system support? Desktop web, mobile web, etc\n- What's the primary device that users will access the system on?\n- Which browsers should we support?\n- Do we need to support internationalization?\n- Does the app need to work offline?",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Architecture / High-level design",
+    "answer": "Architecture for front end interviews are typically focused on the client-side architecture, and not on large scale distributed systems where databases, load balancers and servers are involved.\n\nFor applications, common architectures include Model-View-Controller, Model-View-ViewModel, Flux, N-tier (where data tier is on the client) etc.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Data model",
+    "answer": "Client app state, which is a combination of server state (database) and true client state (non-persisted to the server).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Interface definition (API)",
+    "answer": "API design for applications will refer to the HTTP/network API parameters and the shape of the responses.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Optimization and deep dives",
+    "answer": "With the architectural basics of the application covered, we can dive into specific areas which the application might need special attention to. Note that there almost definitely won't be enough time to cover every area, and not every area will be very relevant to the component at hand.\n\nShowing knowledge about these areas and being able to dive deep into them are traits of senior developers.\n\n- User experience (UX)\n- Performance\n- Accessibility (a11y)\n- Internationalization (i18n)\n- Multi-device support\n- Security\n\n## Helpful articles\n\nMany companies blog about their technical challenges in the front end domain and these are great content to learn more about designing front end systems.\n\n- [Building the Google Photos Web UI](https://medium.com/google-design/google-photos-45b714dfbed1)\n- [Twitter Lite and High Performance React Progressive Web Apps at Scale](https://medium.com/@paularmstrong/twitter-lite-and-high-performance-react-progressive-web-apps-at-scale-d28a00e780a3)\n- [A Netflix Web Performance Case Study](https://medium.com/dev-channel/a-netflix-web-performance-case-study-c0bcde26a9d9)\n- [A Tinder Progressive Web App Performance Case Study](https://medium.com/@addyosmani/a-tinder-progressive-web-app-performance-case-study-78919d98ece0)\n- [A Pinterest Progressive Web App Performance Case Study](https://medium.com/dev-channel/a-pinterest-progressive-web-app-performance-case-study-3bd6ed2e6154)\n- [A React And Preact Progressive Web App Performance Case Study: Treebo](https://medium.com/dev-channel/treebo-a-react-and-preact-progressive-web-app-performance-case-study-5e4f450d5299)\n- [Rebuilding our tech stack for the new Facebook.com](https://engineering.fb.com/2020/05/08/web/facebook-redesign/)\n\n[GreatFrontEnd](https://www.greatfrontend.com?utm_source=frontendinterviewhandbook&utm_medium=referral&gnrs=frontendinterviewhandbook) shows you how to approach front end system design interviews with their [Front End System Design Playbook](https://www.greatfrontend.com/front-end-system-design-playbook?utm_source=frontendinterviewhandbook&utm_medium=referral&gnrs=frontendinterviewhandbook) and case studies. You can also do hands-on practice through their [huge question bank of 500+ questions](https://www.greatfrontend.com/questions?utm_source=frontendinterviewhandbook&utm_medium=referral&gnrs=frontendinterviewhandbook), each with solutions written by ex-FAANG senior engineers to learn more about system design.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Front end best practices",
+    "answer": "- Avoid writing global variables. Wrap your code within an [IIFE](https://developer.mozilla.org/en-US/docs/Glossary/IIFE) and don't pollute the global scope.\n- What if you need to have multiple instances of this components on the page?\n  - Does your code enable you to do this?\n  - Did you use any global variables that will make it hard for you to do so?\n  - Will having multiple components on the same page affect each other? They should be independent!\n- Do you have a convenient API to instantiate independent components with configurable options? Old school jQuery UI components are good examples of doing this in a pre-React era.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Performance and scalability",
+    "answer": "Does your component scale (latency, performance, UI, UX, etc)?\n\n- What if the network takes too long to return something? How do you test slow network speed? Hint: Chrome Devtools Network tab.\n- What if a string is too long? Hint: CSS `word-break` property.\n- What if an image is too large?\n- Can the component contain any amount of child items? Example: Support flexible amount of thumbnails in a photo gallery component or items in a tab navigation component.\n- Will the layout be messed up if you have too few or too many of these items?\n  - What if there are too many items? Hint: set max height or paginate.\n  - What if there are no items, what do you show? Hint: show an empty state to indicate absence of contents. Do not show nothing.\n- How will performance be affected if you have too many elements on the page? How do you solve it? Hint: [Virtual list](https://medium.com/outsystems-engineering/virtualizing-the-virtual-dom-pushing-react-further-d76a16e5f209)\n- Did you hard code any values that will make it hard to extend to changing requirements in future? Did you design for extensibility?",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Network requests",
+    "answer": "- Does the component deal with race conditions in network/async requests? E.g. a new network request is fired before the response for the previous request is returned.\n- What if the request timeout or errored out? How can you recover from it gracefully?\n- How can you improve the performance of the component? Can you make use of caching, lazy loading, prefetching/preloading?\n- What if you need to load a lot of data/images? Can you lazily load them? Can you fetch the data in batches to reduce spamming the API endpoint?",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "User experience",
+    "answer": "- Is the component mobile-friendly? Can the component fit on different screen widths? How do you make it mobile-friendly?\n- Is the component easily i18n-able? How can you change the design to cater for i18n? Does your component support RTL languages?\n- Are there any potential UX/accessibility (a11y) issues with your components?\n- What are some common accessibility techniques and gotchas?\n  - https://medium.com/@addyosmani/accessible-ui-components-for-the-web-39e727101a67\n- What tools can you use to check for accessibility?\n- If you are unfamiliar with a11y, there's probably isn't much time for you to be an expert in a11y. The very least you can do is to acknowledge a knowledge gap in a11y and try to factor a11y into your answers. You should be at least aware of basic a11y practices like text size, color contrast, focusable elements, tab focus order, `aria-label`s. Knowledge of a11y is one of the differentiating factors between junior vs senior engineers.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Security",
+    "answer": "- XSS vulnerability. Interviewers are especially looking out for this whenever you need to render user input. You almost never need to use `.innerHTML` or jQuery's `$.html()`. There's `.textContent` and `$.text()`. If you do have to render raw HTML, make sure you escape the contents first.\n- User input that is being displayed in the URL has to be encoded first as well, or else there's also a potential for mischief where users can add additional query parameters.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "frontend-system-design",
+    "topic": "general",
+    "question": "Closing",
+    "answer": "Lastly, mention how you would do things differently if you had more time and were writing production code that you need to maintain. Perhaps use Sass instead of CSS, use React instead of jQuery for better maintainability, use Babel to compile your code for older browsers, make the component mobile-friendly and test on different screen widths, add keyboard shortcuts, etc.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "1. What is the difference between supervised and unsupervised learning?",
+    "answer": "- Supervised learning: labeled data, input-output pairs, learn a mapping from input to output\n- Unsupervised learning: unlabeled data, find structure in the data",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "2. What is R2? What are some other metrics that could be better than R2 and why?",
+    "answer": "- goodness of fit measure. variance explained by the regression / total variance\n- the more predictors you add the higher R^2 becomes.\n- hence use adjusted R^2 which adjusts for the degrees of freedom\n- or train error metrics",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "3. What is the curse of dimensionality?",
+    "answer": "- High dimensionality makes clustering hard, because having lots of dimensions means that everything is \"far away\" from each other.\n- For example, to cover a fraction of the volume of the data we need to capture a very wide range for each variable as the number of variables increases\n- All samples are close to the edge of the sample. And this is a bad news because prediction is much more difficult near the edges of the training sample.\n- The sampling density decreases exponentially as p increases and hence the data becomes much more sparse without significantly more data.\n- We should conduct PCA to reduce dimensionality",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "4. Is more data always better?",
+    "answer": "- Statistically,\n- It depends on the quality of your data, for example, if your data is biased, just getting more data won’t help.\n- It depends on your model. If your model suffers from high bias, getting more data won’t improve your test results beyond a point. You’d need to add more features, etc.\n- Practically,\n- Also there’s a tradeoff between having more data and the additional storage, computational power, memory it requires. Hence, always think about the cost of having more data.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "5. What are advantages of plotting your data before per- forming analysis?",
+    "answer": "- 1) Data sets have errors.  You won't find them all but you might find some. That 212 year old man. That 9 foot tall woman.\n2) Variables can have skewness, outliers etc.  Then the arithmetic mean might not be useful. Which means the standard deviation isn't useful.\n3) Variables can be multimodal!  If a variable is multimodal then anything based on its mean or median is going to be suspect.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "6. How can you make sure that you don’t analyze something that ends up meaningless?",
+    "answer": "- Proper exploratory data analysis.\nIn every data analysis task, there's the exploratory phase where you're just graphing things, testing things on small sets of the data, summarizing simple statistics, and getting rough ideas of what hypotheses you might want to pursue further.\nThen there's the exploitatory phase, where you look deeply into a set of hypotheses.\nThe exploratory phase will generate lots of possible hypotheses, and the exploitatory phase will let you really understand a few of them. Balance the two and you'll prevent yourself from wasting time on many things that end up meaningless, although not all.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "7. What is the role of trial and error in data analysis? What is the the role of making a hypothesis before diving in?",
+    "answer": "- data analysis is a repetition of setting up a new hypothesis and trying to refute the null hypothesis.\n- The scientific method is eminently inductive: we elaborate a hypothesis, test it and refute it or not. As a result, we come up with new hypotheses which are in turn tested and so on. This is an iterative process, as science always is.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "8. How can you determine which features are the most im- portant in your model?",
+    "answer": "- run the features though a Gradient Boosting Machine or Random Forest to generate plots of relative importance and information gain for each feature in the ensembles.\n- Look at the variables added in forward variable selection",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "9. How do you deal with some of your predictors being missing?",
+    "answer": "- Remove rows with missing values - This works well if 1) the values are missing randomly (see [Vinay Prabhu's answer](https://www.quora.com/How-can-I-deal-with-missing-values-in-a-predictive-model/answer/Vinay-Prabhu-7) for more details on this) 2) if you don't lose too much of the dataset after doing so.\n- Build another predictive model to predict the missing values - This could be a whole project in itself, so simple techniques are usually used here.\n- Use a model that can incorporate missing data \\- Like a random forest, or any tree-based method.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "10. You have several variables that are positively correlated with your response, and you think combining all of the variables could give you a good prediction of your response. However, you see that in the multiple linear regression, one of the weights on the predictors is negative. What could be the issue?",
+    "answer": "- Multicollinearity refers to a situation in which two or more explanatory variables in a [multiple regression](https://en.wikipedia.org/wiki/Multiple_regression \"Multiple regression\") model are highly linearly related.\n- Leave the model as is, despite multicollinearity. The presence of multicollinearity doesn't affect the efficiency of extrapolating the fitted model to new data provided that the predictor variables follow the same pattern of multicollinearity in the new data as in the data on which the regression model is based.\n- principal component regression",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "11. Let’s say you’re given an unfeasible amount of predictors in a predictive modeling task. What are some ways to make the prediction more feasible?",
+    "answer": "- PCA",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "12. Now you have a feasible amount of predictors, but you’re fairly sure that you don’t need all of them. How would you perform feature selection on the dataset?",
+    "answer": "- ridge / lasso / elastic net regression\n- Univariate Feature Selection where a statistical test is applied to each feature individually. You retain only the best features according to the test outcome scores\n- \"Recursive Feature Elimination\":\n- First, train a model with all the feature and evaluate its performance on held out data.\n- Then drop let say the 10% weakest features (e.g. the feature with least absolute coefficients in a linear model) and retrain on the remaining features.\n- Iterate until you observe a sharp drop in the predictive accuracy of the model.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "13. Your linear regression didn’t run and communicates that there are an infinite number of best estimates for the regression coefficients. What could be wrong?",
+    "answer": "- p > n.\n- If some of the explanatory variables are perfectly correlated (positively or negatively) then the coefficients would not be unique.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "14. You run your regression on different subsets of your data, and find that in each subset, the beta value for a certain variable varies wildly. What could be the issue here?",
+    "answer": "- The dataset might be heterogeneous. In which case, it is recommended to cluster datasets into different subsets wisely, and then draw different models for different subsets. Or, use models like non parametric models (trees) which can deal with heterogeneity quite nicely.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "15. What is the main idea behind ensemble learning? If I had many different models that predicted the same response variable, what might I want to do to incorporate all of the models? Would you expect this to perform better than an individual model or worse?",
+    "answer": "- The assumption is that a group of weak learners can be combined to form a strong learner.\n- Hence the combined model is expected to perform better than an individual model.\n- Assumptions:\n- average out biases\n- reduce variance\n- Bagging works because some underlying learning algorithms are unstable: slightly different inputs leads to very different outputs. If you can take advantage of this instability by running multiple instances, it can be shown that the reduced instability leads to lower error. If you want to understand why, the original bagging paper( [http://www.springerlink.com/cont...](http://www.springerlink.com/content/l4780124w2874025/)) has a section called \"why bagging works\"\n- Boosting works because of the focus on better defining the \"decision edge\". By reweighting examples near the margin (the positive and negative examples) you get a reduced error (see http://citeseerx.ist.psu.edu/vie...)\n- Use the outputs of your models as inputs to a meta-model.\nFor example, if you're doing binary classification, you can use all the probability outputs of your individual models as inputs to a final logistic regression (or any model, really) that can combine the probability estimates.\nOne very important point is to make sure that the output of your models are out-of-sample predictions. This means that the predicted value for any row in your dataframe should NOT depend on the actual value for that row.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "16. Given that you have wi  data in your o ce, how would you determine which rooms and areas are underutilized and overutilized?",
+    "answer": "- If the data is more used in one room, then that one is over utilized! Maybe account for the room capacity and normalize the data.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "20. How would you quantify the influence of a Twitter user?",
+    "answer": "- like page rank with each user corresponding to the webpages and linking to the page equivalent to following.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "22. You have 100 mathletes and 100 math problems. Each mathlete gets to choose 10 problems to solve. Given data on who got what problem correct, how would you rank the problems in terms of di culty?",
+    "answer": "- One way you could do this is by storing a \"skill level\" for each user and a \"difficulty level\" for each problem.  We assume that the probability that a user solves a problem only depends on the skill of the user and the difficulty of the problem.*  Then we maximize the likelihood of the data to find the hidden skill and difficulty levels.\n- The Rasch model for dichotomous data takes the form:\n{\\displaystyle \\Pr\\\\{X_{ni}=1\\\\}={\\frac {\\exp({\\beta _{n}}-{\\delta _{i}})}{1+\\exp({\\beta _{n}}-{\\delta _{i}})}},}\nwhere  is the ability of person  and  is the difficulty of item}.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "23. You have 5000 people that rank 10 sushis in terms of saltiness. How would you aggregate this data to estimate the true saltiness rank in each sushi?",
+    "answer": "- Some people would take the mean rank of each sushi.  If I wanted something simple, I would use the median, since ranks are (strictly speaking) ordinal and not interval, so adding them is a bit risque (but people do it all the time and you probably won't be far wrong).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "24. Given data on congressional bills and which congressional representatives co-sponsored the bills, how would you determine which other representatives are most similar to yours in voting behavior? How would you evaluate who is the most liberal? Most republican? Most bipartisan?",
+    "answer": "- collaborative filtering. you have your votes and we can calculate the similarity for each representatives and select the most similar representative\n- for liberal and republican parties, find the mean vector and find the representative closest to the center point",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "25. How would you come up with an algorithm to detect plagiarism in online content?",
+    "answer": "- reduce the text to a more compact form (e.g. fingerprinting, bag of words) then compare those with other texts by calculating the similarity",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "26. You have data on all purchases of customers at a grocery store. Describe to me how you would program an algorithm that would cluster the customers into groups. How would you determine the appropriate number of clusters to include?",
+    "answer": "- KMeans\n- choose a small value of k that still has a low SSE (elbow method)\n- <https://bl.ocks.org/rpgove/0060ff3b656618e9136b>",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "data analysis",
+    "topic": "data analysis",
+    "question": "27. Let's say you're building the recommended music engine at Spotify to recommend people music based on past listening history. How would you approach this problem?",
+    "answer": "- [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering)",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "1. (Given a Dataset) Analyze this dataset and give me a model that can predict this response variable.",
+    "answer": "- Start by fitting a simple model (multivariate regression, logistic regression), do some feature engineering accordingly, and then try some complicated models. Always split the dataset into train, validation, test dataset and use cross validation to check their performance.\n- Determine if the problem is classification or regression\n- Favor simple models that run quickly and you can easily explain.\n- Mention cross validation as a means to evaluate the model.\n- Plot and visualize the data.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "2. What could be some issues if the distribution of the test data is significantly different than the distribution of the training data?",
+    "answer": "- The model that has high training accuracy might have low test accuracy. Without further knowledge, it is hard to know which dataset represents the population data and thus the generalizability of the algorithm is hard to measure. This should be mitigated by repeated splitting of train vs test dataset (as in cross validation).\n- When there is a change in data distribution, this is called the dataset shift. If the train and test data has a different distribution, then the classifier would likely overfit to the train data.\n- This issue can be overcome by using a more general learning method.\n- This can occur when:\n- P(y|x) are the same but P(x) are different. (covariate shift)\n- P(y|x) are different. (concept shift)\n- The causes can be:\n- Training samples are obtained in a biased way. (sample selection bias)\n- Train is different from test because of temporal, spatial changes. (non-stationary environments)\n- Solution to covariate shift\n- importance weighted cv",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "3. What are some ways I can make my model more robust to outliers?",
+    "answer": "- We can have regularization such as L1 or L2 to reduce variance (increase bias).\n- Changes to the algorithm:\n- Use tree-based methods instead of regression methods as they are more resistant to outliers. For statistical tests, use non parametric tests instead of parametric ones.\n- Use robust error metrics such as MAE or Huber Loss instead of MSE.\n- Changes to the data:\n- Winsorizing the data\n- Transforming the data (e.g. log)\n- Remove them only if you’re certain they’re anomalies not worth predicting",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "4. What are some differences you would expect in a model that minimizes squared error, versus a model that minimizes absolute error? In which cases would each error metric be appropriate?",
+    "answer": "- MSE is more strict to having outliers. MAE is more robust in that sense, but is harder to fit the model for because it cannot be numerically optimized. So when there are less variability in the model and the model is computationally easy to fit, we should use MAE, and if that’s not the case, we should use MSE.\n- MSE: easier to compute the gradient, MAE: linear programming needed to compute the gradient\n- MAE more robust to outliers. If the consequences of large errors are great, use MSE\n- MSE corresponds to maximizing likelihood of Gaussian random variables",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "5. What error metric would you use to evaluate how good a binary classifier is? What if the classes are imbalanced? What if there are more than 2 groups?",
+    "answer": "- Accuracy: proportion of instances you predict correctly. Pros: intuitive, easy to explain, Cons: works poorly when the class labels are imbalanced and the signal from the data is weak\n- AUROC: plot fpr on the x axis and tpr on the y axis for different threshold. Given a random positive instance and a random negative instance, the AUC is the probability that you can identify who's who. Pros: Works well when testing the ability of distinguishing the two classes, Cons: can’t interpret predictions as probabilities (because AUC is determined by rankings), so can’t explain the uncertainty of the model\n- logloss/deviance: Pros: error metric based on probabilities, Cons: very sensitive to false positives, negatives\n- When there are more than 2 groups, we can have k binary classifications and add them up for logloss. Some metrics like AUC is only applicable in the binary case.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "6. What are various ways to predict a binary response variable? Can you compare two of them and tell me when one would be more appropriate? What’s the difference between these? (SVM, Logistic Regression, Naive Bayes, Decision Tree, etc.)",
+    "answer": "- Things to look at: N, P, linearly seperable?, features independent?, likely to overfit?, speed, performance, memory usage\n- Logistic Regression\n- features roughly linear, problem roughly linearly separable\n- robust to noise, use l1,l2 regularization for model selection, avoid overfitting\n- the output come as probabilities\n- efficient and the computation can be distributed\n- can be used as a baseline for other algorithms\n- (-) can hardly handle categorical features\n- SVM\n- with a nonlinear kernel, can deal with problems that are not linearly separable\n- (-) slow to train, for most industry scale applications, not really efficient\n- Naive Bayes\n- computationally efficient when P is large by alleviating the curse of dimensionality\n- works surprisingly well for some cases even if the condition doesn’t hold\n- with word frequencies as features, the independence assumption can be seen reasonable. So the algorithm can be used in text categorization\n- (-) conditional independence of every other feature should be met\n- Tree Ensembles\n- good for large N and large P, can deal with categorical features very well\n- non parametric, so no need to worry about outliers\n- GBT’s work better but the parameters are harder to tune\n- RF works out of the box, but usually performs worse than GBT\n- Deep Learning\n- works well for some classification tasks (e.g. image)\n- used to squeeze something out of the problem",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "7. What is regularization and where might it be helpful? What is an example of using regularization in a model?",
+    "answer": "- Regularization is useful for reducing variance in the model, meaning avoiding overfitting . For example, we can use L1 regularization in Lasso regression to penalize large coefficients.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "8. Why might it be preferable to include fewer predictors over many?",
+    "answer": "- When we add irrelevant features, it increases model's tendency to overfit because those features introduce more noise. When two variables are correlated, they might be harder to interpret in case of regression, etc.\n- curse of dimensionality\n- adding random noise makes the model more complicated but useless\n- computational cost\n- Ask someone for more details.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "9. Given training data on tweets and their retweets, how would you predict the number of retweets of a given tweet after 7 days after only observing 2 days worth of data?",
+    "answer": "- Build a time series model with the training data with a seven day cycle and then use that for a new data with only 2 days data.\n- Ask someone for more details.\n- Build a regression function to estimate the number of retweets as a function of time t\n- to determine if one regression function can be built, see if there are clusters in terms of the trends in the number of retweets\n- if not, we have to add features to the regression function\n- features + # of retweets on the first and the second day -> predict the seventh day\n- https://en.wikipedia.org/wiki/Dynamic_time_warping",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "10. How could you collect and analyze data to use social media to predict the weather?",
+    "answer": "- We can collect social media data using twitter, Facebook, instagram API’s. Then, for example, for twitter, we can construct features from each tweet, e.g. the tweeted date, number of favorites, retweets, and of course, the features created from the tweeted content itself. Then use a multi variate time series model to predict the weather.\n- Ask someone for more details.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "11. How would you construct a feed to show relevant content for a site that involves user interactions with items?",
+    "answer": "- We can do so using building a recommendation engine. The easiest we can do is to show contents that are popular other users, which is still a valid strategy if for example the contents are news articles. To be more accurate, we can build a content based filtering or collaborative filtering. If there’s enough user usage data, we can try collaborative filtering and recommend contents other similar users have consumed. If there isn’t, we can recommend similar items based on vectorization of items (content based filtering).",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "12. How would you design the people you may know feature on LinkedIn or Facebook?",
+    "answer": "- Find strong unconnected people in weighted connection graph\n- Define similarity as how strong the two people are connected\n- Given a certain feature, we can calculate the similarity based on\n- friend connections (neighbors)\n- Check-in’s people being at the same location all the time.\n- same college, workplace\n- Have randomly dropped graphs test the performance of the algorithm\n- ref. News Feed Optimization\n- Affinity score: how close the content creator and the users are\n- Weight: weight for the edge type (comment, like, tag, etc.). Emphasis on features the company wants to promote\n- Time decay: the older the less important",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "13. How would you predict who someone may want to send a Snapchat or Gmail to?",
+    "answer": "- for each user, assign a score of how likely someone would send an email to\n- the rest is feature engineering:\n- number of past emails, how many responses, the last time they exchanged an email, whether the last email ends with a question mark, features about the other users, etc.\n- Ask someone for more details.\n- People who someone sent emails the most in the past, conditioning on time decay.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "14. How would you suggest to a franchise where to open a new store?",
+    "answer": "- build a master dataset with local demographic information available for each location.\n- local income levels, proximity to traffic, weather, population density, proximity to other businesses\n- a reference dataset on local, regional, and national macroeconomic conditions (e.g. unemployment, inflation, prime interest rate, etc.)\n- any data on the local franchise owner-operators, to the degree the manager\n- identify a set of KPIs acceptable to the management that had requested the analysis concerning the most desirable factors surrounding a franchise\n- quarterly operating profit, ROI, EVA, pay-down rate, etc.\n- run econometric models to understand the relative significance of each variable\n- run machine learning algorithms to predict the performance of each location candidate",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "15. In a search engine, given partial data on what the user has typed, how would you predict the user’s eventual search query?",
+    "answer": "- Based on the past frequencies of words shown up given a sequence of words, we can construct conditional probabilities of the set of next sequences of words that can show up (n-gram). The sequences with highest conditional probabilities can show up as top candidates.\n- To further improve this algorithm,\n- we can put more weight on past sequences which showed up more recently and near your location to account for trends\n- show your recent searches given partial data",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "16. Given a database of all previous alumni donations to your university, how would you predict which recent alumni are most likely to donate?",
+    "answer": "- Based on frequency and amount of donations, graduation year, major, etc, construct a supervised regression (or binary classification) algorithm.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "17. You’re Uber and you want to design a heatmap to recommend to drivers where to wait for a passenger. How would you approach this?",
+    "answer": "- Based on the past pickup location of passengers around the same time of the day, day of the week (month, year), construct\n- Ask someone for more details.\n- Based on the number of past pickups\n- account for periodicity (seasonal, monthly, weekly, daily, hourly)\n- special events (concerts, festivals, etc.) from tweets",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "18. How would you build a model to predict a March Madness bracket?",
+    "answer": "- One vector each for team A and B. Take the difference of the two vectors and use that as an input to predict the probability that team A would win by training the model. Train the models using past tournament data and make a prediction for the new tournament by running the trained model for each round of the tournament\n- Some extensions:\n- Experiment with different ways of consolidating the 2 team vectors into one (e.g concantenating, averaging, etc)\n- Consider using a RNN type model that looks at time series data.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "predictive modeling",
+    "topic": "predictive modeling",
+    "question": "19. You want to run a regression to predict the probability of a flight delay, but there are flights with delays of up to 12 hours that are really messing up your model. How can you address this?",
+    "answer": "- This is equivalent to making the model more robust to outliers.\n- See Q3.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "1. Bobo the amoeba has a 25%, 25%, and 50% chance of producing 0, 1, or 2 offspring, respectively. Each of Bobo’s descendants also have the same probabilities. What is the probability that Bobo’s lineage dies out?",
+    "answer": "- p=1/4+1/4*p+1/2*p^2 => p=1/2",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "2. In any 15-minute interval, there is a 20% probability that you will see at least one shooting star. What is the proba- bility that you see at least one shooting star in the period of an hour?",
+    "answer": "- 1-(0.8)^4. Or, we can use Poisson processes",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "3. How can you generate a random number between 1 - 7 with only a die?",
+    "answer": "* Launch it 3 times: each throw sets the nth bit of the result.\n* For each launch, if the value is 1-3, record a 0, else 1.\nThe result is between 0 (000) and 7 (111), evenly spread (3 independent throw). Repeat the throws if 0 was obtained: the process stops on evenly spread values.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "4. How can you get a fair coin toss if someone hands you a coin that is weighted to come up heads more often than tails?",
+    "answer": "- Flip twice and if HT then H, TH then T.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "5. You have an 50-50 mixture of two normal distributions with the same standard deviation. How far apart do the means need to be in order for this distribution to be bimodal?",
+    "answer": "- more than two standard deviations",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "6. Given draws from a normal distribution with known parameters, how can you simulate draws from a uniform distribution?",
+    "answer": "- plug in the value to the CDF of the same random variable",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "7. A certain couple tells you that they have two children, at least one of which is a girl. What is the probability that they have two girls?",
+    "answer": "- 1/3",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "8. You have a group of couples that decide to have children until they have their first girl, after which they stop having children. What is the expected gender ratio of the children that are born? What is the expected number of children each couple will have?",
+    "answer": "- gender ratio is 1:1. Expected number of children is 2. let X be the number of children until getting a female (happens with prob 1/2). this follows a geometric distribution with probability 1/2",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "9. How many ways can you split 12 people into 3 teams of 4?",
+    "answer": "- the outcome follows a multinomial distribution with n=12 and k=3. but the classes are indistinguishable",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "10. Your hash function assigns each object to a number between 1:10, each with equal probability. With 10 objects, what is the probability of a hash collision? What is the expected number of hash collisions? What is the expected number of hashes that are unused.",
+    "answer": "- the probability of a hash collision: 1-(10!/10^10)\n- the expected number of hash collisions: 1-10*(9/10)^10\n- the expected number of hashes that are unused: 10*(9/10)^10",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "11. You call 2 UberX’s and 3 Lyfts. If the time that each takes to reach you is IID, what is the probability that all the Lyfts arrive first? What is the probability that all the UberX’s arrive first?",
+    "answer": "- All Lyft's first\n* probability that the first car is Lyft = 3/5\n* probability that the second car is Lyft = 2/4\n* probability that the third car is Lyft = 1/3\nTherefore, probability that all the Lyfts arrive first = (3/5) * (2/4) * (1/3) = 1/10\n- All Uber's first\n* probability that the first car is Uber = 2/5\n* probability that the second car is Uber = 1/4\nTherefore, probability that all the Ubers arrive first = (2/5) * (1/4) = 1/10",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "12. I write a program should print out all the numbers from 1 to 300, but prints out Fizz instead if the number is divisible by 3, Buzz instead if the number is divisible by 5, and FizzBuzz if the number is divisible by 3 and 5. What is the total number of numbers that is either Fizzed, Buzzed, or FizzBuzzed?",
+    "answer": "- 100+60-20=140",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "13. On a dating site, users can select 5 out of 24 adjectives to describe themselves. A match is declared between two users if they match on at least 4 adjectives. If Alice and Bob randomly pick adjectives, what is the probability that they form a match?",
+    "answer": "- 24C5*(1+5(24-5))/24C5*24C5 = 4/1771",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "14. A lazy high school senior types up application and envelopes to n different colleges, but puts the applications randomly into the envelopes. What is the expected number of applications that went to the right college?",
+    "answer": "- 1",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "15. Let’s say you have a very tall father. On average, what would you expect the height of his son to be? Taller, equal, or shorter? What if you had a very short father?",
+    "answer": "- Shorter. Regression to the mean",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "16. What’s the expected number of coin flips until you get two heads in a row? What’s the expected number of coin flips until you get two tails in a row?",
+    "answer": "- After the first two flips, you can see this problem as a Markov chain, with states HH, HT, TH, TT.\n- HH is the final state. You can than define the expected number of steps N before reaching HH: E(N) = 2 + 0.25nHH, 0.25nHT, 0.25nTH, 0.25nTT. nXX represents the expected number of steps before reaching HH starting from state XX.\n- Solve linear equation:\n* nHH = 0\n* nHT = 1 + 0.5nTT + 0.5nTH\n* nTH = 1 + 0.5nHH + 0.5nHT\n* nTT = 1 + 0.5nTH + 0.5nTT\n- Result gives E(N) = 6.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "17. Let’s say we play a game where I keep flipping a coin until I get heads. If the first time I get heads is on the nth coin, then I pay you 2n-1 dollars. How much would you pay me to play this game?",
+    "answer": "- less than $3",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "18. You have two coins, one of which is fair and comes up heads with a probability 1/2, and the other which is biased and comes up heads with probability 3/4. You randomly pick coin and flip it twice, and get heads both times. What is the probability that you picked the fair coin?",
+    "answer": "- 4/13",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "19. You have a 0.1% chance of picking up a coin with both heads, and a 99.9% chance that you pick up a fair coin. You flip your coin and it comes up heads 10 times. What’s the chance that you picked up the fair coin, given the information that you observed?",
+    "answer": "* Events: F = \"picked a fair coin\", T = \"10 heads in a row\"\n* (1) P(F|T) = P(T|F)P(F)/P(T) (Bayes formula)\n* (2) P(T) = P(T|F)P(F) + P(T|¬F)P(¬F) (total probabilities formula)\n* Injecting (2) in (1): P(F|T) = P(T|F)P(F)/(P(T|F)P(F) + P(T|¬F)P(¬F)) = 1 / (1 + P(T|¬F)P(¬F)/(P(T|F)P(F)))\n* Numerically: 1/(1 + 0.001 * 2^10 /0.999).\n* With 2^10 ≈ 1000 and 0.999 ≈ 1 this simplifies to 1/2",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "probability",
+    "topic": "probability",
+    "question": "20. What is a P-Value ?",
+    "answer": "* The probability to obtain a similar or more extreme result than observed when the null hypothesis is assumed.\n* ⇒ If the p-value is small, the null hypothesis is unlikely",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "1. What would be good metrics of success for an advertising-driven consumer product? (Buzzfeed, YouTube, Google Search, etc.) A service-driven consumer product? (Uber, Flickr, Venmo, etc.)",
+    "answer": "* advertising-driven: Pageviews and daily actives, CTR, CPC (cost per click)\n* click-ads\n* display-ads\n* service-driven: number of purchases, conversion rate",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "2. What would be good metrics of success for a productiv- ity tool? (Evernote, Asana, Google Docs, etc.) A MOOC? (edX, Coursera, Udacity, etc.)",
+    "answer": "* productivity tool: same as premium subscriptions\n* MOOC: same as premium subscriptions, completion rate",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "3. What would be good metrics of success for an e-commerce product? (Etsy, Groupon, Birchbox, etc.) A subscrip- tion product? (Net ix, Birchbox, Hulu, etc.) Premium subscriptions? (OKCupid, LinkedIn, Spotify, etc.)",
+    "answer": "* e-commerce: number of purchases, conversion rate, Hourly, daily, weekly, monthly, quarterly, and annual sales, Cost of goods sold, Inventory levels, Site traffic, Unique visitors versus returning visitors, Customer service phone call count, Average resolution time\n* subscription\n* churn, CoCA, ARPU, MRR, LTV\n* premium subscriptions:",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "4. What would be good metrics of success for a consumer product that relies heavily on engagement and interac- tion? (Snapchat, Pinterest, Facebook, etc.) A messaging product? (GroupMe, Hangouts, Snapchat, etc.)",
+    "answer": "* heavily on engagement and interaction: uses AU ratios, email summary by type, and push notification summary by type, resurrection ratio\n* messaging product:",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "5. What would be good metrics of success for a product that o ered in-app purchases? (Zynga, Angry Birds, other gaming apps)",
+    "answer": "* Average Revenue Per Paid User\n* Average Revenue Per User",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "6. A certain metric is violating your expectations by going down or up more than you expect. How would you try to identify the cause of the change?",
+    "answer": "* breakdown the KPI’s into what consists them and find where the change is\n* then further breakdown that basic KPI by channel, user cluster, etc. and relate them with any campaigns, changes in user behaviors in that segment",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "7. Growth for total number of tweets sent has been slow this month. What data would you look at to determine the cause of the problem?",
+    "answer": "* look at competitors' tweet growth\n* look at your social media engagement on other platforms\n* look at your sales data",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "8. You’re a restaurant and are approached by Groupon to run a deal. What data would you ask from them in order to determine whether or not to do the deal?",
+    "answer": "* for similar restaurants (they should define similarity), average increase in revenue gain per coupon, average increase in customers per coupon, number of meals sold",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "9. You are tasked with improving the e ciency of a subway system. Where would you start?",
+    "answer": "* define efficiency",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "10. Say you are working on Facebook News Feed. What would be some metrics that you think are important? How would you make the news each person gets more relevant?",
+    "answer": "* rate for each action, duration users stay, CTR for sponsor feed posts\n* ref. News Feed Optimization\n* Affinity score: how close the content creator and the users are\n* Weight: weight for the edge type (comment, like, tag, etc.). Emphasis on features the company wants to promote\n* Time decay: the older the less important",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "11. How would you measure the impact that sponsored stories on Facebook News Feed have on user engagement? How would you determine the optimum balance between sponsored stories and organic content on a user’s News Feed?",
+    "answer": "* AB test on different balance ratio and see",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "12. You are on the data science team at Uber and you are asked to start thinking about surge pricing. What would be the objectives of such a product and how would you start looking into this?",
+    "answer": "*  there is a gradual step-function type scaling mechanism until that imbalance of requests-to-drivers is alleviated and then vice versa as too many drivers come online enticed by the surge pricing structure.\n* I would bet the algorithm is custom tailored and calibrated to each location as price elasticities almost certainly vary across different cities depending on a huge multitude of variables: income, distance/sprawl, traffic patterns, car ownership, etc. With the massive troves of user data that Uber probably has collected, they most likely have tweaked the algos for each city to adjust for these varying sensitivities to surge pricing. Throw in some machine learning and incredibly rich data and you've got yourself an incredible, constantly-evolving algorithm.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "13. Say that you are Netflix. How would you determine what original series you should invest in and create?",
+    "answer": "* Netflix uses data to estimate the potential market size for an original series before giving it the go-ahead.",
+    "difficulty": "medium"
+  },
+  {
+    "domain": "product metrics",
+    "topic": "product metrics",
+    "question": "14. What kind of services would  nd churn (metric that tracks how many customers leave the service) helpful? How would you calculate churn?",
+    "answer": "* subscription based services",
+    "difficulty": "medium"
+  }
+
+]

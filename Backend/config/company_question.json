@@ -1,0 +1,961 @@
+{
+  "companies": [{
+      "name": "Google",
+      "questions": [
+        {
+          "title": "Two Sum",
+          "difficulty": "Easy",
+          "topic": ["Arrays", "Hash Table"],
+          "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+          "approach": "Use a hash map to store the complement of each number."
+        },
+        {
+          "title": "Design URL Shortener",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Distributed Systems"],
+          "description": "Design a URL shortening service like bit.ly",
+          "requirements": ["Unique short URLs", "Redirect functionality", "Handle 100M+ URLs", "Low latency"]
+        },
+        {
+          "title": "LRU Cache",
+          "difficulty": "Medium",
+          "topic": ["Data Structures", "Design"],
+          "description": "Implement LRU cache with O(1) operations",
+          "approach": "Use a combination of a doubly linked list and a hash map."
+
+        }
+      ]
+    },
+    {
+      "name": "Amazon",
+      "location": "Global",
+      "questions": [
+        {
+         
+          "title": "Two Sum",
+          "difficulty": "Easy",
+          "topic": ["Arrays", "Hash Table"]
+        },
+        {
+          "title": "Design Amazon Shopping Cart",
+          "difficulty": "Hard",
+          "topic": ["System Design", "E-commerce"],
+          "requirements": ["Concurrent users", "Inventory sync", "Session persistence", "Pricing engine"]
+        },
+        {
+          "title": "Merge K Sorted Lists",
+          "difficulty": "Hard",
+          "topic": ["Linked Lists", "Heap"]
+        }
+      ]
+    },
+    {
+      "name": "Microsoft",
+      "location": "Global",
+      "questions": [
+        {
+          
+          "title": "Longest Palindromic Substring",
+          "difficulty": "Medium",
+          "topic": ["Strings", "Dynamic Programming"],
+           "approach": "Expand around center technique to find palindromes.",
+           "description": "Given a string s, return the longest palindromic substring in s."
+        },
+        {
+          
+          "title": "Design Teams Chat System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Real-time"],
+          "requirements": ["Real-time messaging", "Message persistence", "Group chat", "File sharing"]
+        },
+        {
+          
+          "title": "Valid Parentheses",
+          "difficulty": "Easy",
+          "topic": ["Stack", "Strings"],
+          "description": "Given a string containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.",
+          "approach": "Use a stack to match opening and closing brackets."
+        }
+      ]
+    },
+    {
+      "name": "Meta",
+      "location": "Global",
+      "questions": [
+        {
+          
+          "title": "Design Facebook News Feed",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Social Networks"],
+          "requirements": ["Fan-out service", "Ranking algorithm", "Real-time updates", "Billions of users"],
+          "description": "Design a system to generate a personalized news feed for users based on their friends' activities and interests.",
+        
+          "approach": "Use a combination of caching, pre-computation, and real-time data processing to deliver personalized feeds efficiently."
+
+        },
+        {
+          
+          "title": "Binary Tree Level Order Traversal",
+          "difficulty": "Medium",
+          "topic": ["Trees", "BFS"],
+            "description": "Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).",
+            "approach": "Use a queue to perform breadth-first traversal of the tree."
+        },
+        {
+          
+          "title": "3Sum",
+          "difficulty": "Medium",
+          "topic": ["Arrays", "Two Pointers"],
+            "description": "Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.",
+            "approach": "Sort the array and use two pointers to find pairs that sum to the negative of the current element."
+        }
+      ]
+    },
+    {
+      "name": "Apple",
+      "location": "Global",
+      "questions": [
+        {
+          
+          "title": "Design iCloud Storage",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Distributed Storage"],
+          "requirements": ["Cross-device sync", "Version control", "Conflict resolution", "Sharing"],
+            "description": "Design a cloud storage system that allows users to store and sync files across multiple devices.",
+            "approach": "Use distributed file storage with metadata management for versioning and conflict resolution."
+        },
+        {
+          
+          "title": "Maximum Subarray",
+          "difficulty": "Easy",
+          "topic": ["Arrays", "Dynamic Programming"],
+          "approach": "Kadane's Algorithm",
+            "description": "Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum."
+            
+        }
+      ]
+    },
+    {
+      "name": "Netflix",
+      "location": "Global",
+      "questions": [
+        {
+          "title": "Design Video Streaming Platform",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Video Streaming", "CDN"],
+          "requirements": ["Video transcoding", "Adaptive bitrate", "Global CDN", "Recommendations"],
+            "description": "Design a scalable video streaming platform that can handle millions of concurrent users with adaptive streaming quality.",
+            "approach": "Use a combination of microservices for transcoding, a global CDN for delivery, and machine learning for recommendations."
+        },
+        {
+         
+          "title": "LRU Cache",
+          "difficulty": "Medium",
+          "topic": ["Data Structures"],
+            "approach": "Use a combination of a doubly linked list and a hash map.",
+            "description": "Design and implement a data structure for Least Recently Used (LRU) cache. It should support the following operations: get and put."
+
+        }
+      ]
+    },
+    {
+      "name": "Tesla",
+      "location": "Global",
+      "questions": [
+        {
+          
+          "title": "Design Fleet Management System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "IoT", "Real-time Tracking"],
+          "description": "Design a system to manage autonomous vehicle fleet with real-time tracking and route optimization",
+          "requirements": ["Vehicle tracking", "Maintenance scheduling", "Route optimization", "Charging management"],
+          "approach": "Use GPS for tracking, machine learning for route optimization, and cloud services for data management."
+        },
+        {
+          
+          "title": "Design Telemetry Data Pipeline",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Data Pipeline"],
+          "description": "Process real-time vehicle telemetry data from millions of vehicles",
+          "requirements": ["Real-time processing", "Scalability", "Data aggregation", "Fault tolerance"],
+            "approach": "Use stream processing frameworks like Apache Kafka and Apache Flink for real-time data ingestion and processing."
+        },
+        {
+         
+          "title": "Reverse Linked List",
+          "difficulty": "Easy",
+          "topic": ["Linked Lists"],
+          "description": "Given the head of a singly linked list, reverse the list, and return the reversed list.",
+          "approach": "Iteratively change the next pointers of each node to point to the previous node."
+        },
+        {
+          
+          "title": "Find Minimum in Rotated Sorted Array",
+          "difficulty": "Medium",
+          "topic": ["Binary Search", "Arrays"],
+            "description": "Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Given the rotated array nums of unique elements, return the minimum element of this array.",
+            "approach": "Use modified binary search to find the pivot point where the rotation happened."
+        }
+      ]
+    },
+    {
+      "name": "Uber",
+      "location": "Global",
+      "questions": [
+        {
+          
+          "title": "Design Ride Matching System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Geospatial", "Real-time"],
+          "requirements": ["Real-time location", "Driver matching", "ETA calculation", "Surge pricing"],
+            "description": "Design a system to match riders with nearby drivers in real-time.",
+            "approach": "Use geospatial indexing for location tracking and a priority queue for efficient driver matching."
+        },
+        {
+          
+          "title": "Implement Trie",
+          "difficulty": "Medium",
+          "topic": ["Trie", "Data Structures"],
+            "description": "Implement a trie with insert, search, and startsWith methods.",
+            "approach": "Use a tree structure where each node represents a character."
+        }
+      ]
+    },
+    {
+      "name": "Airbnb",
+      "location": "Global",
+      "questions": [
+        {
+          
+          "title": "Design Search System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Search", "Geospatial"],
+          "requirements": ["Geospatial search", "Date availability", "Filtering", "Ranking"],
+            "description": "Design a search system for finding accommodations based on location, date, and filters.",
+            "approach": "Use inverted indexes for search, geospatial indexing for location, and a ranking algorithm based on relevance."
+        },
+        {
+          
+          "title": "Regular Expression Matching",
+          "difficulty": "Hard",
+          "topic": ["Dynamic Programming", "Strings"],
+            "description": "Given an input string s and a pattern p, implement regular expression matching with support for '.' and '*'.",
+            "approach": "Use dynamic programming to build a table that tracks matches between substrings of s and p."
+        }
+      ]
+    },
+    {
+      "name": "Stripe",
+      "location": "Global",
+      "questions": [
+        {
+          
+          "title": "Design Payment Gateway",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Payments"],
+          "requirements": ["Transaction processing", "Idempotency", "Fraud detection", "PCI compliance"],
+            "description": "Design a payment gateway system that can handle online transactions securely and efficiently.",
+            "approach": "Use microservices for different components like transaction processing, fraud detection, and compliance management."
+        },
+        {
+         
+          "title": "Rate Limiter",
+          "difficulty": "Medium",
+          "topic": ["System Design", "APIs"],
+          "algorithms": ["Token Bucket", "Leaky Bucket", "Sliding Window"],
+            "description": "Design a rate limiter to control the number of requests a user can make to an API within a given time frame.",
+            "approach": "Implement token bucket algorithm to allow bursts of traffic while maintaining a steady rate."
+        }
+      ]
+    },
+    {
+      "name": "LinkedIn",
+      
+      "questions": [
+        {
+         
+          "title": "Design Connection System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Graph", "Social Networks"],
+          "requirements": ["Add/remove connections", "Mutual connections", "Recommendations", "Graph traversal"],
+            "description": "Design a system to manage user connections and suggest new connections based on mutual friends.",
+            "approach": "Use graph data structures to represent connections and implement algorithms for traversal and recommendation."
+        },
+        {
+          
+          "title": "Nested List Weight Sum",
+          "difficulty": "Medium",
+          "topic": ["DFS", "Recursion"],
+            "description": "Given a nested list of integers, return the sum of all integers in the list weighted by their depth.",
+            "approach": "Use depth-first search to traverse the nested list and calculate the weighted sum."
+        }
+      ]
+    },
+    {
+      "name": "Salesforce",
+     
+      "questions": [
+        {
+          
+          "title": "Design CRM System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Multi-tenant", "Databases"],
+          "requirements": ["Multi-tenancy", "Custom objects", "Workflow automation", "API access"],
+            "description": "Design a CRM system that supports multiple tenants with customizable data models and workflows.",
+            "approach": "Use a multi-tenant architecture with shared resources and isolated data storage for each tenant."
+        },
+        {
+          
+          "title": "Apex Trigger Design",
+          "difficulty": "Medium",
+          "topic": ["Apex", "Salesforce"],
+          "description": "Design efficient triggers with bulkification",
+            "approach": "Use collections to handle multiple records and avoid SOQL/DML limits.",
+            "requirements": ["Bulk processing", "Error handling", "Testing"]
+        }
+      ]
+    },
+    {
+      "name": "Oracle",
+      
+      "questions": [
+        {
+          
+          "title": "Design E-commerce Payment System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Databases", "Payments"],
+          "requirements": ["Multiple payment modes", "Transaction management", "Database optimization"],
+            "description": "Design a payment processing system for an e-commerce platform that supports various payment methods and ensures data integrity.",
+            "approach": "Use ACID-compliant transactions and database indexing for performance."
+        },
+        {
+          
+          "title": "SQL Query Optimization",
+          "difficulty": "Medium",
+          "topic": ["Databases", "SQL"],
+          "description": "Optimize complex SQL queries with joins and indexes",
+            "approach": "Analyze query execution plans and use indexing strategies."
+        },
+        {
+          
+          "title": "PL/SQL Stored Procedures",
+          "difficulty": "Medium",
+          "topic": ["Databases", "PL/SQL"],
+          "description": "Design efficient stored procedures for business logic",
+            "approach": "Use modular design and error handling."
+        }
+      ]
+    },
+    {
+      "name": "Flipkart",
+      
+      "questions": [
+        {
+         
+          "title": "Design Product Catalog",
+          "difficulty": "Medium",
+          "topic": ["System Design", "E-commerce", "Search"],
+          "requirements": ["Product search", "Faceted filtering", "Inventory tracking", "Recommendations"],
+            "description": "Design a scalable product catalog system for an e-commerce platform.",
+            "approach": "Use a combination of relational and NoSQL databases for structured and unstructured data."
+        },
+        {
+         
+          "title": "Add Two Numbers (Linked List)",
+          "difficulty": "Medium",
+          "topic": ["Linked Lists", "Math"],
+            "description": "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.",
+            "approach": "Iterate through both lists, adding corresponding digits and managing carry."
+        },
+        {
+          
+          "title": "Design Flash Sale System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Scalability"],
+          "requirements": ["High concurrency", "Inventory management", "Queue system", "Real-time updates"],
+            "description": "Design a flash sale system that can handle high traffic and ensure fair inventory distribution.",
+            "approach": "Use load balancing, caching, and a queuing mechanism to manage high concurrency."
+        }
+      ]
+    },
+    {
+      "name": "Swiggy",
+      
+      "questions": [
+        {
+          
+          "title": "Design Food Delivery System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Real-time Tracking"],
+          "requirements": ["Restaurant listings", "Order tracking", "Delivery matching", "Route optimization"],
+            "description": "Design a food delivery system that connects customers with restaurants and delivery partners.",
+            "approach": "Use geospatial indexing for location tracking and real-time data processing for order management."
+        },
+        {
+          
+          "title": "Design Delivery Partner Allocation",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Optimization"],
+          "description": "Match delivery partners with orders based on location and availability",
+            "approach": "Use a priority queue to efficiently match partners with orders based on proximity and workload.",
+            "requirements": ["Real-time matching", "Load balancing", "Scalability"]
+
+        }
+      ]
+    },
+    {
+      "name": "Zomato",
+      
+      "questions": [
+        {
+          
+          "title": "Design Restaurant Discovery",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Search", "Recommendations"],
+          "requirements": ["Search by cuisine/location", "Reviews and ratings", "Photo gallery", "Menu management"],
+            "description": "Design a restaurant discovery system that allows users to search and filter restaurants based on various criteria.",
+            "approach": "Use inverted indexes for search functionality and collaborative filtering for recommendations."
+        },
+        {
+          
+          "title": "Design Real-time Order Tracking",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Real-time"],
+          "requirements": ["Live location updates", "ETA calculation", "Push notifications"],
+            "description": "Design a real-time order tracking system for food delivery.",
+            "approach": "Use WebSockets for real-time updates and geospatial indexing for location tracking."
+        }
+      ]
+    },
+    {
+      "name": "Paytm",
+      
+      "questions": [
+        {
+          
+          "title": "Design Digital Wallet",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Payments"],
+          "requirements": ["Wallet balance", "P2P transfers", "Merchant payments", "Security compliance"],
+            "description": "Design a digital wallet system that allows users to store money and make payments.",
+            "approach": "Use secure transaction processing and encryption for data protection."
+        },
+        {
+          
+          "title": "Design QR Code Payment System",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Payments"],
+          "requirements": ["QR generation", "Payment processing", "Transaction verification"],
+            "description": "Design a QR code-based payment system for merchants and customers.",
+            "approach": "Use secure QR code generation and scanning mechanisms for payment processing."
+        }
+      ]
+    },
+    {
+      "name": "PhonePe",
+     
+      "questions": [
+        {
+          
+          "title": "Design UPI Payment System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Payments", "UPI"],
+          "requirements": ["UPI protocol", "Bank integration", "Transaction processing", "Reconciliation"],
+            "description": "Design a UPI-based payment system that allows users to send and receive money using their mobile devices.",
+            "approach": "Use secure APIs for bank integration and real-time transaction processing."
+        },
+        {
+          
+          "title": "Design Payment Analytics",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Analytics"],
+          "requirements": ["Real-time metrics", "Transaction reports", "Fraud detection"],
+            "description": "Design a payment analytics system to monitor transaction patterns and detect anomalies.",
+            "approach": "Use stream processing for real-time metrics and machine learning for fraud detection."
+        }
+      ]
+    },
+    {
+      "name": "Razorpay",
+      
+      "questions": [
+        {
+          
+          "title": "Design Payment Gateway",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Payments"],
+          "requirements": ["Multiple payment methods", "Webhook notifications", "Refund processing"],
+            "description": "Design a payment gateway system that supports various payment methods and provides webhook notifications for transaction events.",
+            "approach": "Use microservices architecture for different payment methods and event-driven design for webhook notifications."
+        },
+        {
+         
+          "title": "Design Subscription Billing",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Payments"],
+          "requirements": ["Recurring payments", "Invoice generation", "Payment retries"],
+            "description": "Design a subscription billing system that handles recurring payments and invoicing for customers.",
+            "approach": "Use a scheduler for recurring payments and a robust invoicing system for billing."
+        }
+      ]
+    },
+    {
+      "name": "Ola",
+      
+      "questions": [
+        {
+          
+          "title": "Design Cab Booking System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Geospatial"],
+          "requirements": ["Real-time matching", "Pricing algorithm", "Route optimization", "Driver allocation"],
+            "description": "Design a cab booking system that matches riders with nearby drivers in real-time.",
+            "approach": "Use geospatial indexing for location tracking and a priority queue for efficient driver matching."
+        },
+        {
+         
+          "title": "Design Surge Pricing",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Pricing"],
+          "requirements": ["Demand prediction", "Dynamic pricing", "Real-time calculation"],
+            "description": "Design a surge pricing system that adjusts ride prices based on demand and supply.",
+            "approach": "Use historical data for demand prediction and real-time data for dynamic pricing adjustments."
+        }
+      ]
+    },
+    {
+      "name": "Byju's",
+     
+      "questions": [
+        { 
+          "title": "Credit Card Pattern Matching",
+          "difficulty": "Easy",
+          "topic": ["Strings", "Regex"],
+          "description": "Validate credit card numbers using pattern matching for Visa, MasterCard, and Amex",
+            "approach": "Use regular expressions to match different credit card formats."
+        },
+        {
+          
+          "title": "Design Learning Management System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "EdTech"],
+          "requirements": ["Video streaming", "Progress tracking", "Assessment system", "User analytics"],
+            "description": "Design a learning management system for online education platforms.",
+            "approach": "Use microservices for different components like video streaming, progress tracking, and assessments."
+        },
+        {
+        
+          "title": "Design Many-to-Many Relationship",
+          "difficulty": "Medium",
+          "topic": ["Data Structures", "Databases"],
+          "description": "Design data structure for students and courses relationship",
+            "approach": "Use junction tables in relational databases or adjacency lists in NoSQL databases."
+        }
+      ]
+    },
+    {
+      "name": "Meesho",
+  
+      "questions": [
+        {
+         
+          "title": "Find Common Elements in Arrays",
+          "difficulty": "Easy",
+          "topic": ["Arrays", "Hash Table"],
+          "description": "Given 2 arrays, find values available in both arrays in ascending order",
+            "approach": "Use hash sets to track elements and find intersections."
+          
+        },
+        {
+          
+          "title": "Design Social Commerce Platform",
+          "difficulty": "Hard",
+          "topic": ["System Design", "E-commerce", "Social"],
+          "requirements": ["Product catalog", "Reseller network", "Order management", "Commission tracking"],
+            "description": "Design a social commerce platform that enables users to resell products through their social networks.",
+            "approach": "Use microservices for product catalog, order management, and commission tracking."
+        },
+        {
+         
+          "title": "Longest Consecutive Sequence",
+          "difficulty": "Medium",
+          "topic": ["Arrays", "Hash Table"],
+            "description": "Given an unsorted array of integers, find the length of the longest consecutive elements sequence.",        
+            "approach": "Use a hash set to track elements and find consecutive sequences."
+        }
+      ]
+    },
+    {
+      "name": "CRED",
+      
+      "questions": [
+        {
+          
+          "title": "Design Credit Card Bill Payment System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Payments"],
+          "requirements": ["Bill aggregation", "Payment processing", "Reward system", "Security"],
+            "description": "Design a system that allows users to pay their credit card bills from multiple banks through a single platform.",
+            "approach": "Use secure APIs for bank integration and a robust payment processing system."
+        },
+        {
+          
+          "title": "Design Rewards System",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Gamification"],
+          "requirements": ["Points calculation", "Reward redemption", "User engagement tracking"],
+            "description": "Design a rewards system that incentivizes users to pay their credit card bills on time.",
+            "approach": "Use a points-based system with tiers and redemption options to encourage user engagement."
+        }
+      ]
+    },
+    {
+      "name": "Dream11",
+      "questions": [
+        {
+          
+          "title": "Design Fantasy Sports Platform",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Real-time"],
+          "requirements": ["Team creation", "Live scoring", "Leaderboard", "Contest management"],
+            "description": "Design a fantasy sports platform that allows users to create teams, join contests, and track live scores.",
+            "approach": "Use real-time data processing for live scoring and a robust backend for team and contest management."
+        },
+        {
+          
+          "title": "Minimum Path Sum",
+          "difficulty": "Medium",
+          "topic": ["Dynamic Programming", "Matrix"],
+          "description": "Find path from top-left to bottom-right with minimum sum",
+            "approach": "Use dynamic programming to build a table of minimum sums for each cell."
+        },
+        {
+          
+          "title": "First Missing Positive",
+          "difficulty": "Hard",
+          "topic": ["Arrays"],
+          "description": "Find smallest missing positive integer in O(n) time and O(1) space",
+            "approach": "Use index mapping to place each number in its corresponding index."
+        },
+        {
+         
+          "title": "Design Leaderboard System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Real-time"],
+          "requirements": ["Real-time ranking", "Score updates", "Historical data", "Scalability"],
+            "description": "Design a leaderboard system that ranks users based on their scores in real-time.",
+            "approach": "Use a sorted data structure for efficient ranking and real-time updates."
+        }
+      ]
+    },
+    {
+      "name": "Udaan",
+     
+      "questions": [
+        {
+         
+          "title": "Design B2B Marketplace",
+          "difficulty": "Hard",
+          "topic": ["System Design", "E-commerce"],
+          "requirements": ["Bulk ordering", "Credit system", "Inventory management", "Logistics"],
+            "description": "Design a B2B marketplace platform that connects wholesalers with retailers for bulk ordering and credit management.",
+            "approach": "Use microservices for order management, inventory tracking, and logistics."
+        },
+        {
+         
+          "title": "Design Supply Chain System",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Logistics"],
+          "requirements": ["Warehouse management", "Order tracking", "Delivery optimization"],
+            "description": "Design a supply chain management system for tracking inventory and optimizing deliveries.",
+            "approach": "Use real-time data processing for order tracking and machine learning for delivery optimization."
+        }
+      ]
+    },
+    {
+      "name": "Freshworks",
+    
+      "questions": [
+        {
+          
+          "title": "Design Customer Support Ticketing",
+          "difficulty": "Medium",
+          "topic": ["System Design", "CRM"],
+          "requirements": ["Ticket management", "Assignment rules", "SLA tracking", "Email integration"],
+            "description": "Design a customer support ticketing system that manages customer queries and tracks service level agreements.",
+            "approach": "Use a relational database for ticket storage and implement business rules for ticket assignment and SLA tracking."
+        },
+        {
+          
+          "title": "Design Helpdesk Chatbot",
+          "difficulty": "Medium",
+          "topic": ["System Design", "AI"],
+          "requirements": ["NLP processing", "Intent recognition", "Context management", "Escalation"],
+            "description": "Design a helpdesk chatbot that can handle customer queries using natural language processing.",
+            "approach": "Use NLP libraries for intent recognition and context management, with escalation to human agents when necessary."
+        }
+      ]
+    },
+    {
+      "name": "Groww",
+      
+      "questions": [
+        {
+          
+          "title": "Design Stock Trading Platform",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Finance"],
+          "requirements": ["Real-time quotes", "Order execution", "Portfolio management", "Market data"],
+            "description": "Design a stock trading platform that allows users to buy and sell stocks in real-time.",
+            "approach": "Use low-latency data processing for real-time quotes and a robust backend for order execution and portfolio management."
+        },
+        {
+         
+          "title": "Design Mutual Fund Investment System",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Finance"],
+          "requirements": ["SIP processing", "NAV updates", "Investment tracking", "Reports"],
+            "description": "Design a mutual fund investment system that allows users to invest in mutual funds and track their investments.",
+            "approach": "Use scheduled jobs for NAV updates and a relational database for investment tracking and reporting."
+        }
+      ]
+    },
+    {
+      "name": "Postman",
+    
+      "questions": [
+        {
+          
+          "title": "Design API Testing Platform",
+          "difficulty": "Hard",
+          "topic": ["System Design", "APIs"],
+          "requirements": ["Request builder", "Collection runner", "Environment variables", "Test scripts"],
+            "description": "Design an API testing platform that allows users to create, run, and manage API tests.",
+            "approach": "Use a modular architecture for request building, test execution, and environment management."
+        },
+        {
+          
+          "title": "Design API Monitoring System",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Monitoring"],
+          "requirements": ["Health checks", "Uptime tracking", "Alert system", "Performance metrics"],
+            "description": "Design an API monitoring system that tracks the health and performance of APIs.",
+            "approach": "Use periodic health checks and a dashboard for real-time monitoring and alerting."
+        }
+      ]
+    },
+    {
+      "name": "Adobe",
+      
+      "questions": [
+        {
+          
+          "title": "Design Document Collaboration",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Real-time Collaboration"],
+          "requirements": ["Real-time editing", "Version control", "Conflict resolution", "Comments"],
+            "description": "Design a document collaboration system that allows multiple users to edit documents in real-time.",
+            "approach": "Use operational transformation or conflict-free replicated data types (CRDTs) for real-time collaboration and version control."
+        },
+        {
+          
+          "title": "Design Image Processing Pipeline",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Image Processing"],
+          "requirements": ["Image upload", "Transformations", "Filters", "Storage optimization"],
+            "description": "Design an image processing pipeline that handles image uploads, applies transformations and filters, and optimizes storage.",
+            "approach": "Use a microservices architecture for different processing tasks and a CDN for optimized image delivery."
+        }
+      ]
+    },
+    {
+      "name": "IBM",
+      "questions": [
+        {
+          
+          "title": "Design Cloud Infrastructure",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Cloud Architecture"],
+          "requirements": ["Virtual machines", "Load balancing", "Auto-scaling", "Monitoring"],
+            "description": "Design a cloud infrastructure system that provides virtual machines, load balancing, and auto-scaling capabilities.",
+            "approach": "Use containerization for virtual machines, implement load balancers for traffic distribution, and use monitoring tools for resource management."
+        },
+        {
+         
+          "title": "Design Enterprise Logging System",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Logging"],
+          "requirements": ["Log aggregation", "Search", "Analytics", "Retention policies"],
+            "description": "Design an enterprise logging system that aggregates logs from various sources and provides search and analytics capabilities.",
+            "approach": "Use a centralized logging platform with indexing for efficient search and analytics."
+        }
+      ]
+    },
+    {
+      "name": "Spotify",
+      
+      "questions": [
+        {
+         
+          "title": "Design Music Streaming",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Streaming"],
+          "requirements": ["Audio streaming", "Playlist management", "Recommendations", "Offline mode"],
+            "description": "Design a music streaming platform that allows users to stream audio, manage playlists, and receive recommendations.",
+            "approach": "Use a combination of CDNs for audio delivery, microservices for playlist management, and machine learning for recommendations."
+        },
+        {
+          
+          "title": "Design Recommendation Engine",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Machine Learning"],
+          "requirements": ["User preferences", "Collaborative filtering", "Real-time updates", "A/B testing"],
+            "description": "Design a recommendation engine that suggests music based on user preferences and listening history.",
+            "approach": "Use collaborative filtering techniques and real-time data processing for personalized recommendations."
+        }
+      ]
+    },
+    {
+      "name": "Twitter (X)" ,
+      "questions": [
+        {
+        
+          "title": "Design Twitter Feed",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Social Networks"],
+          "requirements": ["Tweet posting", "Timeline generation", "Hashtags", "Trending topics"],
+            "description": "Design a Twitter feed system that allows users to post tweets and view a timeline of tweets from followed users.",
+            "approach": "Use a combination of push and pull models for timeline generation and indexing for hashtag search."
+        },
+        {
+          "title": "Design Trending Topics",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Real-time Analytics"],
+          "requirements": ["Real-time counting", "Ranking algorithm", "Geographic trends"],
+            "description": "Design a system to identify and display trending topics on Twitter in real-time.",
+            "approach": "Use stream processing for real-time counting and a ranking algorithm based on tweet volume and engagement."
+        }
+      ]
+    },
+    {
+      "name": "Pinterest",
+     
+      "questions": [
+        {
+          "id": "PINT-001",
+          "title": "Design Image Recommendation",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Machine Learning"],
+          "requirements": ["Image upload", "Board management", "Search", "Recommendations"],
+            "approach": "Use convolutional neural networks for image analysis and collaborative filtering for recommendations.",
+            "description": "Design an image recommendation system that suggests images to users based on their interests and past interactions."
+        },
+        {
+          
+          "title": "Design Pin It Button",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Browser Extension"],
+          "requirements": ["Image extraction", "API integration", "Cross-origin handling"],
+            "approach": "Use browser APIs for image extraction and secure communication with Pinterest servers.",
+            "description": "Design a browser extension that allows users to pin images from any website to their Pinterest boards."
+
+        }
+      ]
+    },
+    {
+      "name": "Snap",
+      
+      "questions": [
+        {
+          
+          "title": "Design Ephemeral Messaging",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Real-time"],
+          "requirements": ["Message expiry", "Media storage", "View tracking", "Stories feature"],
+            "description": "Design an ephemeral messaging system where messages and media disappear after being viewed.",
+            "approach": "Use time-based data expiration and secure media storage with view tracking."
+        },
+        {
+          
+          "title": "Design AR Filters",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Computer Vision"],
+          "requirements": ["Face detection", "Filter rendering", "Real-time processing"],
+            "description": "Design an augmented reality filter system that applies real-time filters to user images and videos.",
+            "approach": "Use computer vision techniques for face detection and GPU acceleration for real-time filter rendering."
+        }
+      ]
+    },
+    {
+      "name": "Zoom",
+     
+      "questions": [
+        {
+         
+          "title": "Design Video Conferencing",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Real-time Video"],
+          "requirements": ["Video streaming", "Screen sharing", "Recording", "Scalability"],
+            "description": "Design a video conferencing system that supports high-quality video streaming, screen sharing, and recording.",
+            "approach": "Use WebRTC for real-time video streaming and a scalable backend for managing connections and recordings."
+        },
+        {
+          
+          "title": "Design Meeting Scheduler",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Calendar"],
+          "requirements": ["Availability checking", "Timezone handling", "Reminders", "Calendar integration"],
+            "description": "Design a meeting scheduler that helps users find suitable times for meetings based on their availability.",
+            "approach": "Use calendar APIs for availability checking and implement timezone handling for global users."
+        }
+      ]
+    },
+    {
+      "name": "PayPal",
+     
+      "questions": [
+        {
+          
+          "title": "Design Payment Processing",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Payments"],
+          "requirements": ["Transaction processing", "Currency conversion", "Fraud detection", "Disputes"],
+            "description": "Design a payment processing system that handles online transactions securely and efficiently.",
+            "approach": "Use microservices for different components like transaction processing, fraud detection, and dispute management."
+        },
+        {
+          
+          "title": "Design Split Payment",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Payments"],
+          "requirements": ["Bill splitting", "Payment requests", "Settlement", "Notifications"],
+            "description": "Design a split payment system that allows users to split bills and request payments from others.",
+            "approach": "Use a relational database for tracking payments and notifications for payment requests."
+        }
+      ]
+    },
+    {
+      "name": "Atlassian",
+      
+      "questions": [
+        {
+         
+          "title": "Design Project Management (Jira)",
+          "difficulty": "Hard",
+          "topic": ["System Design", "Project Management"],
+          "requirements": ["Issue tracking", "Workflow customization", "Sprint management", "Reports"],
+            "description": "Design a project management system similar to Jira that allows teams to track issues and manage workflows.",
+            "approach": "Use a modular architecture for issue tracking, workflow management, and reporting."
+        },
+        {
+         
+          "title": "Design Wiki System (Confluence)",
+          "difficulty": "Medium",
+          "topic": ["System Design", "Collaboration"],
+          "requirements": ["Page editor", "Version control", "Search", "Permissions"],
+            "description": "Design a wiki system similar to Confluence that allows teams to create and manage documentation collaboratively.",
+            "approach": "Use a rich text editor for page creation, implement version control for tracking changes, and use indexing for search functionality."
+        }
+      ]
+    }
+    ]}
