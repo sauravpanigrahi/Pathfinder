@@ -16,7 +16,7 @@ const Resume = ({stud_uid}) => {
     const checkResumeStatus = async () => {
       if (!userID) return;
       try {
-        const res = await axios.get(`http://localhost:8000/resume/checkresume/${userID}`);
+        const res = await axios.get(`https://pathfinder-qkw1.onrender.com/resume/checkresume/${userID}`);
         if (res.data && res.data.uploaded) {
           setUpload(true);
           setResumeFile(res.data.url);
@@ -43,7 +43,7 @@ const Resume = ({stud_uid}) => {
     formData.append("resume", file);
     try {
       const response = await axios.post(
-        `http://localhost:8000/resume/uploadresume/${userID}`,
+        `https://pathfinder-qkw1.onrender.com/resume/uploadresume/${userID}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

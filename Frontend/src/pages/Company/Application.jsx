@@ -18,7 +18,7 @@ const Application = () => {
     const fetchApplications = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/applications/${companyUID}`,
+          `https://pathfinder-qkw1.onrender.com/applications/${companyUID}`,
           { withCredentials: true }
         );
         const apps = response.data;
@@ -28,7 +28,7 @@ const Application = () => {
             try {
               if (!app.match_percentage) {
                 const matchRes = await axios.get(
-                  `http://localhost:8000/applications/${app.id}/match-percentage`,
+                  `https://pathfinder-qkw1.onrender.com/applications/${app.id}/match-percentage`,
                   { withCredentials: true }
                 );
                 return { ...app, match_percentage: matchRes.data.match_percentage };
@@ -54,7 +54,7 @@ const Application = () => {
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
       await axios.patch(
-        `http://localhost:8000/applications/${applicationId}/status`,
+        `https://pathfinder-qkw1.onrender.com/applications/${applicationId}/status`,
         { status: newStatus },
         { withCredentials: true }
       );

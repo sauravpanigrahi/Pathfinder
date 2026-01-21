@@ -35,7 +35,7 @@ const Smartreview = () => {
 
         // 1️⃣ Fetch resume
         const resumeRes = await axios.get(
-          `http://localhost:8000/review/getresume/${userUID}`
+          `https://pathfinder-qkw1.onrender.com/review/getresume/${userUID}`
         );
 
         // 2️⃣ Job-specific cache keys
@@ -51,7 +51,7 @@ const Smartreview = () => {
         // 3️⃣ Call AI ONLY if cache missing
         if (!aiResult || aiScore === null) {
           const aiRes = await axios.get(
-            `http://localhost:8000/review/analyze_resume/${userUID}/${job_id}`
+            `https://pathfinder-qkw1.onrender.com/review/analyze_resume/${userUID}/${job_id}`
           );
 
           aiResult = aiRes.data.analysis;
@@ -110,7 +110,7 @@ finally {
     setAnalyzing(true);
     try {
       const aiRes = await axios.get(
-        `http://localhost:8000/review/analyze_resume/${userUID}/${job_id}`
+        `https://pathfinder-qkw1.onrender.com/review/analyze_resume/${userUID}/${job_id}`
       );
 
       setReview(prev => ({

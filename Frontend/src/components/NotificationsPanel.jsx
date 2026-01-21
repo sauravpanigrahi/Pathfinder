@@ -31,7 +31,7 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
   const fetchNotifications = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/notifications/${userUID}`,
+        `https://pathfinder-qkw1.onrender.com/notifications/${userUID}`,
         { withCredentials: true }
       );
       setNotifications(response.data || []);
@@ -46,7 +46,7 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
   const fetchUnreadCount = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/notifications/${userUID}/unread-count`,
+        `https://pathfinder-qkw1.onrender.com/notifications/${userUID}/unread-count`,
         { withCredentials: true }
       );
       const count = response.data.unread_count || 0;
@@ -60,7 +60,7 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
   const markAsRead = async (notificationId) => {
     try {
       await axios.patch(
-        `http://localhost:8000/notifications/${notificationId}/read`,
+        `https://pathfinder-qkw1.onrender.com/notifications/${notificationId}/read`,
         {},
         { withCredentials: true }
       );
@@ -83,7 +83,7 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
   const markAllAsRead = async () => {
     try {
       await axios.patch(
-        `http://localhost:8000/notifications/${userUID}/read-all`,
+        `https://pathfinder-qkw1.onrender.com/notifications/${userUID}/read-all`,
         {},
         { withCredentials: true }
       );
@@ -102,7 +102,7 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
   const deleteNotification = async (notificationId) => {
     try {
       await axios.delete(
-        `http://localhost:8000/notifications/${notificationId}`,
+        `https://pathfinder-qkw1.onrender.com/notifications/${notificationId}`,
         { withCredentials: true }
       );
       const deletedNotif = notifications.find(n => n.id === notificationId);

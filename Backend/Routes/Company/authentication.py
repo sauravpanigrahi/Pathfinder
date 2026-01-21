@@ -127,7 +127,7 @@ def signup_company(
         key=COOKIE_NAME,
         value=token,
         httponly=True,
-        secure=False,       # True in production
+        secure=True,       # True in production
         samesite="lax",
         path="/",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
@@ -157,7 +157,7 @@ def login_company(
         key=COOKIE_NAME,
         value=token,
         httponly=True,
-        secure=False,
+        secure=True,
         samesite="lax",
         path="/",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,

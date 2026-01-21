@@ -30,7 +30,7 @@ const JobCard = ({ job, Resume,isTopMatch  }) => {
           
             try {
                 const response = await axios.get(
-                    `http://localhost:8000/applications/check/${userUID}/${companyuid}/${encodeURIComponent(job.title)}/${encodeURIComponent(job.company)}/${encodeURIComponent(job.location)}`
+                    `https://pathfinder-qkw1.onrender.com/applications/check/${userUID}/${companyuid}/${encodeURIComponent(job.title)}/${encodeURIComponent(job.company)}/${encodeURIComponent(job.location)}`
                 );
                 console.log("Application status response:", response.data);
                
@@ -60,7 +60,7 @@ const JobCard = ({ job, Resume,isTopMatch  }) => {
   const checkSaved = async () => {
     if (!userUID) return;
     const res = await axios.get(
-      `http://localhost:8000/bookmarks/check/${userUID}/${job.id}`
+      `https://pathfinder-qkw1.onrender.com/bookmarks/check/${userUID}/${job.id}`
     );
     setSaved(res.data.saved);
   };
@@ -69,7 +69,7 @@ const JobCard = ({ job, Resume,isTopMatch  }) => {
 const toggleBookmark = async () => {
   try {
     const res = await axios.post(
-      "http://localhost:8000/bookmarks/toggle",
+      "https://pathfinder-qkw1.onrender.com/bookmarks/toggle",
       {
         user_uid: userUID,
         job_id: job.id
@@ -85,7 +85,7 @@ const toggleBookmark = async () => {
   //   const handleStatusChange = async (applicationId, newStatus) => {
   //   try {
   //     await axios.patch(
-  //       `http://localhost:8000/applications/${applicationId}/status`,
+  //       `https://pathfinder-qkw1.onrender.com/applications/${applicationId}/status`,
   //       { status: newStatus },
   //       { withCredentials: true }
   //     );

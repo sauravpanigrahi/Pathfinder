@@ -21,7 +21,7 @@ const Companylogin = () => {
         setIsLoading(true);
         try {
             // Match payload with backend expected structure
-            const response = await axios.post("http://localhost:8000/company/login", {
+            const response = await axios.post("https://pathfinder-qkw1.onrender.com/company/login", {
                 workEmail: formData.workEmail,  // Fix field name
                 password: formData.password
             }, { 

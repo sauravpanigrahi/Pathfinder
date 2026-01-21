@@ -24,7 +24,7 @@ const ChatBot = ({ resumeText }) => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:8000/chat_ai", {
+      const res = await axios.post("https://pathfinder-qkw1.onrender.com/chat_ai", {
         user_message: input,
         resume_text: resumeText || "",
       });

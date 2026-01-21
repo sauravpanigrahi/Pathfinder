@@ -37,7 +37,7 @@ const Jobs = () => {
     }
     try {
       const res = await axios.get(
-        `http://localhost:8000/jobs/with-match/${userID}`,
+        `https://pathfinder-qkw1.onrender.com/jobs/with-match/${userID}`,
         { withCredentials: true }
       );
       console.log("jobs",res.data)
@@ -97,7 +97,7 @@ const handleDeleteResume = async () => {
   try {
     setDeleting(true);
     await axios.delete(
-      `http://localhost:8000/student/resume/delete/${userID}`,
+      `https://pathfinder-qkw1.onrender.com/student/resume/delete/${userID}`,
       { withCredentials: true }
     );
     toast.success("Resume deleted successfully");

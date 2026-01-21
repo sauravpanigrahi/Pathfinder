@@ -21,7 +21,7 @@ const StudentAnalytics = () => {
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/student/analytics/${studentUID}`,
+          `https://pathfinder-qkw1.onrender.com/student/analytics/${studentUID}`,
           { withCredentials: true }
         );
         setAnalytics(response.data);

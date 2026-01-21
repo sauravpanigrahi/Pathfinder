@@ -34,7 +34,7 @@ const InstitutionHome = () => {
         }
         try {
           const response = await axios.get(
-            `http://localhost:8000/applications/${companyUID}`,
+            `https://pathfinder-qkw1.onrender.com/applications/${companyUID}`,
             { withCredentials: true }
           );
           setrecentApplied(response.data || []);
@@ -43,7 +43,7 @@ const InstitutionHome = () => {
           toast.error("Error loading applications");
         }
         try{
-          const jobsRes = await axios.get(`http://localhost:8000/company/${companyUID}/jobs`,{withCredentials:true});
+          const jobsRes = await axios.get(`https://pathfinder-qkw1.onrender.com/company/${companyUID}/jobs`,{withCredentials:true});
           setCompanyJobs(jobsRes.data || []);
         }catch(err){
           console.error("Error fetching jobs:", err);
