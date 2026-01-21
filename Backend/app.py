@@ -34,11 +34,11 @@ app = FastAPI()
 load_dotenv()
 Base.metadata.create_all(bind=engine)
 # Configure CORS properly
-origins = ["http://localhost:5173"]
+# origins = ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Frontend URL
+    allow_origins=["https://pathfinder-a2a7f.web.app/"],  # Frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
