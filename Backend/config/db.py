@@ -4,7 +4,11 @@ from sqlalchemy.orm import sessionmaker ### it is used to create a session for t
 from dotenv import load_dotenv
 import os
 load_dotenv()
+
 DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+
+if DATABASE_URL.startswith("mysql://"):
+    DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
 
 engine=create_engine(DATABASE_URL)
 Sessionlocal=sessionmaker(autocommit=False,autoflush=False,bind=engine)###autocommit=False means changes are not immediately saved to the database after each statement.
