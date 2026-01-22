@@ -119,7 +119,7 @@ const Setting = () => {
           return;
         }
 
-        const profileRes = await axios.get(`https://pathfinder-qkw1.onrender.com/profile/${userID}`, {
+        const profileRes = await axios.get(`https://pathfinder-maob.onrender.com/profile/${userID}`, {
           withCredentials: true,
         });
         const { details, ...userInfo } = profileRes.data;
@@ -134,15 +134,15 @@ const Setting = () => {
             details,
           })
         );
-        const jobsRes = await axios.get(`https://pathfinder-qkw1.onrender.com/jobs/appliedjobs/${userID}`, {
+        const jobsRes = await axios.get(`https://pathfinder-maob.onrender.com/jobs/appliedjobs/${userID}`, {
           withCredentials: true,
         });
         setAppliedjobs(jobsRes.data);
-        const projectRes=await axios.get(`https://pathfinder-qkw1.onrender.com/project/${userID}`, {
+        const projectRes=await axios.get(`https://pathfinder-maob.onrender.com/project/${userID}`, {
           withCredentials: true,
         });
         setUserprojects(projectRes.data);
-        const experienceRes=await axios.get(`https://pathfinder-qkw1.onrender.com/experience/${userID}`, {
+        const experienceRes=await axios.get(`https://pathfinder-maob.onrender.com/experience/${userID}`, {
           withCredentials: true,
         });
         setuserExperience(experienceRes.data); 
@@ -167,7 +167,7 @@ useEffect(() => {
   const fetchSavedJob = async () => {
     try {
       const savedjobres = await axios.get(
-        `https://pathfinder-qkw1.onrender.com/bookmarks/user/${userID}`,
+        `https://pathfinder-maob.onrender.com/bookmarks/user/${userID}`,
         { withCredentials: true }
       );
       setSavdjob(savedjobres.data);
@@ -201,7 +201,7 @@ const topMatchId = sortedPaginatedJobs[0]?.id;
 
   const submitprojects = (e) => {
     e.preventDefault();
-    axios.post(`https://pathfinder-qkw1.onrender.com/project/add/${userID}`,{
+    axios.post(`https://pathfinder-maob.onrender.com/project/add/${userID}`,{
           projects: projects.map((p) => ({
             stud_uid: userID,
             Title: p.title,
@@ -240,7 +240,7 @@ const submitExperience = (e) => {
   e.preventDefault();
 
   axios.post(
-    `https://pathfinder-qkw1.onrender.com/experience/add/${userID}`,
+    `https://pathfinder-maob.onrender.com/experience/add/${userID}`,
     {
       experiences: experiences.map((exp) => ({
         company_name: exp.company,
@@ -282,7 +282,7 @@ const updateproject = (e, id) => {
   e.preventDefault();
 
   axios.put(
-    `https://pathfinder-qkw1.onrender.com/project/update/${userID}/${id}`,
+    `https://pathfinder-maob.onrender.com/project/update/${userID}/${id}`,
     editProjectData,
     {
       headers: { "Content-Type": "application/json" }
@@ -308,7 +308,7 @@ const updateproject = (e, id) => {
 const updateExperience = (e, id) => {
   e.preventDefault();
   axios.put(
-    `https://pathfinder-qkw1.onrender.com/experience/update/${userID}/${id}`,
+    `https://pathfinder-maob.onrender.com/experience/update/${userID}/${id}`,
     editExperienceData,
     {
       headers: { "Content-Type": "application/json" },
@@ -332,7 +332,7 @@ const updateExperience = (e, id) => {
 };
 const deleteproj=async (id)=>{
   try{
-    const deleteres=await axios.delete(`https://pathfinder-qkw1.onrender.com/project/delete/${userID}/${id}`,{
+    const deleteres=await axios.delete(`https://pathfinder-maob.onrender.com/project/delete/${userID}/${id}`,{
       withCredentials: true,
   })
     toast.success("Project deleted successfully ✅");
@@ -347,7 +347,7 @@ const deleteproj=async (id)=>{
 }
 const deleteexp=async (id)=>{
   try{
-    const deleteres=await axios.delete(`https://pathfinder-qkw1.onrender.com/experience/delete/${userID}/${id}`,{
+    const deleteres=await axios.delete(`https://pathfinder-maob.onrender.com/experience/delete/${userID}/${id}`,{
       withCredentials: true,
   })
 
@@ -379,7 +379,7 @@ const updateProfile = async () => {
     };
 
     await axios.put(
-      `https://pathfinder-qkw1.onrender.com/profile/update/${userID}`,
+      `https://pathfinder-maob.onrender.com/profile/update/${userID}`,
       payload,
       {
         withCredentials: true,
@@ -450,7 +450,7 @@ const updateProfile = async () => {
 
     try {
       const response = await axios.put(
-        "https://pathfinder-qkw1.onrender.com/student/password/update",
+        "https://pathfinder-maob.onrender.com/student/password/update",
         {
           current_password: securityData.currentPassword,
           new_password: securityData.newPassword,
@@ -478,7 +478,7 @@ const updateProfile = async () => {
  const Logoutsetting = async () => {
   try {
     await axios.post(
-      "https://pathfinder-qkw1.onrender.com/student/logout",
+      "https://pathfinder-maob.onrender.com/student/logout",
       {},
       { withCredentials: true }
     );

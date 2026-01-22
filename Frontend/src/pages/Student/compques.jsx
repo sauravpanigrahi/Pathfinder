@@ -10,7 +10,7 @@ export default function Companyques() {
 
   useEffect(() => {
     axios
-      .get("https://pathfinder-qkw1.onrender.com/api/company-questions", {
+      .get("https://pathfinder-maob.onrender.com/api/company-questions", {
         params: { company_slug: companySlug },
       })
       .then((res) => {

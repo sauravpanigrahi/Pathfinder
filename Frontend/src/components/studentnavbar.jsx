@@ -52,7 +52,7 @@ export default function Navbar() {
   const fetchUnreadCount = async () => {
     try {
       const response = await axios.get(
-        `https://pathfinder-qkw1.onrender.com/notifications/${userID}/unread-count`,
+        `https://pathfinder-maob.onrender.com/notifications/${userID}/unread-count`,
         { withCredentials: true }
       );
       setUnreadCount(response.data.unread_count || 0);
@@ -77,7 +77,7 @@ export default function Navbar() {
   const profilecheck = async () => {
     try {
       const res = await axios.get(
-        `https://pathfinder-qkw1.onrender.com/profile/check/${userID}`,
+        `https://pathfinder-maob.onrender.com/profile/check/${userID}`,
         { withCredentials: true }
       );
        console.log("PROFILE CHECK RESPONSE 👉", res.data);

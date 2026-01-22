@@ -28,7 +28,7 @@ const onchange = (e) => {
   e.preventDefault();
   try {
     await axios.post(
-      `https://pathfinder-qkw1.onrender.com/student/blog/form/${userID}`,
+      `https://pathfinder-maob.onrender.com/student/blog/form/${userID}`,
       form,
       { withCredentials: true }
     );

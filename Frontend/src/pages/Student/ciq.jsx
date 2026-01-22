@@ -17,7 +17,7 @@ const Ciq = () => {
       });
       
       const res = await fetch(
-        `https://pathfinder-qkw1.onrender.com/api/interview-questions?${params}`
+        `https://pathfinder-maob.onrender.com/api/interview-questions?${params}`
       );
       
       if (!res.ok) throw new Error('Failed to fetch');

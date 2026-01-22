@@ -64,7 +64,7 @@ const JobApplicationForm = () => {
     );
       console.log("Submitting application:", formData);
       const response = await axios.post(
-        "https://pathfinder-qkw1.onrender.com/student/apply",
+        "https://pathfinder-maob.onrender.com/student/apply",
         cleanedData,
         {
           headers: {

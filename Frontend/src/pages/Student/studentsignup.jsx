@@ -33,7 +33,7 @@ const Studentsignup = () => {
     const userID = generateUID();
     try {
       const response = await axios.post(
-        "https://pathfinder-qkw1.onrender.com/student/signup",
+        "https://pathfinder-maob.onrender.com/student/signup",
         {
           uid: userID,
           name: formData.name,

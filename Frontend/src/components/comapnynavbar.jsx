@@ -26,7 +26,7 @@ const CompanyNavbar = () => {
  const handleLogout = async () => {
   try {
     await axios.post(
-      "https://pathfinder-qkw1.onrender.com/company/logout",
+      "https://pathfinder-maob.onrender.com/company/logout",
       {},
       { withCredentials: true }
     );

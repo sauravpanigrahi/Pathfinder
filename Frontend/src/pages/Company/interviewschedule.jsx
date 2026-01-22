@@ -47,7 +47,7 @@ const companyUID =
     const fetchAcceptedApplications = async () => {
       try {
         const response = await axios.get(
-          `https://pathfinder-qkw1.onrender.com/applications/${companyUID}`,
+          `https://pathfinder-maob.onrender.com/applications/${companyUID}`,
           { withCredentials: true }
         );
         const acceptedApps = response.data.filter(app => app.status === 'accepted');
@@ -86,7 +86,7 @@ console.log("application",applications)
       };
 
       await axios.post(
-        "https://pathfinder-qkw1.onrender.com/interviews/schedule",
+        "https://pathfinder-maob.onrender.com/interviews/schedule",
         payload,
         { withCredentials: true }
       );

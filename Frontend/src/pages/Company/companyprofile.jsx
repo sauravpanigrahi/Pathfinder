@@ -33,9 +33,9 @@ const CompanyProfile = () => {
             try {
                 setLoading(true);
                 setError(null);
-                const profileRes = await axios.get(`https://pathfinder-qkw1.onrender.com/company/${uid}`);
+                const profileRes = await axios.get(`https://pathfinder-maob.onrender.com/company/${uid}`);
                 console.log('Profile response:', profileRes.data);
-                const jobsRes = await axios.get(`https://pathfinder-qkw1.onrender.com/company/${uid}/jobs`);
+                const jobsRes = await axios.get(`https://pathfinder-maob.onrender.com/company/${uid}/jobs`);
                 console.log('Jobs response:', jobsRes.data);
                 if (profileRes.data && Object.keys(profileRes.data).length > 0) {
                     setProfile(profileRes.data);
@@ -100,7 +100,7 @@ const CompanyProfile = () => {
         };
         console.log("edit",payload)
         const response = await axios.put(
-            `https://pathfinder-qkw1.onrender.com/company/${uid}/edit`,
+            `https://pathfinder-maob.onrender.com/company/${uid}/edit`,
             payload
         );
         console.log(response.data)

@@ -107,7 +107,7 @@ const Companysignup = () => {
       };
       // Updated axios configuration
       const response = await axios.post(
-        "https://pathfinder-qkw1.onrender.com/company/signup",
+        "https://pathfinder-maob.onrender.com/company/signup",
         payload,
         {
           headers: {

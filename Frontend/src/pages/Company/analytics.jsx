@@ -21,7 +21,7 @@ const Analytics = () => {
 
       try {
         const response = await axios.get(
-          `https://pathfinder-qkw1.onrender.com/analytics/${companyUID}`,
+          `https://pathfinder-maob.onrender.com/analytics/${companyUID}`,
           { withCredentials: true }
         );
         setAnalytics(response.data);

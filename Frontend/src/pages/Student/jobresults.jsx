@@ -18,7 +18,7 @@ const JobResults = () => {
     const fetchJobs = async () => {
       try {
         const response = await axios.get(
-          `https://pathfinder-qkw1.onrender.com/jobs/search?query=${query}`
+          `https://pathfinder-maob.onrender.com/jobs/search?query=${query}`
         );
         setJobs(response.data);
         console.log(response.data)

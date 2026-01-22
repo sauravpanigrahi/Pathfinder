@@ -192,7 +192,7 @@ const CreateJob = () => {
       };
 
       const response = await axios.post(
-        `https://pathfinder-qkw1.onrender.com/jobs/${uid}/create`,
+        `https://pathfinder-maob.onrender.com/jobs/${uid}/create`,
         jobData,
         { 
           headers: { 'Content-Type': 'application/json' }

@@ -45,7 +45,7 @@ export default function StudDetails() {
         linkedin_url: formData.linkedin_url || null,
         github_url: formData.github_url || null
       }
-      await axios.post('https://pathfinder-qkw1.onrender.com/student/details', payload, {
+      await axios.post('https://pathfinder-maob.onrender.com/student/details', payload, {
         headers: { 'Content-Type': 'application/json' }
       })
       toast.success('Details saved')

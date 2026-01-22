@@ -23,7 +23,7 @@ const navigate = useNavigate();
         e.preventDefault();
         setIsLoading(true);
         try{
-            const response=await axios.post("https://pathfinder-qkw1.onrender.com/student/login",{
+            const response=await axios.post("https://pathfinder-maob.onrender.com/student/login",{
               email:formData.email,
               password:formData.password
             },{

@@ -23,7 +23,7 @@ const [reschedulingId, setReschedulingId] = useState(null);
     const fetchInterviews = async () => {
       try {
         const response = await axios.get(
-          `https://pathfinder-qkw1.onrender.com/interviews/company/${companyUID}`,
+          `https://pathfinder-maob.onrender.com/interviews/company/${companyUID}`,
           { withCredentials: true }
         );
         console.log('Fetched interviews:', response.data);
@@ -57,7 +57,7 @@ const handleStatusUpdate = async (interviewId, newStatus) => {
     }
 
     await axios.put(
-      `https://pathfinder-qkw1.onrender.com/interviews/${interviewId}/status`,
+      `https://pathfinder-maob.onrender.com/interviews/${interviewId}/status`,
       payload,
       { withCredentials: true }
     );

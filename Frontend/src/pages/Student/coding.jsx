@@ -25,7 +25,7 @@ const coding = () => {
       });
 
       const res = await fetch(
-        `https://pathfinder-qkw1.onrender.com/api/coding-questions?${params}`
+        `https://pathfinder-maob.onrender.com/api/coding-questions?${params}`
       );
 
       if (!res.ok) throw new Error("Failed to fetch");
