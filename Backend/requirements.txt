@@ -9,7 +9,7 @@
 # fastapi-mail==1.6.1
 # slowapi==0.1.9
 # redis==7.1.0
-matplotlib==3.8.2
+
 psutil==5.9.8
 # Core Backend
 fastapi
