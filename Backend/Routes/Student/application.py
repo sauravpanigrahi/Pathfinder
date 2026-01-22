@@ -103,9 +103,10 @@ def delete_resume(userID: str, db: Session = Depends(get_db)):
     # ☁️ Cloudinary delete (DO NOT CRASH API)
     if resume_entry.public_id:
         try:
+            # ✅ FIX: Use "raw" resource_type for PDF files, not "image"
             cloudinary.uploader.destroy(
                 resume_entry.public_id,
-                resource_type="image",
+                resource_type="raw",  # Changed from "image" to "raw" for PDF files
                 type="upload",
                 invalidate=True
             )

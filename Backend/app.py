@@ -1,11 +1,14 @@
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from config.db import Base, engine, Sessionlocal
 from dotenv import load_dotenv
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from utils.rate_limiter import limiter
+import traceback
 
 from Routes.Student.authentication import router as authentication_route
 from Routes.Student.application import router as application_router
@@ -29,15 +32,26 @@ from Routes.Company.jobcreate import router as jobcreate_router_company
 from Routes.Company.analytics import router as analytics_router_company
 load_dotenv()
 app = FastAPI()
+
 # Load the .env file
-Base.metadata.create_all(bind=engine)
+# Create database tables (with error handling)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"⚠️ Warning: Could not create database tables: {e}")
+    print("Server will continue to run, but database operations may fail.")
 
 # origins = ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://pathfinder-a2a7f.web.app",
-                   "http://localhost:5173"],  # Frontend URL
+    allow_origins=[
+        "https://pathfinder-a2a7f.web.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000"
+    ],  # Frontend URLs
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
@@ -54,6 +68,27 @@ def get_db():
 
 app.state.limiter=limiter
 app.add_exception_handler(RateLimitExceeded,_rate_limit_exceeded_handler)
+
+# Global exception handler to ensure CORS headers are always included
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Global exception handler that ensures CORS headers are included"""
+    print(f"❌ Unhandled exception: {exc}")
+    print(traceback.format_exc())
+    import os
+    is_debug = os.getenv("DEBUG", "false").lower() == "true"
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": "Internal server error", "error": str(exc) if is_debug else "An error occurred"}
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Handle validation errors with CORS headers"""
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors(), "body": exc.body}
+    )
 
 app.include_router(authentication_route)
 app.include_router(application_router)

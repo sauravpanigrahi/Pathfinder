@@ -69,13 +69,28 @@
 
 import json
 import mysql.connector
+import os
+from dotenv import load_dotenv
+
+# ⚠️ SECURITY: Load credentials from environment variables
+load_dotenv()
 
 # Connect to MySQL
+# ⚠️ WARNING: This script should only be run once for data migration
+# Use environment variables for database credentials
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+DB_NAME = os.getenv("DB_NAME", "pathfinder")
+
+if not DB_PASSWORD:
+    raise ValueError("DB_PASSWORD environment variable is required")
+
 conn = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="mysql@database",
-  database="pathfinder"
+    host=DB_HOST,
+    user=DB_USER,
+    password=DB_PASSWORD,
+    database=DB_NAME
 )
 
 cursor = conn.cursor()

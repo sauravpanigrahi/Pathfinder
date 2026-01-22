@@ -42,106 +42,133 @@ def get_applied_jobs(userID: str, db: Session = Depends(get_db)):
 
 @router.get("/with-match/{stud_uid}")
 def get_jobs_with_match(stud_uid: str, db: Session = Depends(get_db)):
+    try:
+        # Get resume text with error handling
+        resume_entry = db.query(Resume).filter(Resume.uid == stud_uid).first()
+        resume_text = None
+        if resume_entry:
+            try:
+                resume_text = extract_text_from_cloudinary_pdf(resume_entry.secure_url)
+            except Exception as e:
+                print(f"⚠️ Warning: Could not extract resume text: {e}")
+                # Continue without resume text - jobs will still be returned without match percentages
 
-    resume_entry = db.query(Resume).filter(Resume.uid == stud_uid).first()
-    resume_text = None
-    if resume_entry:
-        resume_text = extract_text_from_cloudinary_pdf(resume_entry.secure_url)
+        # ✅ FIX: Only get Active jobs
+        jobs = db.query(Jobs).filter(Jobs.status == "Active").all()
 
-    jobs = db.query(Jobs).all()
+        applications = db.query(Applications).filter(
+            Applications.stud_uid == stud_uid
+        ).all()
 
-    applications = db.query(Applications).filter(
-        Applications.stud_uid == stud_uid
-    ).all()
+        app_map = {
+            (a.comp_uid, a.Job_role, a.Job_company, a.Job_location): a.status
+            for a in applications
+        }
 
-    app_map = {
-        (a.comp_uid, a.Job_role, a.Job_company, a.Job_location): a.status
-        for a in applications
-    }
+        result = []
 
-    result = []
+        for job in jobs:
+            match_percentage = None
+            job_description = f"""
+            Job Title: {job.title}
+            Company: {job.company}
+            Location: {job.location}
+            Type: {job.type}
+            Description: {job.description}
+            Required Skills: {', '.join(job.skills.keys()) if isinstance(job.skills, dict) else str(job.skills)}
+            """
+            if resume_text:
+                try:
+                    cache = db.query(StudentJobMatch).filter(
+                        StudentJobMatch.student_uid == stud_uid,
+                        StudentJobMatch.job_id == job.id
+                    ).first()
 
-    for job in jobs:
-        match_percentage = None
-        job_description = f"""
-        Job Title: {job.title}
-        Company: {job.company}
-        Location: {job.location}
-        Type: {job.type}
-        Description: {job.description}
-        Required Skills: {', '.join(job.skills.keys()) if isinstance(job.skills, dict) else str(job.skills)}
-        """
-        if resume_text:
-            cache = db.query(StudentJobMatch).filter(
-                StudentJobMatch.student_uid == stud_uid,
-                StudentJobMatch.job_id == job.id
-            ).first()
+                    if cache:
+                        match_percentage = cache.match_percentage
+                    else:
+                        ats = calculate_ats_score(
+                            resume_text[:17000],
+                            job_description[:7000]
+                        )
+                        match_percentage = int(ats["semantic_score"])
 
-            if cache:
-                match_percentage = cache.match_percentage
-            else:
-                ats = calculate_ats_score(
-                    resume_text[:17000],
-                    job_description[:7000]
-                )
-                match_percentage = int(ats["semantic_score"])
+                        db.add(StudentJobMatch(
+                            student_uid=stud_uid,
+                            job_id=job.id,
+                            match_percentage=match_percentage
+                        ))
+                        # ✅ Note: Committing inside loop is acceptable here for caching,
+                        # but consider batch commits for better performance with many jobs
+                        try:
+                            db.commit()
+                        except Exception as commit_error:
+                            db.rollback()
+                            print(f"⚠️ Warning: Could not save match cache for job {job.id}: {commit_error}")
+                            # Continue without caching - match_percentage is already calculated
+                except Exception as e:
+                    print(f"⚠️ Warning: Could not calculate match for job {job.id}: {e}")
+                    # Continue without match percentage
 
-                db.add(StudentJobMatch(
-                    student_uid=stud_uid,
-                    job_id=job.id,
-                    match_percentage=match_percentage
-                ))
-                db.commit()
+            application_status = app_map.get(
+                (job.uid, job.title, job.company, job.location),
+                "not_applied"
+            )
 
-        status = app_map.get(
-            (job.uid, job.title, job.company, job.location),
-            "not_applied"
-        )
+            # ✅ FIX: Remove duplicate fields
+            result.append({
+                "id": job.id,
+                "uid": job.uid,
+                "title": job.title,
+                "company": job.company,
+                "salary": job.salary,
+                "posted": job.posted,
+                "location": job.location,
+                "type": job.type,
+                "skills": job.skills,
+                "status": job.status,  # Job status (Active/Closed)
+                "match_percentage": match_percentage,  # None if no resume
+                "application_status": application_status,  # Application status (not_applied/applied/etc)
+                "description": job.description
+            })
 
-        result.append({
-            "id": job.id,
-            "uid": job.uid,
-            "title": job.title,
-            "company": job.company,
-            "salary": job.salary,
-            "posted": job.posted,
-            "location": job.location,
-            "type": job.type,
-            "skills": job.skills,
-            "status": job.status,
-            "match_percentage": match_percentage,  # None if no resume
-            "application_status": status,
-            "description":job.description,
-            "posted":job.posted,
-            "status":job.status
-        })
-
-    return result
+        return result
+    except Exception as e:
+        print(f"❌ Error in get_jobs_with_match: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch jobs: {str(e)}")
 
 @router.patch("/{uid}/status")
 def update_job_status(job_id: str,jobTitle: str,jobType: str,data:JobsResponse,db: Session = Depends(get_db)):
-    # Step 1: Check if job exists
-    job = db.query(Jobs).filter(Jobs.id == job_id).first()
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
+    try:
+    
+        # Step 1: Check if job exists
+        job = db.query(Jobs).filter(Jobs.id == job_id).first()
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
 
-    # Step 2: Validate title and type match for that job
-    if job.title != jobTitle or job.type != jobType:
-        raise HTTPException(status_code=400, detail="Job title or type mismatch")
+        # Step 2: Validate title and type match for that job
+        if job.title != jobTitle or job.type != jobType:
+            raise HTTPException(status_code=400, detail="Job title or type mismatch")
 
-    # Step 3: Validate new status value
-    if data.new_status not in ["Active", "Closed"]:
-        raise HTTPException(status_code=400, detail="Invalid status value")
+        # Step 3: Validate new status value
+        if data.new_status not in ["Active", "Closed"]:
+            raise HTTPException(status_code=400, detail="Invalid status value")
 
-    # Step 4: Update only this specific job’s status
-    job.status = data.new_status
-    db.commit()
-    db.refresh(job)
-    return {
-        "message": f"Status for job '{job.title}' updated to {data.new_status}",
-        "job_id": job.id,
-        "status": job.status,
-    }
+        # Step 4: Update only this specific job’s status
+        job.status = data.new_status
+        db.commit()
+        db.refresh(job)
+        return {
+                "message": f"Status for job '{job.title}' updated to {data.new_status}",
+                "job_id": job.id,
+                "status": job.status,
+            }
+    except HTTPException:
+            raise
+    except Exception as e:
+            db.rollback()
+            print(f"❌ Error updating job status: {e}")
+            raise HTTPException(status_code=500, detail=f"Failed to update job status: {str(e)}")
 @router.get("/search", response_model=List[JobsResponse])
 def search_jobs(
     query: str = Query(..., min_length=1),

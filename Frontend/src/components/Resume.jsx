@@ -47,15 +47,34 @@ const Resume = ({stud_uid}) => {
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
+      // ✅ Update state immediately so button changes right away
       setResumeFile(response.data.url);
       setUpload(true);
-      setResume(true); // <-- Fix: use setResume
+      setResume(true);
       toast.success("Resume uploaded successfully ✅");
-      window.location.reload();
       console.log("Upload response:", response.data);
+      
+      // ✅ Re-check resume status to ensure consistency (optional, but good for reliability)
+      // The state is already updated above, so this is just a verification
+      setTimeout(async () => {
+        try {
+          const res = await axios.get(`https://pathfinder-qkw1.onrender.com/resume/checkresume/${userID}`);
+          if (res.data && res.data.uploaded) {
+            setResumeFile(res.data.url);
+            setUpload(true);
+            setResume(true);
+          }
+        } catch (error) {
+          console.error("Error re-checking resume status:", error);
+        }
+      }, 500);
     } catch (error) {
       console.error("Error uploading resume:", error);
       toast.error("Failed to upload resume ❌");
+      // ✅ Reset state on error
+      setUpload(false);
+      setResumeFile(null);
+      setResume(false);
     }
   };
 
