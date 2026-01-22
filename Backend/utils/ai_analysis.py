@@ -1,13 +1,21 @@
 from sentence_transformers import SentenceTransformer, util
 from utils.ai_google import run_gemini_query
 
-# ✅ Load model once
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# ✅ Lazy load model (only when needed)
+_model = None
+
+def get_model():
+    global _model
+    if _model is None:
+        _model = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+    return _model
 
 def calculate_ats_score(resume_text: str, job_description: str):
     """
     Combines local NLP similarity scoring + Gemini AI qualitative feedback.
     """
+    model = get_model()
+    
     # --- 1️⃣ Local Semantic Similarity ---
     resume_emb = model.encode(resume_text, convert_to_tensor=True)
     job_emb = model.encode(job_description, convert_to_tensor=True)
