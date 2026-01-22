@@ -32,8 +32,6 @@ from Routes.Company.analytics import router as analytics_router_company
 app = FastAPI()
 # Load the .env file
 load_dotenv()
-Base.metadata.create_all(bind=engine)
-# Configure CORS properly
 # origins = ["http://localhost:5173"]
 
 app.add_middleware(
