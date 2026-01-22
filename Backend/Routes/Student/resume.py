@@ -12,7 +12,7 @@ import tempfile
 import fitz  # for compression
 from datetime import datetime
 from pydantic import BaseModel
-
+import os
 def get_db():
     db = Sessionlocal()
     try:
@@ -30,7 +30,12 @@ router=APIRouter(
     prefix="/resume",
     tags=["application"]
 )
-
+cloudinary.config(
+    cloud_name=os.getenv("CLOUD_NAME"),
+    api_key=os.getenv("API_KEY"),
+    api_secret=os.getenv("API_SECRET"),
+    secure=True
+)
 @router.post("/uploadresume/{userID}")
 async def upload_resume(userID: str, resume: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
