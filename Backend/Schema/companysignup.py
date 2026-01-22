@@ -9,7 +9,7 @@ from typing import Optional
 class CompanyDetails(Base):
     __tablename__ = "companydetails"
     id = Column(Integer, autoincrement=True, primary_key=True, index=True)
-    uid = Column(String(255), nullable=False, index=True)
+    uid = Column(String(255), nullable=False, unique=True, index=True)
     workEmail = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
     companyName = Column(String(255), nullable=False)
