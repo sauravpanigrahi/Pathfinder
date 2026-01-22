@@ -14,7 +14,13 @@ if not DATABASE_URL:
 if DATABASE_URL.startswith("mysql://"):
     DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
 
-engine=create_engine(DATABASE_URL)
+engine=create_engine(DATABASE_URL,
+                    pool_size=5,           # Reduce from default 10
+                    max_overflow=5,        # Reduce overflow connections
+                    pool_pre_ping=True,    # Verify connections before using
+                    pool_recycle=3600,     # Recycle connections after 1 hour
+                    echo=False             # Disable SQL logging (saves memory)
+)
 Sessionlocal=sessionmaker(autocommit=False,autoflush=False,bind=engine)###autocommit=False means changes are not immediately saved to the database after each statement.
 ###autoflush=False disables this, so uncommitted changes aren’t automatically synchronized with the database before queries unless flush() is explicitly called.
 Base=declarative_base()

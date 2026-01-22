@@ -9,7 +9,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from utils.rate_limiter import limiter
 import traceback
-
+import psutil
 from Routes.Student.authentication import router as authentication_route
 from Routes.Student.application import router as application_router
 from Routes.Student.profile import router as profile_router
@@ -30,6 +30,10 @@ from Routes.Company.application import router as application_router_company
 from Routes.Company.profile import router as profile_router_company
 from Routes.Company.jobcreate import router as jobcreate_router_company
 from Routes.Company.analytics import router as analytics_router_company
+import os
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
+os.environ['MPLCONFIGDIR'] = '/tmp/matplotlib'  # Use tmp directory
 load_dotenv()
 app = FastAPI()
 
@@ -47,10 +51,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://pathfinder-a2a7f.web.app",
+        "pathfinder-a2a7f.firebaseapp.com",
         "http://localhost:5173",
         "http://localhost:3000",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000"
+        
     ],  # Frontend URLs
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
@@ -117,7 +121,18 @@ def home():
 # Health check
 @app.get("/health")
 def health_check():
-    return {"status": "healthy"}
+    try:
+        # Get memory usage
+        process = psutil.Process(os.getpid())
+        memory_mb = process.memory_info().rss / 1024 / 1024
+        
+        return {
+            "status": "healthy",
+            "memory_mb": round(memory_mb, 2),
+            "pid": os.getpid()
+        }
+    except:
+        return {"status": "healthy"}
 
 # Explicit OPTIONS handler for CORS preflight
 @app.options("/{full_path:path}")
