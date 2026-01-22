@@ -9,7 +9,7 @@ from Schema.resume import Resume
 import cloudinary
 import cloudinary.uploader
 import tempfile
-import fitz  # for compression
+
 from datetime import datetime
 from pydantic import BaseModel
 import os
@@ -37,35 +37,34 @@ cloudinary.config(
     secure=True
 )
 @router.post("/uploadresume/{userID}")
-async def upload_resume(userID: str, resume: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_resume(
+    userID: str,
+    resume: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
     try:
-        # ✅ Step 1: Check if user exists
+        # 1. Check user
         user = db.query(Users).filter(Users.uid == userID).first()
         if not user:
             raise HTTPException(
                 status_code=404,
-                detail=f"No user found with UID {userID}. Please sign up before uploading a resume."
+                detail=f"No user found with UID {userID}"
             )
 
-        # ✅ Step 2: Save uploaded file temporarily
+        # 2. Save temp file (streaming friendly)
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp:
-            temp.write(await resume.read())
+            while chunk := await resume.read(1024 * 1024):
+                temp.write(chunk)
             temp_path = temp.name
 
-        compressed_path = temp_path.replace(".pdf", "_compressed.pdf")
-        compress_pdf(temp_path, compressed_path)
-        import os
-        print("Original size:", os.path.getsize(temp_path))
-        print("Compressed size:", os.path.getsize(compressed_path))
-
-        # ✅ Step 3: Upload to Cloudinary
+        # 3. Upload directly (NO compression)
         upload_result = cloudinary.uploader.upload(
-            compressed_path,
+            temp_path,
             resource_type="auto",
             folder=f"resumes/{userID}"
         )
 
-        # ✅ Step 4: Save resume record to DB
+        # 4. Save DB
         resume_entry = Resume(
             uid=userID,
             filename=resume.filename,
@@ -80,18 +79,14 @@ async def upload_resume(userID: str, resume: UploadFile = File(...), db: Session
         db.refresh(resume_entry)
 
         return {
-            "message": f"Resume uploaded successfully for user {userID}",
+            "message": "Resume uploaded successfully",
             "file_name": resume.filename,
             "url": upload_result["secure_url"]
         }
 
-    except HTTPException:
-        raise
     except Exception as e:
         db.rollback()
-        print(f"❌ Error in upload_resume: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @router.get("/checkresume/{user_id}")
 def check_resume(user_id: str, db: Session = Depends(get_db)):

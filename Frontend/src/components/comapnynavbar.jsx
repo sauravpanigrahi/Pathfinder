@@ -17,7 +17,7 @@ const CompanyNavbar = () => {
       { label: 'Create Job', path: `/companyhome/${uid}/create` },
       { label: 'Applications', path: '/company/application' },
       { label: 'Interview', path: `/company/${uid}/interview` },
-      { label: 'Analytics', path: '/company/analytics' },
+
     ];
   };
 

@@ -29,7 +29,7 @@ from Routes.Company.interview import router as interview_router_company
 from Routes.Company.application import router as application_router_company
 from Routes.Company.profile import router as profile_router_company
 from Routes.Company.jobcreate import router as jobcreate_router_company
-from Routes.Company.analytics import router as analytics_router_company
+
 import os
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
@@ -112,7 +112,7 @@ app.include_router(jobcreate_router_company)
 app.include_router(blog_router)
 app.include_router(bookmark_router)
 app.include_router(password_router)
-app.include_router(analytics_router_company)
+
 
 @app.get("/")
 def home():

@@ -24,7 +24,7 @@ const Blog = lazy(() => import('./pages/Student/blog'));
 const Form = lazy(() => import('./pages/Student/blogform'));
 const Companyprofile = lazy(() => import('./pages/Company/companyprofile'));
 const Application = lazy(() => import('./pages/Company/Application'));
-const Analytics = lazy(() => import('./pages/Company/analytics'));
+
 const StudentAnalytics = lazy(() => import('./pages/Student/analytics'));
 const Smartreview = lazy(() => import('./pages/Student/smartreview'));
 const Contact = lazy(() => import('./pages/Student/contact'));
@@ -57,7 +57,7 @@ function App() {
   const shouldShowNavbar = studentNavbarPaths.some(path =>location.pathname.startsWith(path));
   const NavbarPaths = ['/', '/main-home','/jobs',];
   const ShowNavbar = NavbarPaths.includes(location.pathname);
-  const CompanyNavbarPaths = ['/companyhome', '/company/application', '/analytics', '/company/analytics'];
+  const CompanyNavbarPaths = ['/companyhome', '/company/application', '/analytics'];
   const ShowCompanyNavbar = CompanyNavbarPaths.some(path => location.pathname.startsWith(path));
   return (
     <>
@@ -103,10 +103,10 @@ function App() {
               <Route path="companyhome/:uid/create" element={<CreateJob />} />
               <Route path="profile" element={<Companyprofile />} />
               <Route path="company/application" element={<Application />} />
-              <Route path="analytics" element={<Analytics />} />
+              
               <Route path="company/:companyUID/interview" element={<Interview />} />
               <Route path="company/interview/schedule" element={<Interviewschedule/>}/>
-              <Route path="company/analytics" element={<Analytics />} />
+              
           </Route>
           {/* Error Route - Catch all unmatched routes (must be last) */}
           <Route path="*" element={<Error />} />

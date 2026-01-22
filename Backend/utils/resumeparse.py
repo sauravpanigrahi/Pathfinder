@@ -85,7 +85,7 @@ def extract_text_from_cloudinary_pdf(pdf_url: str, max_pages: int = 3):
                 gc.collect()  # Force garbage collection
         
         # Limit text size
-        return text[:5000]  # Only keep first 5000 characters
+        return text[:8000]  # Only keep first 5000 characters
         
     except Exception as e:
         print(f"❌ Error extracting text: {e}")
