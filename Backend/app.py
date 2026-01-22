@@ -31,9 +31,6 @@ from Routes.Company.profile import router as profile_router_company
 from Routes.Company.jobcreate import router as jobcreate_router_company
 
 import os
-import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend
-os.environ['MPLCONFIGDIR'] = '/tmp/matplotlib'  # Use tmp directory
 load_dotenv()
 app = FastAPI()
 

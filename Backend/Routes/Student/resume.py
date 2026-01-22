@@ -19,10 +19,7 @@ def get_db():
         yield db
     finally:
         db.close()   
-def compress_pdf(input_path, output_path):
-    pdf = fitz.open(input_path)
-    pdf.save(output_path, deflate=True)
-    pdf.close()   
+ 
 class ChatRequest(BaseModel):
     user_message: str
     resume_text: str | None = None  # optional field
