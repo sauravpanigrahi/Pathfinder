@@ -30,6 +30,7 @@ from Routes.Company.analytics import router as analytics_router_company
 load_dotenv()
 app = FastAPI()
 # Load the .env file
+Base.metadata.create_all(bind=engine)
 
 # origins = ["http://localhost:5173"]
 
