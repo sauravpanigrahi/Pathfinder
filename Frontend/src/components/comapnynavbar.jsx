@@ -54,7 +54,7 @@ const CompanyNavbar = () => {
 
   return (
     <nav className="bg-white shadow-lg text-white border border-gray-400">
-      <div className="max-w-7xl mx-auto px-1 sm:px-6 lg:px-8">
+      <div className="max-w-8xl mx-auto px-1 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Brand on the left */}
           <div className="flex-shrink-0 text-black  ">
@@ -63,27 +63,22 @@ const CompanyNavbar = () => {
               sx={{
                 fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
+              ml: { xs: 0, sm: '4rem' },
               fontSize: { xs: '1.25rem', sm: '1.575rem' },
                  display:"flex",
                  alignItems:"center"
               }}
             >
-              <svg 
-              width="45" 
-              height="45" 
-              viewBox="0 0 24 24" 
+              <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
               fill="black"
               xmlns="http://www.w3.org/2000/svg"
+              style={{ marginRight: 8 }}
             >
-              {/* <!-- Outer Circle --> */}
               <circle cx="12" cy="12" r="10" />
-
-              {/* <!-- Compass Needle --> */}
-              <polygon 
-            points="12,5 7,17 12,14 17,17" 
-            fill="white" 
-          />
-          {/* <!-- Center Dot --> */}
+              <polygon points="12,5 7,17 12,14 17,17" fill="white" />
               <circle cx="12" cy="12" r="2" />
             </svg>
 

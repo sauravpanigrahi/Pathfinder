@@ -1,4 +1,4 @@
-from sqlalchemy import Column,Integer,String,ForeignKey,JSON
+from sqlalchemy import Column,Integer,String,ForeignKey,JSON,Text
 from sqlalchemy.dialects.mysql import json
 from config.db import Base
 from pydantic import BaseModel
@@ -16,7 +16,7 @@ class Jobs(Base):
     posted=Column(String(255),nullable=False)
     status=Column(String(255),nullable=False,default="Active")
     skills = Column(JSON, nullable=False) 
-    description=Column(String(1000),nullable=False)
+    description=Column(Text,nullable=False)
     
 class JobsCreate(BaseModel):
     title: str

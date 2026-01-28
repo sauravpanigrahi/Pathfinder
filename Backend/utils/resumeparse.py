@@ -47,50 +47,89 @@
             
 #     return text
 
-import PyPDF2
+import requests
 import io
-import gc  # Garbage collector
+import gc
+import PyPDF2
 
 def extract_text_from_cloudinary_pdf(pdf_url: str, max_pages: int = 3):
-    """Extract text without loading entire PDF in memory"""
     try:
-        import requests
-        
-        # Download with streaming (doesn't load all at once)
         response = requests.get(pdf_url, stream=True, timeout=30)
         
-        # Process in chunks
         pdf_bytes = io.BytesIO()
-        chunk_size = 1024 * 1024  # 1MB chunks
-        
-        for chunk in response.iter_content(chunk_size=chunk_size):
+        for chunk in response.iter_content(chunk_size=1024 * 1024):
             if chunk:
                 pdf_bytes.write(chunk)
         
         pdf_bytes.seek(0)
-        
-        # Read PDF
         pdf_reader = PyPDF2.PdfReader(pdf_bytes)
         
-        # Extract text page by page (not all at once)
         text = ""
         num_pages = min(len(pdf_reader.pages), max_pages)
         
         for i in range(num_pages):
-            page = pdf_reader.pages[i]
-            text += page.extract_text() + "\n"
-            
-            # Clear memory every 3 pages
-            if i % 3 == 0:
-                gc.collect()  # Force garbage collection
+            text += (pdf_reader.pages[i].extract_text() or "") + "\n"
+            gc.collect()
         
-        # Limit text size
-        return text[:8000]  # Only keep first 5000 characters
-        
+        return text[:8000]
+    
     except Exception as e:
-        print(f"❌ Error extracting text: {e}")
+        print("PDF error:", e)
         return ""
+    
     finally:
-        # Clean up
-        pdf_bytes.close()
+        try:
+            pdf_bytes.close()
+        except:
+            pass
         gc.collect()
+
+import re
+
+import re
+
+def extract_skill_section(resume_text: str):
+    text = resume_text.upper()
+
+    start_keywords = [
+        "TECHNICAL SKILLS",
+        "SKILLS",
+        "TECHNICAL EXPERTISE"
+    ]
+
+    end_keywords = [
+        "WORK EXPERIENCE",
+        "EXPERIENCE",
+        "PROJECTS",
+        "EDUCATION",
+        "CERTIFICATIONS",
+        "ACHIEVEMENTS",
+        "INTERNSHIP"
+    ]
+
+    start_idx = -1
+    for key in start_keywords:
+        if key in text:
+            start_idx = text.find(key)
+            break
+
+    if start_idx == -1:
+        return ""  # no skills section found
+
+    # find nearest next heading
+    end_idx = len(text)
+    for end_key in end_keywords:
+        idx = text.find(end_key, start_idx + 10)
+        if idx != -1:
+            end_idx = min(end_idx, idx)
+
+    skills_section = resume_text[start_idx:end_idx]
+    return skills_section.strip()
+
+
+# -------- Step 3: Send only skills to ATS --------
+def get_resume_skills_from_pdf(pdf_url: str):
+    full_text = extract_text_from_cloudinary_pdf(pdf_url)
+    skills_text = extract_skill_section(full_text)
+    return skills_text   # ✅ must be string
+

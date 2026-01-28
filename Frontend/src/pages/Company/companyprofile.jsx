@@ -13,15 +13,16 @@ const CompanyProfile = () => {
     const [profile, setProfile] = useState(null);
     const [companyJobs, setCompanyJobs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [coverImage, setCoverImage] = useState(null);
+    const [coverImageFile, setCoverImageFile] = useState(null);
     const [error, setError] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedProfile, setEditedProfile] = useState(null);
     const [saving, setSaving] = useState(false);
-    
+    const [logoFile, setLogoFile] = useState(null);
+    const [logoPreview, setLogoPreview] = useState(null);
     const uid = localStorage.getItem('company UID');
     const navigate = useNavigate();
-
+    const [coverImagePreview, setCoverImagePreview] = useState(null);
     useEffect(() => {
         const fetchData = async () => {
             if (!uid) {
@@ -92,13 +93,13 @@ const CompanyProfile = () => {
             website: editedProfile.website,
             foundedYear: editedProfile.foundedYear? Number(editedProfile.foundedYear):null,
             description: editedProfile.description,
-            logoURL: editedProfile.logoURL,
-            coverImageURL: editedProfile.coverImageURL,
             linkedinURL: editedProfile.linkedinURL,
             // twitter: editedProfile.twitter,
             // facebook:editedProfile.facebook,
+            logoURL: logoPreview,          // ✅ URL STRING
+            coverImageURL: coverImagePreview,
         };
-        console.log("edit",payload)
+        console.log("edit:",payload.coverImageURL)
         const response = await axios.put(
             `https://pathfinder-maob.onrender.com/company/${uid}/edit`,
             payload
@@ -115,36 +116,22 @@ const CompanyProfile = () => {
     }
 };
 
-    const handleCoverImageChange = async (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setCoverImage(reader.result);
-                if (isEditing) {
-                    setEditedProfile(prev => ({
-                        ...prev,
-                        coverImageURL: reader.result
-                    }));
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+   const handleLogoChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
+  }
+};
 
-    const handleLogoChange = async (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setEditedProfile(prev => ({
-                    ...prev,
-                    logoURL: reader.result
-                }));
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+const handleCoverImageChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    setCoverImageFile(file);
+    setCoverImagePreview(URL.createObjectURL(file));
+  }
+};
+
 
     if(loading){
         return <Loader/>
@@ -162,7 +149,7 @@ const CompanyProfile = () => {
     {/* Cover Image */}
     {displayProfile?.coverImageURL ? (
         <img
-            src={displayProfile.coverImageURL}
+           src={coverImagePreview || displayProfile?.coverImageURL}
             alt="Cover"
             className="w-full h-full object-cover"
             loading="lazy"
@@ -196,7 +183,7 @@ const CompanyProfile = () => {
             <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-200 rounded-lg flex items-center justify-center">
                 {displayProfile?.logoURL ? (
                     <img
-                        src={displayProfile.logoURL}
+                        src={logoPreview || displayProfile?.logoURL}
                         alt={displayProfile.companyName}
                         className="w-full h-full object-contain rounded-lg"
                         loading="lazy"

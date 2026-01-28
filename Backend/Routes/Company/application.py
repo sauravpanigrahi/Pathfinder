@@ -11,7 +11,7 @@ from Schema.resume import Resume
 from Schema.interview import Interview
 from Schema.notifications import Notification
 from datetime import datetime
-from utils.resumeparse import extract_text_from_cloudinary_pdf
+from utils.resumeparse import extract_text_from_cloudinary_pdf,get_resume_skills_from_pdf
 from pydantic import BaseModel
 from typing import Optional
 from utils.ai_analysis import calculate_ats_score
@@ -123,69 +123,74 @@ def update_application_status(application_id: int, status_data: StatusUpdate, db
 
 @router.get("/{application_id}/match-percentage")
 def calculate_match_percentage(application_id: int, db: Session = Depends(get_db)):
-    """
-    Calculate match percentage between student's resume and job description using AI
-    """
     try:
-        application = db.query(Applications).filter(Applications.id == application_id).first()
+        application = db.query(Applications).filter(
+            Applications.id == application_id
+        ).first()
+
         if not application:
             raise HTTPException(status_code=404, detail="Application not found")
+
+        # Return cached value
         if application.match_percentage is not None:
             return {
                 "match_percentage": application.match_percentage,
                 "cached": True
             }
-        # Get student's resume
-        resume_entry = db.query(Resume).filter(Resume.uid == application.stud_uid).first()
+
+        # Get resume
+        resume_entry = db.query(Resume).filter(
+            Resume.uid == application.stud_uid
+        ).first()
+
         if not resume_entry:
             return {
                 "match_percentage": 0,
                 "message": "Resume not uploaded by student"
             }
-        
-        # Get job description
+
+        resume_skills_text = get_resume_skills_from_pdf(
+            resume_entry.secure_url
+        )
+
+        # Get job
         job = db.query(Jobs).filter(
             Jobs.uid == application.comp_uid,
             Jobs.title == application.Job_role,
             Jobs.company == application.Job_company,
-            Jobs.location == application.Job_location
+            Jobs.location == application.Job_location,
         ).first()
-        
+
         if not job:
             raise HTTPException(status_code=404, detail="Job not found")
-        
-        # Extract resume text
-        resume_text = extract_text_from_cloudinary_pdf(resume_entry.secure_url)
-        
-        # Create job description text
-        job_description = f"""
-        Job Title: {job.title}
-        Company: {job.company}
-        Location: {job.location}
-        Type: {job.type}
-        Description: {job.description}
-        Required Skills: {', '.join(job.skills.keys()) if isinstance(job.skills, dict) else str(job.skills)}
-        """
-        
-        # Calculate ATS score
-        ats_result = calculate_ats_score(resume_text[:17000], job_description[:7000])
-        match_percentage = int(ats_result["semantic_score"])
-        
-        # Update application with match percentage
+
+        # ✅ Correct unpacking
+        score, matched = calculate_ats_score(
+            resume_skills_text,
+            job.skills
+        )
+
+        match_percentage = int(score)
+        print("match",match_percentage)
+        # Save to DB
         application.match_percentage = match_percentage
         db.commit()
-        
+
         return {
             "match_percentage": match_percentage,
-            "ats_score": ats_result["semantic_score"],
-            "feedback": ats_result["feedback_text"],
+            "matched_skills": matched,
             "cached": False
         }
+
     except HTTPException:
         raise
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to calculate match: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to calculate match: {str(e)}"
+        )
+
 @router.get("/check/{userID}/{companyUID}/{jobRole}/{jobCompany}/{jobLocation}")
 def check_application_status(
     userID: str,

@@ -21,15 +21,16 @@ export default function BackBar() {
     >
       <Toolbar>
         {/* Back Button */}
-        <IconButton onClick={() => navigate("/companyhome")} edge="start">
+        <IconButton onClick={() => navigate(-1)} edge="start">
           <ArrowBackIcon />
         </IconButton>
+
 
         {/* Title */}
         <Typography
           variant="h6"
           sx={{
-            ml: 10,
+            ml: 5,
             fontFamily: 'Poppins, sans-serif',
             fontWeight: 700,
              fontSize: { xs: '1.25rem', sm: '1.575rem' },
@@ -37,22 +38,16 @@ export default function BackBar() {
             alignItems:"center"
           }}
         >
-             <svg 
-              width="45" 
-              height="45" 
-              viewBox="0 0 24 24" 
+             <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
               fill="black"
               xmlns="http://www.w3.org/2000/svg"
+              style={{ marginRight: 8 }}
             >
-              {/* <!-- Outer Circle --> */}
               <circle cx="12" cy="12" r="10" />
-
-              {/* <!-- Compass Needle --> */}
-              <polygon 
-            points="12,5 7,17 12,14 17,17" 
-            fill="white" 
-          />
-          {/* <!-- Center Dot --> */}
+              <polygon points="12,5 7,17 12,14 17,17" fill="white" />
               <circle cx="12" cy="12" r="2" />
             </svg>
           PathFinder

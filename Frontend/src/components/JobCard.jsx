@@ -163,7 +163,7 @@ const toggleBookmark = async () => {
     
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20">{job.type}</span>
-            <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">{job.salary}</span>
+            <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20"> ₹{Number(job.salary).toLocaleString("en-IN")}</span>
             <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-300">{timeAgo(job.posted)}</span>
             
               <span

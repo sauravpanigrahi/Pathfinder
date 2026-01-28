@@ -37,13 +37,16 @@ const InstitutionHome = () => {
             `https://pathfinder-maob.onrender.com/applications/${companyUID}`,
             { withCredentials: true }
           );
+          // console.log(response.data)
           setrecentApplied(response.data || []);
+
         } catch (err) {
           console.error("Error fetching applications:", err);
           toast.error("Error loading applications");
         }
         try{
           const jobsRes = await axios.get(`https://pathfinder-maob.onrender.com/company/${companyUID}/jobs`,{withCredentials:true});
+          // console.log(jobsRes.data)
           setCompanyJobs(jobsRes.data || []);
         }catch(err){
           console.error("Error fetching jobs:", err);
@@ -83,10 +86,10 @@ const InstitutionHome = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <StatCard title="Active Jobs" value={companyJobs.jobs.length} icon="📋" trend="+5%" color="bg-blue-500" />
+          <StatCard title="Active Jobs" value={companyJobs.jobs?.length || 0} icon="📋" trend="+5%" color="bg-blue-500" />
           <StatCard title="Total Applications" value={recentApplied.length} icon="📝" trend="+12%" color="bg-green-500" />
           <StatCard title="Interviews Scheduled" value={companyJobs.scheduled} icon="🗓" trend="+3%" color="bg-purple-500" />
-          <StatCard title="Positions Filled" value={stats.hired} icon="✅" trend="+2%" color="bg-orange-500" />
+          <StatCard title="Positions Filled" value={companyJobs.Hired} icon="✅" trend="+2%" color="bg-orange-500" />
         </div>
 
         {/* Main Grid: Jobs + Activity */}

@@ -48,7 +48,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://pathfinder-a2a7f.web.app",
-        "pathfinder-a2a7f.firebaseapp.com",
+        "https://pathfinder-a2a7f.firebaseapp.com/",
         "http://localhost:5173",
         "http://localhost:3000",
         
@@ -90,6 +90,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={"detail": exc.errors(), "body": exc.body}
     )
+import psutil, os
+
+process = psutil.Process(os.getpid())
+
+def memory_mb():
+    return process.memory_info().rss / 1024 / 1024
 
 app.include_router(authentication_route)
 app.include_router(application_router)
@@ -130,6 +136,7 @@ def health_check():
         }
     except:
         return {"status": "healthy"}
+print("TOTAL APP MEMORY:", round(memory_mb(), 2), "MB")
 
 # Explicit OPTIONS handler for CORS preflight
 @app.options("/{full_path:path}")

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Clock, Target, TrendingUp, Code, Users, Lightbulb, CheckCircle, Circle, BarChart3, Sparkles, FileText, MessageSquare, Play, Building2, Video, Timer, UserPlus, Briefcase, Calendar, DollarSign, AlertTriangle, Award, Download, Mail, Eye, Camera, ChevronRight, Star, BookOpen, ThumbsUp } from 'lucide-react';
 import {useNavigate} from 'react-router-dom';
 import { Monitor, Server, Layers, Smartphone, Settings, Cloud, Brain, Database, Shield, CheckSquare,  X,Package, Cpu, Zap, CircuitBoard, Wifi, Activity, Stethoscope, Car, Factory } from 'lucide-react';
+import BackBar from '../../components/backbutton';
 
 // Main Interview Prep Component with all features
 const InterviewPrep = () => {
@@ -84,17 +85,35 @@ const InterviewPrep = () => {
   ];
 
   return (
+
     <div className="min-h-screen bg-gray-50">
+      <BackBar/>
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <h1 className="text-3xl font-semibold text-gray-900 mb-2">Interview Preparation Hub</h1>
-          <p className="text-gray-600">Complete preparation system with expert resources and AI tools</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-2">Interview Preparation Hub</h1>
+          <p className="text-sm sm:text-base text-gray-600">Complete preparation system with expert resources and AI tools</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex gap-6">
-          <div className="w-64 flex-shrink-0">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
+          {/* Mobile/Tablet dropdown menu */}
+          <div className="lg:hidden">
+            <div className="bg-white rounded-lg border border-gray-200 p-3">
+              <select 
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-900"
+              >
+                {tabs.map(tab => (
+                  <option key={tab.id} value={tab.id}>{tab.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Desktop sidebar */}
+          <div className="hidden lg:block w-64 flex-shrink-0">
             <div className="bg-white rounded-lg border border-gray-200 p-4 sticky top-6">
               <h3 className="text-sm font-semibold text-gray-900 mb-3">Features</h3>
               <div className="space-y-1">
@@ -119,12 +138,13 @@ const InterviewPrep = () => {
             </div>
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             {renderContent()}
           </div>
         </div>
       </div>
     </div>
+  
   );
 };
 

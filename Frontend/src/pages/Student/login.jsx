@@ -43,6 +43,9 @@ const navigate = useNavigate();
               console.log(error)
               toast.error("Something went wrong. Try again.");
             }
+          }finally{
+            setIsLoading(false);
+
           }
         
     };

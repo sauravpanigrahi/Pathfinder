@@ -24,12 +24,13 @@ def get_company_jobs(uid: str, db: Session = Depends(get_db)):
     try:
         jobs = db.query(Jobs).filter(Jobs.uid == uid).all()
         interview=db.query(Interview).filter(Interview.company_uid == uid,
-                                             Interview.status=="scheduled"
+                                             Interview.status.in_(["scheduled","completed"])
                                              ).all()
 
         return {
             "jobs": jsonable_encoder(jobs),
-            "scheduled": len(interview)
+            "scheduled": len([i for i in interview if i.status=="scheduled"]),
+            "Hired":len([i for i in interview if i.status=="completed"])
         }
 
     except Exception as e:

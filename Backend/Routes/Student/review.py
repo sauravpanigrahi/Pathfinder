@@ -4,7 +4,7 @@ from fastapi import Depends
 from config.db import Sessionlocal
 from Schema.resume import Resume
 from Schema.jobs import Jobs
-from utils.resumeparse import extract_text_from_cloudinary_pdf
+from utils.resumeparse import extract_text_from_cloudinary_pdf,get_resume_skills_from_pdf
 from utils.ai_google import run_gemini_query
 from utils.ai_analysis import calculate_ats_score
 from slowapi import Limiter
@@ -33,7 +33,6 @@ def get_resume(userID: str, db: Session = Depends(get_db)):
         "uploaded_at": resume_entry.uploaded_at
     }
     
-
 @router.get("/analyze_resume/{userID}/{job_id}")
 @limiter.limit("1/2minutes")
 def analyze_resume(request: Request,userID: str, job_id: int, db: Session = Depends(get_db)):
@@ -44,15 +43,20 @@ def analyze_resume(request: Request,userID: str, job_id: int, db: Session = Depe
             raise HTTPException(status_code=404, detail="Resume not found")
 
         resume_text = extract_text_from_cloudinary_pdf(resume_entry.secure_url)
-        resume_text = resume_text[:8000]
-
+        resume_skills_text = None
+        if resume_text:
+            resume_skills_text = get_resume_skills_from_pdf(resume_entry.secure_url )
+        resume_text = resume_text[:10000]
+        print(resume_text)
         # 2️⃣ Job
         job = db.query(Jobs).filter(Jobs.id == job_id).first()
         if not job:
             raise HTTPException(status_code=404, detail="Job not found")
 
         job_description = job.description
-
+        job_skill=job.skills
+        print("job_skills",job_skill)
+        print("resume_skills_text",resume_skills_text)
         # 3️⃣ Gemini prompt
         prompt = f"""
         You are an expert resume and ATS evaluator.
@@ -83,12 +87,12 @@ def analyze_resume(request: Request,userID: str, job_id: int, db: Session = Depe
         ai_result = response.text
 
         # 4️⃣ ATS score (algorithmic)
-        score = calculate_ats_score(resume_text, job_description)
-
+        score,matched = calculate_ats_score(resume_skills_text, job_skill)
+        print(score)
         return {
             "analysis": ai_result,
-            "score_analysis": score["feedback_text"],
-            "semantic_score": score["semantic_score"]
+            "semantic_score": score,
+            # "matched_skills": matched
         }
 
     except HTTPException:

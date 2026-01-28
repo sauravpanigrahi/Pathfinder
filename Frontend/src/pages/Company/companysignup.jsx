@@ -8,6 +8,8 @@ const Companysignup = () => {
   const [company, setCompany] = useState(null);
   const [setup, setSetup] = useState(1); // Step tracker
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  
   
 
   const [formData, setFormData] = useState({
@@ -98,6 +100,7 @@ const Companysignup = () => {
   // Final submit
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const companyID = generateUID();
       // Prepare payload for backend
@@ -128,6 +131,9 @@ const Companysignup = () => {
     } catch (error) {
       console.error('Error details:', error);
       toast.error(error.response?.data?.detail || error.message || "Registration failed");
+    }
+    finally{
+      setIsLoading(false);
     }
   };
 
@@ -425,11 +431,13 @@ const Companysignup = () => {
                 </button>
                 <button
                   type="button"
+                  disabled={isLoading}
                   onClick={handleFinalSubmit}
                   className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
 
                 >
-                  Complete Registration
+                 {isLoading ? 'Sign in...' : 'Complete Registration'}
+                  
                 </button>
               </div>
             </div>

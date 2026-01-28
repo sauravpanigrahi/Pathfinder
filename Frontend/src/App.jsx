@@ -57,7 +57,7 @@ function App() {
   const shouldShowNavbar = studentNavbarPaths.some(path =>location.pathname.startsWith(path));
   const NavbarPaths = ['/', '/main-home','/jobs',];
   const ShowNavbar = NavbarPaths.includes(location.pathname);
-  const CompanyNavbarPaths = ['/companyhome', '/company/application', '/analytics'];
+  const CompanyNavbarPaths = ['/companyhome', '/company/application'];
   const ShowCompanyNavbar = CompanyNavbarPaths.some(path => location.pathname.startsWith(path));
   return (
     <>
@@ -119,7 +119,8 @@ function App() {
         draggable
         theme="colored"
         toastStyle={{
-          width: '500px',
+          maxWidth: '90vw',   // responsive
+          width: '450px',    // desktop
           minHeight: '60px',
           color: '#fff',
           backgroundColor: '#1e293b',

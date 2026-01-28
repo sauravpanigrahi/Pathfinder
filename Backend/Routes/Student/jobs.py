@@ -9,7 +9,7 @@ from Schema.jobs import JobsResponse
 from Schema.resume import Resume
 
 from Schema.student_job_match import StudentJobMatch
-from utils.resumeparse import extract_text_from_cloudinary_pdf
+from utils.resumeparse import get_resume_skills_from_pdf
 from utils.ai_analysis import calculate_ats_score
 from typing import List
 from sqlalchemy import or_, cast, String
@@ -43,79 +43,52 @@ def get_applied_jobs(userID: str, db: Session = Depends(get_db)):
 @router.get("/with-match/{stud_uid}")
 def get_jobs_with_match(stud_uid: str, db: Session = Depends(get_db)):
     try:
-        # Get resume text with error handling
         resume_entry = db.query(Resume).filter(Resume.uid == stud_uid).first()
-        resume_text = None
+        resume_skills_text = None
         if resume_entry:
-            try:
-                resume_text = extract_text_from_cloudinary_pdf(resume_entry.secure_url)
-            except Exception as e:
-                print(f"⚠️ Warning: Could not extract resume text: {e}")
-                # Continue without resume text - jobs will still be returned without match percentages
-
-        # ✅ FIX: Only get Active jobs
+            resume_skills_text = get_resume_skills_from_pdf(resume_entry.secure_url )
+        print(resume_skills_text)    
         jobs = db.query(Jobs).filter(Jobs.status == "Active").all()
-
         applications = db.query(Applications).filter(
             Applications.stud_uid == stud_uid
         ).all()
-
         app_map = {
             (a.comp_uid, a.Job_role, a.Job_company, a.Job_location): a.status
             for a in applications
         }
-
         result = []
-
         for job in jobs:
             match_percentage = None
-            job_description = f"""
-            Job Title: {job.title}
-            Company: {job.company}
-            Location: {job.location}
-            Type: {job.type}
-            Description: {job.description}
-            Required Skills: {', '.join(job.skills.keys()) if isinstance(job.skills, dict) else str(job.skills)}
-            """
-            if resume_text:
-                try:
-                    cache = db.query(StudentJobMatch).filter(
-                        StudentJobMatch.student_uid == stud_uid,
-                        StudentJobMatch.job_id == job.id
-                    ).first()
+            matched_skills = []
+            if resume_skills_text:
+                cache = db.query(StudentJobMatch).filter(
+                    StudentJobMatch.student_uid == stud_uid,
+                    StudentJobMatch.job_id == job.id
+                ).first()
 
-                    if cache:
-                        match_percentage = cache.match_percentage
-                    else:
-                        ats = calculate_ats_score(
-                            resume_text[:17000],
-                            job_description[:7000]
-                        )
-                        match_percentage = int(ats["semantic_score"])
+                if cache:
+                    match_percentage = cache.match_percentage
+                else:
+                    score, matched = calculate_ats_score(
+                        resume_skills_text,
+                        job.skills
+                    )
+                    print("score:",score)
+                    print("matched",matched)
 
-                        db.add(StudentJobMatch(
-                            student_uid=stud_uid,
-                            job_id=job.id,
-                            match_percentage=match_percentage
-                        ))
-                        # ✅ Note: Committing inside loop is acceptable here for caching,
-                        # but consider batch commits for better performance with many jobs
-                        try:
-                            db.commit()
-                        except Exception as commit_error:
-                            db.rollback()
-                            print(f"⚠️ Warning: Could not save match cache for job {job.id}: {commit_error}")
-                            # Continue without caching - match_percentage is already calculated
-                except Exception as e:
-                    print(f"⚠️ Warning: Could not calculate match for job {job.id}: {e}")
-                    # Continue without match percentage
+                    match_percentage = int(score)
+                    matched_skills = matched
 
+                    db.add(StudentJobMatch(
+                        student_uid=stud_uid,
+                        job_id=job.id,
+                        match_percentage=match_percentage
+                    ))
+                    db.commit()
             application_status = app_map.get(
                 (job.uid, job.title, job.company, job.location),
                 "not_applied"
             )
-
-            # ✅ FIX: Remove duplicate fields
             result.append({
                 "id": job.id,
                 "uid": job.uid,
@@ -126,16 +99,17 @@ def get_jobs_with_match(stud_uid: str, db: Session = Depends(get_db)):
                 "location": job.location,
                 "type": job.type,
                 "skills": job.skills,
-                "status": job.status,  # Job status (Active/Closed)
-                "match_percentage": match_percentage,  # None if no resume
-                "application_status": application_status,  # Application status (not_applied/applied/etc)
-                "description": job.description
+                "status": job.status,
+                "match_percentage": match_percentage,
+                "application_status": application_status,
+                "description": job.description,
+                "matched_skills": matched_skills
             })
-
         return result
     except Exception as e:
-        print(f"❌ Error in get_jobs_with_match: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to fetch jobs: {str(e)}")
+        print("Error:", e)
+        raise HTTPException(status_code=500, detail="Failed to fetch jobs")
+
 
 @router.patch("/{uid}/status")
 def update_job_status(job_id: str,jobTitle: str,jobType: str,data:JobsResponse,db: Session = Depends(get_db)):

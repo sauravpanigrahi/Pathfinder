@@ -6,11 +6,7 @@ from typing import List, Optional
 class ProjectDetails(Base):
     __tablename__ = "projectdetails"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    stud_uid = Column(
-        String(255),
-        ForeignKey("users.uid", ondelete="CASCADE"),
-        nullable=False
-    )
+    stud_uid = Column(String(255),ForeignKey("users.uid", ondelete="CASCADE"),nullable=False)
     Title = Column(String(255), nullable=False)
     description = Column(Text, nullable=False)
     tech_stack = Column(String(255), nullable=False)

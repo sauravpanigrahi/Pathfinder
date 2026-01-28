@@ -49,18 +49,20 @@ const [reschedulingId, setReschedulingId] = useState(null);
 const handleStatusUpdate = async (interviewId, newStatus) => {
   try {
     const payload = { status: newStatus };
-
-    // When submitting reschedule, status becomes SCHEDULED
+    
     const newDate = rescheduleDates[interviewId];
+    console.log(interviewId)
     if (newDate) {
       payload.interview_datetime = newDate;
     }
 
-    await axios.put(
+    const response = await axios.put(
       `https://pathfinder-maob.onrender.com/interviews/${interviewId}/status`,
       payload,
       { withCredentials: true }
     );
+
+    // console.log(response.data); // ✅ actual backend response
 
     setInterviews(prev =>
       prev.map(interview =>
@@ -75,7 +77,7 @@ const handleStatusUpdate = async (interviewId, newStatus) => {
       )
     );
 
-    toast.success("Interview rescheduled successfully!");
+    toast.success(`Interview ${newStatus} successfully!`);
   } catch (error) {
     toast.error("Failed to update interview");
   }
