@@ -42,8 +42,8 @@ export default function Navbar() {
 
   const menuItems = [
     { label: 'Home', path: '/', onClick: handleHomeRedirect },
-    { label: 'Discover', path: '/discover' },
-    { label: 'Contact', path: '/contact' },
+    // { label: 'Discover', path: '/discover' },
+    // { label: 'Contact', path: '/contact' },
     { label: "Find a job" , path:'/login/student'},
     { label: "Post a job" , path:'/login/Company'}
     

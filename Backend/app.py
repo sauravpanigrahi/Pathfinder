@@ -124,19 +124,8 @@ def home():
 # Health check
 @app.get("/health")
 def health_check():
-    try:
-        # Get memory usage
-        process = psutil.Process(os.getpid())
-        memory_mb = process.memory_info().rss / 1024 / 1024
-        
-        return {
-            "status": "healthy",
-            "memory_mb": round(memory_mb, 2),
-            "pid": os.getpid()
-        }
-    except:
-        return {"status": "healthy"}
-print("TOTAL APP MEMORY:", round(memory_mb(), 2), "MB")
+    return {"status": "ok"}
+
 
 # Explicit OPTIONS handler for CORS preflight
 @app.options("/{full_path:path}")

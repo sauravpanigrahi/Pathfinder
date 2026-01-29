@@ -79,41 +79,54 @@ const CompanyProfile = () => {
     }));
 };
    const handleSaveProfile = async () => {
-    try {
-        setSaving(true);
+  try {
+    setSaving(true);
 
-        const payload = {
-            companyName: editedProfile.companyName,
-            industry: editedProfile.industry,
-            companySize: editedProfile.companySize,
-            locations: editedProfile.locations,
-            address: editedProfile.address,
-            contactNumber: editedProfile.contactNumber,
-            workEmail: editedProfile.workEmail,
-            website: editedProfile.website,
-            foundedYear: editedProfile.foundedYear? Number(editedProfile.foundedYear):null,
-            description: editedProfile.description,
-            linkedinURL: editedProfile.linkedinURL,
-            // twitter: editedProfile.twitter,
-            // facebook:editedProfile.facebook,
-            logoURL: logoPreview,          // ✅ URL STRING
-            coverImageURL: coverImagePreview,
-        };
-        console.log("edit:",payload.coverImageURL)
-        const response = await axios.put(
-            `https://pathfinder-maob.onrender.com/company/${uid}/edit`,
-            payload
-        );
-        console.log(response.data)
-        setProfile(response.data);
-        setEditedProfile(response.data);
-        setIsEditing(false);
-        toast.success("Profile updated successfully!");
-    } catch (error) {
-        toast.error(error.response?.data?.detail || "Failed to update profile");
-    } finally {
-        setSaving(false);
+    const formData = new FormData();
+
+    // text fields
+    formData.append("companyName", editedProfile.companyName);
+    formData.append("industry", editedProfile.industry);
+    formData.append("companySize", editedProfile.companySize);
+    formData.append("locations", editedProfile.locations);
+    formData.append("address", editedProfile.address);
+    formData.append("contactNumber", editedProfile.contactNumber);
+    formData.append("workEmail", editedProfile.workEmail);
+    formData.append("website", editedProfile.website);
+    formData.append(
+      "foundedYear",
+      editedProfile.foundedYear ? Number(editedProfile.foundedYear) : ""
+    );
+    formData.append("description", editedProfile.description);
+    formData.append("linkedinURL", editedProfile.linkedinURL);
+
+    // files
+    if (logoFile) {
+      formData.append("logo", logoFile);
     }
+    if (coverImageFile) {
+      formData.append("coverImage", coverImageFile);
+    }
+
+    const response = await axios.put(
+      `https://pathfinder-maob.onrender.com/company/${uid}/edit`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      }
+    );
+
+    setProfile(response.data);
+    setEditedProfile(response.data);
+    setIsEditing(false);
+    toast.success("Profile updated successfully!");
+  } catch (error) {
+    toast.error(error.response?.data?.detail || "Failed to update profile");
+  } finally {
+    setSaving(false);
+  }
 };
 
    const handleLogoChange = (e) => {

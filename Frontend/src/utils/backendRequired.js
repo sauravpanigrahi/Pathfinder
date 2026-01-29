@@ -1,0 +1,17 @@
+export const backendRequiredRoutes = [
+  "/home",
+  "/listedjobs",
+  "/student",
+  "/company",
+  "/blogs",
+  "/settings",
+  "/contact",
+  "/interviewprep",
+  "/login/student",
+  "/signup/student",
+  "/signup/company",
+  "/login/Company",
+  "/companyhome",
+  "/company/application",
+  "/company/interview",
+];

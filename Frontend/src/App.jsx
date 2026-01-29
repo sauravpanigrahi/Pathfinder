@@ -25,7 +25,7 @@ const Form = lazy(() => import('./pages/Student/blogform'));
 const Companyprofile = lazy(() => import('./pages/Company/companyprofile'));
 const Application = lazy(() => import('./pages/Company/Application'));
 
-const StudentAnalytics = lazy(() => import('./pages/Student/analytics'));
+// const StudentAnalytics = lazy(() => import('./pages/Student/analytics'));
 const Smartreview = lazy(() => import('./pages/Student/smartreview'));
 const Contact = lazy(() => import('./pages/Student/contact'));
 
@@ -41,8 +41,16 @@ const Companyques = lazy(() => import('./pages/Student/compques'));
 const  Interviewschedule=lazy(()=>import('./pages/Company/interviewschedule'))
 const JobResults = lazy(() => import('./pages/Student/jobresults'));
 
+import { useBackendWakeup } from "../src/js/useBackendWakeup";
+import BackendWakeupOverlay from "../src/utils/BackendWakeupOverlay";
+import { backendRequiredRoutes } from "./utils/backendRequired";
 function App() {
   const location = useLocation();
+  const requiresBackend = backendRequiredRoutes.some(route =>
+  location.pathname.startsWith(route)
+);
+
+const { status, attempts } = useBackendWakeup(requiresBackend);
   // Define which pages show which Navbar
   const studentNavbarPaths = [
     '/home',
@@ -60,58 +68,68 @@ function App() {
   const CompanyNavbarPaths = ['/companyhome', '/company/application'];
   const ShowCompanyNavbar = CompanyNavbarPaths.some(path => location.pathname.startsWith(path));
   return (
+
     <>
-      {/* 🔹 Wrap Navbar with Suspense to avoid blocking */}
-      <Suspense fallback={null}>
-        {(shouldShowNavbar && <Navbar />) ||
-          (ShowNavbar && <MainNavbar />) ||
-          (ShowCompanyNavbar && <CompanyNavbar />)}
-      </Suspense>
-      {/* 🔹 Lazy load all routes */}
-      <Suspense fallback={<Loader />}>
-        <Routes>
-          {/* Public/Main Routes */}
-          <Route path="/" element={<MainHome />} />
-          {/* <Route path="/main-home" element={<MainHome />} /> */}
-          <Route path="/jobs" element={<JobResults />} />
-          {/* Student Routes */}
-          
-          <Route element={<ProtectedRoute />}>
-              <Route path="home" element={<Home />} />
-              <Route path="listedjobs" element={<Jobs />} />
-              <Route path="Student/Apply/:companyuid" element={<Jobapply />} />
-              <Route path="settings/:userID" element={<Setting />} />
-              <Route path="student/details" element={<StudDetails />} />
-              <Route path="blogs" element={<Blog />} />
-              <Route path="blogs/form/:userID" element={<Form />} />
-              <Route path="listedjobs/:companyuid/smartreview/:job_id" element={<Smartreview />}/>
-              <Route path="contact" element={<Contact />} />
-              <Route path="interviewprep" element={<Interviewprep />} />
-              <Route path="interviewprep/start-common-questions" element={<Ciq />} />
-              <Route path="interviewprep/start-coding-questions" element={<Codingquestions />} />
-              <Route path="interviewprep/:companySlug" element={<Companyques />} />
-              <Route path="student/analytics" element={<StudentAnalytics />} />
-          </Route>
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/signup/student" element={<Studentsignup />} />
-              <Route path="/login/student" element={<Studentlogin />} />
-          {/* Company Routes */}
-          <Route path="/signup/company" element={<Companysignup />} />
-          <Route path="/login/Company" element={<Companylogin />} />
-          <Route element={<CompanyProtectedRoute />}>
-              <Route path="companyhome" element={<InstitutionHome />} />
-              <Route path="companyhome/:uid/create" element={<CreateJob />} />
-              <Route path="profile" element={<Companyprofile />} />
-              <Route path="company/application" element={<Application />} />
-              
-              <Route path="company/:companyUID/interview" element={<Interview />} />
-              <Route path="company/interview/schedule" element={<Interviewschedule/>}/>
-              
-          </Route>
-          {/* Error Route - Catch all unmatched routes (must be last) */}
-          <Route path="*" element={<Error />} />
-        </Routes>
-      </Suspense>
+    {/* Backend overlay (ONLY when needed) */}
+    {requiresBackend && (
+      <BackendWakeupOverlay status={status} attempts={attempts} />
+    )}
+
+    {/* Navbars */}
+    <Suspense fallback={null}>
+      {(shouldShowNavbar && <Navbar />) ||
+        (ShowNavbar && <MainNavbar />) ||
+        (ShowCompanyNavbar && <CompanyNavbar />)}
+    </Suspense>
+
+    {/* Routes */}
+    <Suspense fallback={<Loader />}>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<MainHome />} />
+        <Route path="/jobs" element={<JobResults />} />
+
+        {/* Student Protected */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="home" element={<Home />} />
+          <Route path="listedjobs" element={<Jobs />} />
+          <Route path="Student/Apply/:companyuid" element={<Jobapply />} />
+          <Route path="settings/:userID" element={<Setting />} />
+          <Route path="student/details" element={<StudDetails />} />
+          <Route path="blogs" element={<Blog />} />
+          <Route path="blogs/form/:userID" element={<Form />} />
+          <Route
+            path="listedjobs/:companyuid/smartreview/:job_id"
+            element={<Smartreview />}
+          />
+          <Route path="contact" element={<Contact />} />
+          <Route path="interviewprep" element={<Interviewprep />} />
+          <Route path="interviewprep/start-common-questions" element={<Ciq />} />
+          <Route path="interviewprep/start-coding-questions" element={<Codingquestions />} />
+          <Route path="interviewprep/:companySlug" element={<Companyques />} />
+        </Route>
+
+        {/* Auth */}
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/signup/student" element={<Studentsignup />} />
+        <Route path="/login/student" element={<Studentlogin />} />
+        <Route path="/signup/company" element={<Companysignup />} />
+        <Route path="/login/Company" element={<Companylogin />} />
+
+        {/* Company Protected */}
+        <Route element={<CompanyProtectedRoute />}>
+          <Route path="companyhome" element={<InstitutionHome />} />
+          <Route path="companyhome/:uid/create" element={<CreateJob />} />
+          <Route path="profile" element={<Companyprofile />} />
+          <Route path="company/application" element={<Application />} />
+          <Route path="company/:companyUID/interview" element={<Interview />} />
+          <Route path="company/interview/schedule" element={<Interviewschedule />} />
+        </Route>
+
+        {/* Catch-all */}
+        <Route path="*" element={<Error />} />
+      </Routes>
+    </Suspense>
 
       {/* 🔹 Toast Notifications */}
       <ToastContainer

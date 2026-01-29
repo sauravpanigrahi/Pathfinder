@@ -17,7 +17,7 @@ class Details(Base):
     college_university = Column(String(255), nullable=False) # compulsory
     linkedin_url = Column(String(255), nullable=True)         # optional
     github_url = Column(String(255), nullable=True)
-
+    profile_picture = Column(String(500), nullable=True)  # ✅ ADD THIS
 class StudentCreate(BaseModel):
     uid: str  # foreign key to Users.uid
     phone_number: str
@@ -43,6 +43,6 @@ class StudentResponse(BaseModel):
     bio: Optional[str] = None
     linkedin_url: Optional[str] = None
     github_url: Optional[str] = None
-
+    profile_picture: Optional[str] = None  # ✅ ADD
     class Config:
         from_attributes = True  # important to return SQLAlchemy models directly as response

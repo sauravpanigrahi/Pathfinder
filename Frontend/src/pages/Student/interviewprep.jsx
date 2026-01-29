@@ -86,7 +86,8 @@ const InterviewPrep = () => {
 
   return (
 
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50 min-h-[100svh] overflow-x-hidden">
+
       <BackBar/>
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
@@ -113,7 +114,7 @@ const InterviewPrep = () => {
           </div>
 
           {/* Desktop sidebar */}
-          <div className="hidden lg:block w-64 flex-shrink-0">
+          <div className="hidden lg:block lg:w-64 xl:w-72 flex-shrink-0">
             <div className="bg-white rounded-lg border border-gray-200 p-4 sticky top-6">
               <h3 className="text-sm font-semibold text-gray-900 mb-3">Features</h3>
               <div className="space-y-1">
@@ -285,69 +286,70 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
       focus: ["Culture Fit", "Technical Excellence", "Independent Thinking"],
       tips: "Culture is paramount. Be prepared for intense cultural discussions.",
       color: "bg-red-600"
-    },{
-  name: "Tesla",
-  logo: "T",
-  difficulty: "Very Hard",
-  rounds: 5,
-  focus: ["Embedded Systems", "Problem Solving", "Innovation"],
-  tips: "Be ready for rapid-fire technical questions and real-world engineering tradeoffs.",
-  color: "bg-red-500"
-},
-{
-  name: "Uber",
-  logo: "https://imgs.search.brave.com/YXLFzkhvIwa9ajA8SnSMeEF7dNm0iFu-XATUf2olqsM/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi93ZWIt/MTgzMjgyOTMxLmpw/Zw",
-  difficulty: "Hard",
-  rounds: 4,
-  focus: ["System Design", "Scalability", "APIs"],
-  tips: "Focus on distributed systems and handling large-scale real-time data.",
-  color: "bg-black"
-},
-{
-  name: "Airbnb",
-  logo: "https://imgs.search.brave.com/yyug71OkbQF5cxqbjap3yrSPzDLi5r-HjvNAXGZcpZU/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9sb2dv/ZG93bmxvYWQub3Jn/L3dwLWNvbnRlbnQv/dXBsb2Fkcy8yMDE2/LzEwL2FpcmJuYi1s/b2dvLTAucG5n",
-  difficulty: "Hard",
-  rounds: 4,
-  focus: ["Frontend Architecture", "System Design", "Culture Fit"],
-  tips: "Strong emphasis on culture and product thinking.",
-  color: "bg-pink-500"
-},
-{
-  name: "Stripe",
-  logo: "https://imgs.search.brave.com/OEp3NdOsjSOJJ97S0tGCVCZYoJf6sgnOGHlCCXvXQhQ/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuY2RubG9nby5j/b20vbG9nb3Mvcy85/OS9zdHJpcGVfdGh1/bWIucG5n",
-  difficulty: "Very Hard",
-  rounds: 5,
-  focus: ["APIs", "Payments", "System Design"],
-  tips: "Expect deep technical discussions and clean API design questions.",
-  color: "bg-indigo-600"
-},
-{
-  name: "LinkedIn",
-  logo: "https://imgs.search.brave.com/FWdw2aGz0wyZa971we15DklsJAvxjzg4VKsFMqM8KYQ/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wMjMv/OTg2LzU2OC9zbWFs/bC9saW5rZWRpbi1s/b2dvLWxpbmtlZGlu/LWxvZ28tdHJhbnNw/YXJlbnQtbGlua2Vk/aW4taWNvbi10cmFu/c3BhcmVudC1mcmVl/LWZyZWUtcG5nLnBu/Zw",
-  difficulty: "Hard",
-  rounds: 4,
-  focus: ["System Design", "Data Modeling", "Behavioral"],
-  tips: "Be prepared to discuss scalable social platforms and data pipelines.",
-  color: "bg-blue-700"
-},
-{
-  name: "Salesforce",
-  logo: "https://imgs.search.brave.com/REIrvqWUv7wJk5mYngaayNnzEvDgIrj6g-rZkrWIevg/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzgxLzQ1/LzQ5LzgxNDU0OWMz/OTk0ZmFkNjUxYjE2/NDM2NDc1YjVkNDBm/LmpwZw",
-  difficulty: "Hard",
-  rounds: 4,
-  focus: ["Cloud Architecture", "Apex", "System Design"],
-  tips: "Strong focus on enterprise systems and customer-centric solutions.",
-  color: "bg-sky-500"
-},
-{
-  name: "Oracle",
-  logo: "https://imgs.search.brave.com/NiboZG35JUkM91k0uvjRY3hsdxuDZCYnUHrxL-HkfMo/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/cG5nbWFydC5jb20v/ZmlsZXMvMjMvT3Jh/Y2xlLUxvZ28tUE5H/LUZpbGUucG5n",
-  difficulty: "Hard",
-  rounds: 4,
-  focus: ["Databases", "System Design", "Backend Engineering"],
-  tips: "Deep knowledge of databases and large-scale systems is expected.",
-  color: "bg-red-700"
-},
+    },
+    {
+        name: "Tesla",
+        logo: "https://imgs.search.brave.com/F5OTIiXQsj1Oyc_QZ1Pcf1XFN1HfraeROF6QZqwmMHw/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/bG9nby53aW5lL2Ev/bG9nby9UZXNsYSxf/SW5jLi9UZXNsYSxf/SW5jLi1Mb2dvLndp/bmUuc3Zn",
+        difficulty: "Very Hard",
+        rounds: 5,
+        focus: ["Embedded Systems", "Problem Solving", "Innovation"],
+        tips: "Be ready for rapid-fire technical questions and real-world engineering tradeoffs.",
+        color: "bg-red-500"
+      },
+      {
+        name: "Uber",
+        logo: "https://imgs.search.brave.com/YXLFzkhvIwa9ajA8SnSMeEF7dNm0iFu-XATUf2olqsM/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi93ZWIt/MTgzMjgyOTMxLmpw/Zw",
+        difficulty: "Hard",
+        rounds: 4,
+        focus: ["System Design", "Scalability", "APIs"],
+        tips: "Focus on distributed systems and handling large-scale real-time data.",
+        color: "bg-black"
+      },
+      {
+        name: "Airbnb",
+        logo: "https://imgs.search.brave.com/yyug71OkbQF5cxqbjap3yrSPzDLi5r-HjvNAXGZcpZU/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9sb2dv/ZG93bmxvYWQub3Jn/L3dwLWNvbnRlbnQv/dXBsb2Fkcy8yMDE2/LzEwL2FpcmJuYi1s/b2dvLTAucG5n",
+        difficulty: "Hard",
+        rounds: 4,
+        focus: ["Frontend Architecture", "System Design", "Culture Fit"],
+        tips: "Strong emphasis on culture and product thinking.",
+        color: "bg-pink-500"
+      },
+      {
+        name: "Stripe",
+        logo: "https://imgs.search.brave.com/OEp3NdOsjSOJJ97S0tGCVCZYoJf6sgnOGHlCCXvXQhQ/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9zdGF0/aWMuY2RubG9nby5j/b20vbG9nb3Mvcy85/OS9zdHJpcGVfdGh1/bWIucG5n",
+        difficulty: "Very Hard",
+        rounds: 5,
+        focus: ["APIs", "Payments", "System Design"],
+        tips: "Expect deep technical discussions and clean API design questions.",
+        color: "bg-indigo-600"
+      },
+      {
+        name: "LinkedIn",
+        logo: "https://imgs.search.brave.com/FWdw2aGz0wyZa971we15DklsJAvxjzg4VKsFMqM8KYQ/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wMjMv/OTg2LzU2OC9zbWFs/bC9saW5rZWRpbi1s/b2dvLWxpbmtlZGlu/LWxvZ28tdHJhbnNw/YXJlbnQtbGlua2Vk/aW4taWNvbi10cmFu/c3BhcmVudC1mcmVl/LWZyZWUtcG5nLnBu/Zw",
+        difficulty: "Hard",
+        rounds: 4,
+        focus: ["System Design", "Data Modeling", "Behavioral"],
+        tips: "Be prepared to discuss scalable social platforms and data pipelines.",
+        color: "bg-blue-700"
+      },
+      {
+        name: "Salesforce",
+        logo: "https://imgs.search.brave.com/REIrvqWUv7wJk5mYngaayNnzEvDgIrj6g-rZkrWIevg/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzgxLzQ1/LzQ5LzgxNDU0OWMz/OTk0ZmFkNjUxYjE2/NDM2NDc1YjVkNDBm/LmpwZw",
+        difficulty: "Hard",
+        rounds: 4,
+        focus: ["Cloud Architecture", "Apex", "System Design"],
+        tips: "Strong focus on enterprise systems and customer-centric solutions.",
+        color: "bg-sky-500"
+      },
+      {
+        name: "Oracle",
+        logo: "https://imgs.search.brave.com/NiboZG35JUkM91k0uvjRY3hsdxuDZCYnUHrxL-HkfMo/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/cG5nbWFydC5jb20v/ZmlsZXMvMjMvT3Jh/Y2xlLUxvZ28tUE5H/LUZpbGUucG5n",
+        difficulty: "Hard",
+        rounds: 4,
+        focus: ["Databases", "System Design", "Backend Engineering"],
+        tips: "Deep knowledge of databases and large-scale systems is expected.",
+        color: "bg-red-700"
+      },
 {
   name: "Flipkart",
   logo: "https://imgs.search.brave.com/ZEXxYhVYbeOlxO6xeLExte4n0ciC1ATJ2lcXASj16pc/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Vla2xvZ28u/Y29tL2xvZ28tcG5n/LzI4LzIvZmxpcGth/cnQtbG9nby1wbmdf/c2Vla2xvZ28tMjg0/NDIyLnBuZw",
@@ -368,7 +370,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Zomato",
-  logo: "Z",
+  logo: "https://imgs.search.brave.com/NkwJavdxkKNRINw44nxHOdBS0DwSed8krzSTVzHpXoY/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9iLnpt/dGNkbi5jb20vaW1h/Z2VzL3NxdWFyZV96/b21hdG9fbG9nb19u/ZXcuc3Zn",
   difficulty: "Hard",
   rounds: 4,
   focus: ["Scalability", "Product Sense", "Backend"],
@@ -377,7 +379,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Paytm",
-  logo: "P",
+  logo: "https://imgs.search.brave.com/rxct47AXeBd8JIS4O6MxR_AU4itjIAGEtsnjRuYdjIU/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9wbmdo/ZHByby5jb20vd3At/Y29udGVudC90aGVt/ZXMvcG5naGRwcm8v/ZG93bmxvYWQvc29j/aWFsLW1lZGlhLWFu/ZC1icmFuZHMvcGF5/dG0tYXBwLWljb24u/cG5n",
   difficulty: "Hard",
   rounds: 4,
   focus: ["Payments", "Security", "Scalable Systems"],
@@ -386,7 +388,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "PhonePe",
-  logo: "P",
+  logo: "https://imgs.search.brave.com/cF89oYmizL8HwWm3x_7Ed953myUBBRq2ainpwTf_zIg/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzYzL2Ew/Lzc4LzYzYTA3ODM4/ZGIzZDUxYjdlODIz/ZDFlNjJhMmI4ODli/LmpwZw",
   difficulty: "Hard",
   rounds: 4,
   focus: ["UPI Systems", "Distributed Systems", "Security"],
@@ -395,7 +397,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Razorpay",
-  logo: "R",
+  logo: "https://imgs.search.brave.com/VYaF3adq4ZmkXp9Z1IIJVq52vdAUljskfwu9p0YuxDw/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9wbmdo/ZHByby5jb20vd3At/Y29udGVudC90aGVt/ZXMvcG5naGRwcm8v/ZG93bmxvYWQvc29j/aWFsLW1lZGlhLWFu/ZC1icmFuZHMvcmF6/b3JwYXktbG9nby5w/bmc",
   difficulty: "Very Hard",
   rounds: 5,
   focus: ["Payments", "APIs", "System Design"],
@@ -404,7 +406,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Ola",
-  logo: "O",
+  logo: "https://imgs.search.brave.com/gqPVEk0TdBLD1O2geJf2QzZ28VYjRyjwEX11F9tgCFI/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Vla2xvZ28u/Y29tL2xvZ28tcG5n/LzMwLzEvb2xhLWxv/Z28tcG5nX3NlZWts/b2dvLTMwNjUyNS5w/bmc",
   difficulty: "Hard",
   rounds: 4,
   focus: ["Real-time Systems", "Maps", "Scalability"],
@@ -413,7 +415,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Byju’s",
-  logo: "B",
+  logo: "https://imgs.search.brave.com/XFiCQv45ko7b3glHLx1x9Nrtpmz37VWndNsMNQV6fEs/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Vla2xvZ28u/Y29tL2xvZ28tcG5n/LzM2LzEvYnlqdXMt/bG9nby1wbmdfc2Vl/a2xvZ28tMzY0Nzc2/LnBuZw",
   difficulty: "Medium",
   rounds: 3,
   focus: ["EdTech", "Scalability", "Frontend"],
@@ -422,7 +424,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Meesho",
-  logo: "M",
+  logo: "https://imgs.search.brave.com/wnat_WJBIkXFVylsNh2OIqrewEesYX9s_0oGVigAUBg/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Vla2xvZ28u/Y29tL2xvZ28tcG5n/LzQzLzIvbWVlc2hv/LWxvZ28tcG5nX3Nl/ZWtsb2dvLTQzODUz/My5wbmc",
   difficulty: "Medium",
   rounds: 3,
   focus: ["E-commerce", "Backend", "Product Thinking"],
@@ -431,7 +433,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "CRED",
-  logo: "C",
+  logo: "https://imgs.search.brave.com/rMUyFjwNlIsQtIkcYIlwCEfttsK7FAc_sTb8zRnQu5k/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pMC53/cC5jb20vbG9nb3Rh/Z2xpbmVzLmNvbS93/cC1jb250ZW50L3Vw/bG9hZHMvMjAyMS8w/Ni9DUkVELUxvZ28t/dGFnbGluZS1zbG9n/YW4tbW90dG8tb3du/ZXItZm91bmRlci1w/dW5jaGxpbmUtYWRz/LmpwZz9maXQ9NjQw/LDY0MCZzc2w9MQ",
   difficulty: "Hard",
   rounds: 4,
   focus: ["FinTech", "Security", "Backend"],
@@ -440,7 +442,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Dream11",
-  logo: "D",
+  logo: "https://imgs.search.brave.com/Lgja9GkjoTB-cjPC3iXuDsDlR-M-zM1NmJ77ykgO7S8/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Vla2xvZ28u/Y29tL2xvZ28tcG5n/LzQ4LzEvZHJlYW0x/MS1sb2dvLXBuZ19z/ZWVrbG9nby00ODc3/NzAucG5n",
   difficulty: "Hard",
   rounds: 4,
   focus: ["High Traffic Systems", "Caching", "Backend"],
@@ -449,7 +451,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Udaan",
-  logo: "U",
+  logo: "https://imgs.search.brave.com/Xdw1NYdir-qBm0vNQORU6X6tYmEC4CJpZkQVpRyo5sQ/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9jZG4u/ZnJlZWxvZ292ZWN0/b3JzLm5ldC93cC1j/b250ZW50L3VwbG9h/ZHMvMjAyMS8wOC91/ZGFhbi1sb2dvLWZy/ZWVsb2dvdmVjdG9y/cy5uZXRfLTQwMHg0/MDAucG5n",
   difficulty: "Medium",
   rounds: 3,
   focus: ["B2B Commerce", "Scalability", "APIs"],
@@ -458,7 +460,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Freshworks",
-  logo: "F",
+  logo: "https://imgs.search.brave.com/EOyry3aqqgWbU34W1JqtoDeGgzxdEubcml6W9T5qHs4/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9zZWVr/dmVjdG9ybG9nby5j/b20vd3AtY29udGVu/dC91cGxvYWRzLzIw/MTkvMDkvZnJlc2h3/b3Jrcy12ZWN0b3It/bG9nby1zbWFsbC5w/bmc",
   difficulty: "Medium",
   rounds: 3,
   focus: ["SaaS", "System Design", "APIs"],
@@ -476,7 +478,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Postman",
-  logo: "P",
+  logo: "https://imgs.search.brave.com/T70LpK_9fo1QYs1jBhcy1LVLK0dyRoqWGAmP4hiDUP0/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Vla2xvZ28u/Y29tL2xvZ28tcG5n/LzMzLzEvcG9zdG1h/bi1sb2dvLXBuZ19z/ZWVrbG9nby0zMzk5/NjcucG5n",
   difficulty: "Hard",
   rounds: 4,
   focus: ["APIs", "Developer Tools", "System Design"],
@@ -485,7 +487,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Adobe",
-  logo: "A",
+  logo: "https://imgs.search.brave.com/_GuGeEAwkEDYEUfLl_-JGU45tY-GNKTo4PyTG5xV5Cs/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly8xMDAw/bG9nb3MubmV0L3dw/LWNvbnRlbnQvdXBs/b2Fkcy8yMDE2LzEw/L0Fkb2JlLUxvZ28t/MTk5My01MDB4MzQ0/LmpwZw",
   difficulty: "Medium",
   rounds: 3,
   focus: ["Frontend", "Creative Systems", "Product Thinking"],
@@ -494,7 +496,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "IBM",
-  logo: "I",
+  logo: "https://imgs.search.brave.com/xKnbB_C1oUm5bGIU8X4MYNTPQnuSUagTVvz-0hKjKSY/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/ZnJlZXBuZ2xvZ29z/LmNvbS91cGxvYWRz/L2libS1sb2dvLXBu/Zy9pYm0tbG9nby1h/Y20taWNwYy1rYW5w/dXItc2l0ZS0wLnBu/Zw",
   difficulty: "Medium",
   rounds: 3,
   focus: ["Cloud", "Enterprise Systems", "AI Concepts"],
@@ -503,7 +505,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Spotify",
-  logo: "S",
+  logo: "https://imgs.search.brave.com/e7rVGxZQNeyfir2G5X0e17r-QqIk_qv0ULvHcud6PAc/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Vla2xvZ28u/Y29tL2xvZ28tcG5n/LzMxLzIvc3BvdGlm/eS1sb2dvLXBuZ19z/ZWVrbG9nby0zMTU5/MjkucG5n",
   difficulty: "Hard",
   rounds: 4,
   focus: ["Data Engineering", "Scalability", "APIs"],
@@ -512,7 +514,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Twitter (X)",
-  logo: "X",
+  logo: "https://imgs.search.brave.com/UyFVZzmXGaCzO9QeJn_IAnDNbxeaBFxcOELI-ygITKw/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wNTMv/NDA3LzUwNi9zbWFs/bC94LWxvZ28teC1p/Y29uLXRyYW5zcGFy/ZW50LXNvY2lhbC1t/ZWRpYS1pY29ucy1m/cmVlLXBuZy5wbmc",
   difficulty: "Hard",
   rounds: 4,
   focus: ["Scalable Systems", "APIs", "Backend"],
@@ -521,7 +523,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Pinterest",
-  logo: "P",
+  logo: "https://imgs.search.brave.com/tOLTyPqWaMNO8XcBRX9G4HNX13CZ3XMhGBhp00ZlmUA/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/d2JsaWJyYXJ5Lm9y/Zy9zaXRlLWFzc2V0/cy9pbWFnZXMvcGlu/dGVyZXN0LWxvZ28v/QEBpbWFnZXMvaW1h/Z2UucG5n",
   difficulty: "Medium",
   rounds: 3,
   focus: ["Frontend", "Product Sense", "APIs"],
@@ -530,7 +532,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Snap",
-  logo: "S",
+  logo: "https://imgs.search.brave.com/MVKGOGZm2aHeETTj3WW8r1_lMhZDqosqMM9TpywSDZs/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzE1LzA1LzcyLzU3/LzM2MF9GXzE1MDU3/MjU3MzFfRkt0Q0Iz/S21McjVDMXVWOFNR/RXY0czFhWmxPb0NP/VlMuanBn",
   difficulty: "Hard",
   rounds: 4,
   focus: ["Mobile Systems", "Realtime", "AR"],
@@ -539,7 +541,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Zoom",
-  logo: "Z",
+  logo: "https://imgs.search.brave.com/ReGrkkB7qBshKLtbmnvks_6tZC-l5WaJacpr8LCwjp4/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9jZG4u/aWNvbnNjb3V0LmNv/bS9pY29uL2ZyZWUv/cG5nLTI1Ni9mcmVl/LXpvb20tbG9nby1p/Y29uLXN2Zy1kb3du/bG9hZC1wbmctMjA1/MDU0NS5wbmc_Zj13/ZWJwJnc9MjU2",
   difficulty: "Hard",
   rounds: 4,
   focus: ["Distributed Systems", "Networking", "Performance"],
@@ -548,7 +550,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "PayPal",
-  logo: "P",
+  logo: "https://imgs.search.brave.com/-XlpKXqBtlBxGcBj0BG6LQtD9529gfbN8KV0uzz5pq8/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/cG5nYWxsLmNvbS93/cC1jb250ZW50L3Vw/bG9hZHMvMTMvUGF5/UGFsLUxvZ28tUE5H/LVBob3Rvcy5wbmc",
   difficulty: "Hard",
   rounds: 4,
   focus: ["Payments", "Security", "System Design"],
@@ -557,7 +559,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Atlassian",
-  logo: "A",
+  logo: "https://imgs.search.brave.com/l4AesdV3jTeiHsMMIqKwaHwVrSM4HMYHUUtr51mXvcA/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9hc3Nl/dHMuc3RpY2twbmcu/Y29tL3RodW1icy82/MmM2ZWI4OTdhNThh/NGFhMWZiNzcwOWUu/cG5n",
   difficulty: "Medium",
   rounds: 3,
   focus: ["System Design", "Collaboration Tools", "APIs"],
@@ -566,7 +568,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Reddit",
-  logo: "R",
+  logo: "https://imgs.search.brave.com/yOwgfwKfhc0M_Lc9JVI5H5NoL2g7ziYo9PXp5wzdBB8/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Vla2xvZ28u/Y29tL2xvZ28tcG5n/LzU2LzIvcmVkZGl0/LWxvZ28tcG5nX3Nl/ZWtsb2dvLTU2NTUx/My5wbmc",
   difficulty: "Hard",
   rounds: 4,
   focus: ["Scalability", "Backend", "Caching"],
@@ -575,7 +577,7 @@ const CompanySpecificPrep = ({ selectedCompany, setSelectedCompany }) => {
 },
 {
   name: "Dropbox",
-  logo: "D",
+  logo: "https://imgs.search.brave.com/qdWUxHlhL4zrXfalxP0QV-uMRsm0EEw0YALCHF6Tnxg/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Vla2xvZ28u/Y29tL2xvZ28tcG5n/LzE1LzIvZHJvcGJv/eC1sb2dvLXBuZ19z/ZWVrbG9nby0xNTgw/ODAucG5n",
   difficulty: "Hard",
   rounds: 4,
   focus: ["Storage Systems", "Syncing", "System Design"],
@@ -616,14 +618,15 @@ const visibleCompanies = showAll ? companies : companies.slice(0, 6);
               }`}
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-white border flex items-center justify-center">
-                  <img
-                    src={company.logo}
-                    alt={company.name}
-                    className="w-full h-full object-contain p-1"
-                    loading="lazy"
-                  />
-                </div>
+                <div className="w-10 h-10 shrink-0 overflow-hidden rounded-lg bg-white border flex items-center justify-center">
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="max-w-full max-h-full object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+
                 <div>
                   <h3 className="font-semibold text-gray-900">{company.name}</h3>
                   <span className="text-xs text-gray-600">
@@ -1068,7 +1071,7 @@ const IndustrySpecificTracks = () => {
     const Icon = role.icon;
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div className="bg-white rounded-2xl max-w-3xl w-full my-8 shadow-2xl">
+        <div className="bg-white rounded-2xl w-full max-w-[95vw] sm:max-w-3xl my-4 shadow-2xl">
           <div className={`${role.color} p-6 rounded-t-2xl border-b-2`}>
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
@@ -1089,10 +1092,11 @@ const IndustrySpecificTracks = () => {
             </div>
           </div>
 
-          <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+          <div className="p-4 sm:p-6 space-y-6 max-h-[70svh] overflow-y-auto">
             <div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Salary Breakdown by Experience</h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                   <p className="text-sm text-gray-600 mb-1">Fresher (0-2 years)</p>
                   <p className="text-xl font-bold text-gray-900">{role.salaryBreakdown.fresher}</p>
@@ -1156,8 +1160,8 @@ const IndustrySpecificTracks = () => {
     );
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+ return (
+  <div className="bg-gradient-to-br from-slate-50 to-slate-100 px-4 py-6 overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-3">Career Tracks for India</h1>

@@ -26,6 +26,9 @@ const Setting = () => {
     const [currentPage, setCurrentPage] = useState(1);
       const jobsPerPage = 6;
   const [editingexperienceId, setEditingexperienceId] = useState(null);
+  const [profileImageFile, setProfileImageFile] = useState(null);
+const [profileImagePreview, setProfileImagePreview] = useState(null);
+
   const [editExperienceData, setEditExperienceData] = useState({
       company_name: "",
       role: "",
@@ -59,9 +62,10 @@ const Setting = () => {
       graduation_year: '',
       college_university: '',
       linkedin_url: '',
-      github_url: ''
+      github_url: '',
+      profile_picture:""
     },
-    profilePicture: null
+  
   });
 
   const [securityData, setSecurityData] = useState({
@@ -122,6 +126,7 @@ const Setting = () => {
         const profileRes = await axios.get(`https://pathfinder-maob.onrender.com/profile/${userID}`, {
           withCredentials: true,
         });
+        console.log(profileRes.data)
         const { details, ...userInfo } = profileRes.data;
         setProfileData({
           ...userInfo,
@@ -362,28 +367,36 @@ const deleteexp=async (id)=>{
 }}
 const updateProfile = async () => {
   try {
-    const payload = {
-      name: profileData.name,
-      email: profileData.email,
-      details: {
-        phone_number: profileData.details.phone_number,
-        date_of_birth: profileData.details.date_of_birth,
-        address: profileData.details.address,
-        bio: profileData.details.bio,
-        qualification: profileData.details.qualification,
-        graduation_year: profileData.details.graduation_year,
-        college_university: profileData.details.college_university,
-        linkedin_url: profileData.details.linkedin_url,
-        github_url: profileData.details.github_url
-      }
-    };
+    const formData = new FormData();
+
+    // -------- BASIC INFO --------
+    formData.append("name", profileData.name);
+    formData.append("email", profileData.email);
+
+    // -------- DETAILS --------
+    formData.append("phone_number", profileData.details.phone_number);
+    formData.append("date_of_birth", profileData.details.date_of_birth);
+    formData.append("address", profileData.details.address);
+    formData.append("bio", profileData.details.bio);
+    formData.append("qualification", profileData.details.qualification);
+    formData.append("graduation_year", profileData.details.graduation_year);
+    formData.append("college_university", profileData.details.college_university);
+    formData.append("linkedin_url", profileData.details.linkedin_url);
+    formData.append("github_url", profileData.details.github_url);
+
+    // -------- PROFILE IMAGE --------
+    if (profileImageFile) {
+      formData.append("profile_picture", profileImageFile);
+    }
 
     await axios.put(
       `https://pathfinder-maob.onrender.com/profile/update/${userID}`,
-      payload,
+      formData,
       {
         withCredentials: true,
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
       }
     );
 
@@ -394,6 +407,7 @@ const updateProfile = async () => {
     toast.error("Failed to update profile ❌");
   }
 };
+
  const handleProfileChange = (field, value, isDetail = false) => {
   if (isDetail) {
     setProfileData(prev => ({
@@ -410,6 +424,7 @@ const updateProfile = async () => {
     }));
   }
 };
+
   const handleSaveProfile = () => {
   updateProfile();
 };
@@ -423,14 +438,10 @@ const updateProfile = async () => {
 
   const handleProfilePictureUpload = (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileData(prev => ({ ...prev, profilePicture: e.target.result }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+    if(!file) return;
+    setProfileImageFile(file)
+    setProfileImagePreview(URL.createObjectURL(file))
+  }
   const handleSaveSecurity = async () => {
     // Validation
     if (!securityData.currentPassword || !securityData.newPassword || !securityData.confirmPassword) {
@@ -501,11 +512,16 @@ const updateProfile = async () => {
           <div className="flex items-center gap-6">
             <div className="relative">
               <div className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden border-4 border-white/30 shadow-xl">
-                {profileData.profilePicture ? (
-                  <img src={profileData.profilePicture} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <AccountCircle className="w-16 h-16 text-white" />
-                )}
+                {profileImagePreview || profileData.details.profile_picture ? (
+                      <img
+                        src={profileImagePreview || profileData.details.profile_picture}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <AccountCircle className="w-16 h-16 text-white" />
+)}
+
               </div>
               {isEditing && (
                 <label className="absolute -bottom-2 -right-2 bg-white text-blue-600 p-2 rounded-full cursor-pointer hover:bg-blue-50 transition-all shadow-lg">
