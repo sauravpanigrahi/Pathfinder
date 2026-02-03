@@ -27,10 +27,6 @@ class Applications(Base):
     high_qualification = Column(String(255))
     college = Column(String(255))
     graduation_year = Column(Integer)
-    prev_company = Column(String(255), nullable=True)
-    job_title = Column(String(255), nullable=True)
-    start_date = Column(Date, nullable=True)
-    end_date = Column(Date, nullable=True)
     linkedin_url = Column(String(255), nullable=True)
     github_url = Column(String(255), nullable=True)
     why_join = Column(Text)
@@ -68,10 +64,6 @@ class ApplicationsCreate(BaseModel):
     high_qualification: str
     college: str
     graduation_year: int
-    prev_company: Optional[str] = None
-    job_title: Optional[str] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
     linkedin_url: Optional[str] = None
     github_url: Optional[str] = None
     why_join: str
@@ -92,12 +84,6 @@ class ApplicationsResponse(BaseModel):
     high_qualification: str
     college: str
     graduation_year: int
-    prev_company: Optional[str] = None
-    job_title: Optional[str] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-    linkedin_url: Optional[str] = None
-    github_url: Optional[str] = None
     why_join: Optional[str] = None
     status: Optional[str] = 'pending'
     match_percentage: Optional[int] = None

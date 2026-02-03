@@ -35,7 +35,7 @@ const JobCard = ({ job, Resume,isTopMatch  }) => {
                 console.log("Application status response:", response.data);
                
                     setApplicationStatus(response.data);
-                console.log
+               
                 
             } catch (error) {
                 console.error("Error checking application status:", error);
@@ -218,16 +218,16 @@ const toggleBookmark = async () => {
               </button>
               </>
             ) : applicationStatus.status === 'rescheduled' ? (
-              <button disabled className="inline-flex items-center justify-center rounded-lg bg-green-600 px-2 py-2 text-sm font-medium text-white cursor-not-allowed">
+              <button disabled className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-2 py-2 text-sm font-medium text-white cursor-not-allowed">
                 ✓ Interview Rescheduled
               </button>
             ) : applicationStatus.status === 'completed' ? (
               <button disabled className="inline-flex items-center justify-center rounded-lg bg-green-600 px-2 py-2 text-sm font-medium text-white cursor-not-allowed">
-                ✓ Interview Completed
+                ✓ Hired
               </button>
             ) :applicationStatus.status === 'cancelled' ? (
-              <button disabled className="inline-flex items-center justify-center rounded-lg bg-green-600 px-2 py-2 text-sm font-medium text-white cursor-not-allowed">
-                ✗  Interview Cancelled
+              <button disabled className="inline-flex items-center justify-center rounded-lg bg-red-600 px-2 py-2 text-sm font-medium text-white cursor-not-allowed">
+                ✗  Rejected
               </button>
             ) : (
               <button 

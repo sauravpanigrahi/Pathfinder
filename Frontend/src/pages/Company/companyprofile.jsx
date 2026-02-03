@@ -9,6 +9,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import {Loader} from "../../components/loader"
 import Back from "../../components/backbutton"
+
 const CompanyProfile = () => {
     const [profile, setProfile] = useState(null);
     const [companyJobs, setCompanyJobs] = useState([]);
@@ -23,6 +24,7 @@ const CompanyProfile = () => {
     const uid = localStorage.getItem('company UID');
     const navigate = useNavigate();
     const [coverImagePreview, setCoverImagePreview] = useState(null);
+    
     useEffect(() => {
         const fetchData = async () => {
             if (!uid) {
@@ -78,6 +80,7 @@ const CompanyProfile = () => {
         [field]: value
     }));
 };
+
    const handleSaveProfile = async () => {
   try {
     setSaving(true);
@@ -158,7 +161,7 @@ const handleCoverImageChange = (e) => {
         <div className="min-h-screen bg-gray-50">
             {/* Cover Image Section */}
             <Back/>
-           <div className="relative h-55 border-b border-gray-300 ">
+           <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 border-b border-gray-300">
     {/* Cover Image */}
     {displayProfile?.coverImageURL ? (
         <img
@@ -174,10 +177,11 @@ const handleCoverImageChange = (e) => {
     {/* Change Cover Button (CENTER) */}
     {isEditing && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20">
-            <label className="cursor-pointer border border-gray-300 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg hover:bg-white transition-all duration-300 hover:scale-105">
-                <span className="flex items-center gap-2">
+            <label className="cursor-pointer border border-gray-300 bg-white/90 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-lg hover:bg-white transition-all duration-300 hover:scale-105">
+                <span className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
                     <MdEdit className="text-blue-600" />
-                    Change Cover
+                    <span className="hidden sm:inline">Change Cover</span>
+                    <span className="sm:hidden">Change</span>
                 </span>
 
                 <input
@@ -191,9 +195,9 @@ const handleCoverImageChange = (e) => {
     )}
 
     {/* Company Logo Overlay */}
-    <div className="absolute -bottom-15 left-8 sm:left-12 z-20">
+    <div className="absolute -bottom-12 sm:-bottom-14 md:-bottom-16 left-4 sm:left-8 md:left-12 z-20">
         <div className="bg-white p-1 rounded-xl shadow-xl relative">
-            <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gray-200 rounded-lg flex items-center justify-center">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 bg-gray-200 rounded-lg flex items-center justify-center">
                 {displayProfile?.logoURL ? (
                     <img
                         src={logoPreview || displayProfile?.logoURL}
@@ -202,18 +206,18 @@ const handleCoverImageChange = (e) => {
                         loading="lazy"
                     />
                 ) : (
-                    <span className="text-3xl sm:text-4xl font-bold text-gray-500">
+                    <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-500">
                         {displayProfile?.companyName
                             ? displayProfile.companyName[0]
-                            : <FaBuilding className="text-gray-400 text-4xl" />}
+                            : <FaBuilding className="text-gray-400 text-2xl sm:text-3xl md:text-4xl" />}
                     </span>
                 )}
             </div>
 
             {/* Edit Logo Button */}
             {isEditing && (
-                <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 z-30">
-                    <MdEdit />
+                <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 sm:p-2 rounded-full cursor-pointer hover:bg-blue-700 z-30">
+                    <MdEdit className="text-sm sm:text-base" />
                     <input
                         type="file"
                         className="hidden"
@@ -225,13 +229,13 @@ const handleCoverImageChange = (e) => {
         </div>
     </div>
 </div>
-            <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 pt-20 pb-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-18 md:pt-20 pb-6 sm:pb-8">
                 {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
                     {/* Left Column - Company Info */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* Company Header */}
-                        <div className="bg-white rounded-xl shadow-sm p-6">
+                        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                 <div className="flex-1">
                                     {isEditing ? (
@@ -239,21 +243,21 @@ const handleCoverImageChange = (e) => {
                                             type="text"
                                             value={editedProfile?.companyName || ''}
                                             onChange={(e) => handleInputChange('companyName', e.target.value)}
-                                            className="text-2xl sm:text-3xl font-bold text-gray-900 border-b-2 border-blue-500 focus:outline-none w-full"
+                                            className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 border-b-2 border-blue-500 focus:outline-none w-full"
                                         />
                                     ) : (
-                                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{displayProfile?.companyName}</h1>
+                                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{displayProfile?.companyName}</h1>
                                     )}
                                     {isEditing ? (
                                         <input
                                             type="text"
                                             value={editedProfile?.industry || ''}
                                             onChange={(e) => handleInputChange('industry', e.target.value)}
-                                            className="text-gray-600 mt-2 border-b border-gray-300 focus:outline-none focus:border-blue-500 w-full"
+                                            className="text-sm sm:text-base text-gray-600 mt-2 border-b border-gray-300 focus:outline-none focus:border-blue-500 w-full"
                                             placeholder="Industry"
                                         />
                                     ) : (
-                                        <p className="text-gray-600 mt-2 flex items-center gap-2">
+                                        <p className="text-sm sm:text-base text-gray-600 mt-2 flex items-center gap-2">
                                             <FaIndustry /> {displayProfile?.industry}
                                         </p>
                                     )}
@@ -264,27 +268,29 @@ const handleCoverImageChange = (e) => {
                                             <button 
                                                 onClick={handleSaveProfile}
                                                 disabled={saving}
-                                                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                                                className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
                                             >
-                                                <FaSave className="mr-2" />
-                                                {saving ? 'Saving...' : 'Save'}
+                                                <FaSave className="mr-1.5 sm:mr-2" />
+                                                <span className="hidden sm:inline">{saving ? 'Saving...' : 'Save'}</span>
+                                                <span className="sm:hidden">{saving ? '...' : 'Save'}</span>
                                             </button>
                                             <button 
                                                 onClick={handleEditToggle}
                                                 disabled={saving}
-                                                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                                                className="inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                                             >
-                                                <FaTimes className="mr-2" />
-                                                Cancel
+                                                <FaTimes className="mr-1.5 sm:mr-2" />
+                                                <span className="hidden sm:inline">Cancel</span>
                                             </button>
                                         </>
                                     ) : (
                                         <button 
                                             onClick={handleEditToggle}
-                                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                            className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                         >
-                                            <MdEdit className="mr-2" />
-                                            Edit Profile
+                                            <MdEdit className="mr-1.5 sm:mr-2" />
+                                            <span className="hidden sm:inline">Edit Profile</span>
+                                            <span className="sm:hidden">Edit</span>
                                         </button>
                                     )}
                                 </div>
@@ -345,17 +351,17 @@ const handleCoverImageChange = (e) => {
                         </div>
 
                         {/* About Section */}
-                        <div className="bg-white rounded-xl shadow-sm p-6">
-                            <h2 className="text-xl font-semibold mb-4">About Us</h2>
+                        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+                            <h2 className="text-lg sm:text-xl font-semibold mb-4">About Us</h2>
                             {isEditing ? (
                                 <textarea
                                     value={editedProfile?.description || ''}
                                     onChange={(e) => handleInputChange('description', e.target.value)}
-                                    className="w-full min-h-[150px] p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                                    className="w-full min-h-[150px] p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base"
                                     placeholder="Company description..."
                                 />
                             ) : (
-                                <p className="text-gray-600 whitespace-pre-line">{displayProfile?.description}</p>
+                                <p className="text-sm sm:text-base text-gray-600 whitespace-pre-line">{displayProfile?.description}</p>
                             )}
                         </div>
                     </div>
@@ -363,11 +369,11 @@ const handleCoverImageChange = (e) => {
                     {/* Right Column - Jobs & Social */}
                     <div className="space-y-6">
                         {/* Quick Stats */}
-                        <div className="bg-white rounded-xl shadow-sm p-6">
-                            <h2 className="text-lg font-semibold mb-4">Quick Stats</h2>
-                            <div className="grid grid-cols-3 gap-2">
-                                <StatCard number={companyJobs.jobs.length} label="Active Jobs" />
-                                <StatCard number={companyJobs.scheduled} label="Interviews Scheduled" />
+                        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+                            <h2 className="text-base sm:text-lg font-semibold mb-4">Quick Stats</h2>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 sm:gap-3">
+                                <StatCard number={companyJobs.jobs?.length || 0} label="Active Jobs" />
+                                <StatCard number={companyJobs.scheduled || 0} label="Interviews Scheduled" />
                                 <StatCard number="0" label="Hired" />
                                 <StatCard number="0" label="Interview Rejected" />
                             </div>
@@ -375,8 +381,8 @@ const handleCoverImageChange = (e) => {
                         </div>
 
                         {/* Social Links */}
-                        <div className="bg-white rounded-xl shadow-sm p-6">
-                            <h2 className="text-lg font-semibold mb-4">Social Media</h2>
+                        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+                            <h2 className="text-base sm:text-lg font-semibold mb-4">Social Media</h2>
                             <div className="space-y-3">
                                 <EditableSocialLink 
                                     icon={<FaLinkedin />} 
@@ -385,35 +391,36 @@ const handleCoverImageChange = (e) => {
                                     isEditing={isEditing}
                                     onChange={(value) => handleSocialMediaChange('linkedinURL', value)}
                                 />
-                                {/* <EditableSocialLink 
-                                    icon={<FaTwitter />} 
-                                    platform="Twitter" 
-                                    url={displayProfile?.socialMedia?.twitter || ''}
-                                    isEditing={isEditing}
-                                    onChange={(value) => handleSocialMediaChange('twitter', value)}
-                                />
-                                <EditableSocialLink 
-                                    icon={<FaFacebook />} 
-                                    platform="Facebook" 
-                                    url={displayProfile?.socialMedia?.facebook || ''}
-                                    isEditing={isEditing}
-                                    onChange={(value) => handleSocialMediaChange('facebook', value)}
-                                /> */}
                             </div>
                         </div>
 
                         {/* Latest Jobs */}
-                        <div className="bg-white rounded-xl shadow-sm p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-lg font-semibold">Latest Jobs</h2>
-                                <button className="text-blue-600 text-sm hover:text-blue-800">View All</button>
-                            </div>
-                            <div className="space-y-4">
-                                {companyJobs.jobs.slice(0, 3).map((job) => (
-                                    <JobCard key={job.id} job={job} />
-                                ))}
-                            </div>
-                        </div>
+                        <LatestJobs 
+                            jobs={companyJobs.jobs || []} 
+                            onJobStatusChange={async (jobId, newStatus) => {
+                                try {
+                                    await axios.patch(
+                                            `https://pathfinder-maob.onrender.com/jobs/${jobId}/status/change`,
+                                            { status: newStatus },
+                                            {
+                                                withCredentials: true,
+                                                headers: { "Content-Type": "application/json" }
+                                            }
+                                            );
+
+                                    // Update local state
+                                    setCompanyJobs(prev => ({
+                                        ...prev,
+                                        jobs: prev.jobs.map(job => 
+                                            job.id === jobId ? { ...job, status: newStatus } : job
+                                        )
+                                    }));
+                                    toast.success(`Job ${newStatus === 'Active' ? 'activated' : 'closed'} successfully!`);
+                                } catch (error) {
+                                    toast.error(error.response?.data?.detail || 'Failed to update job status');
+                                }
+                            }}
+                        />
                     </div>
                 </div>
             </div>
@@ -423,46 +430,46 @@ const handleCoverImageChange = (e) => {
 
 // Helper Components
 const EditableInfoItem = ({ icon, label, value, isLink, isEditing, onChange }) => (
-    <div className="flex items-center gap-3">
-        <div className="text-gray-400">{icon}</div>
-        <div className="flex-1">
-            <p className="text-sm text-gray-500">{label}</p>
+    <div className="flex items-start sm:items-center gap-2 sm:gap-3">
+        <div className="text-gray-400 text-sm sm:text-base mt-0.5 sm:mt-0 flex-shrink-0">{icon}</div>
+        <div className="flex-1 min-w-0">
+            <p className="text-xs sm:text-sm text-gray-500">{label}</p>
             {isEditing ? (
                 <input
                     type="text"
                     value={value || ''}
                     onChange={(e) => onChange(e.target.value)}
-                    className="w-full border-b border-gray-300 focus:outline-none focus:border-blue-500 text-gray-900"
+                    className="w-full border-b border-gray-300 focus:outline-none focus:border-blue-500 text-gray-900 text-sm sm:text-base"
                 />
             ) : isLink && value ? (
-                <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{value}</a>
+                <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm sm:text-base break-all">{value}</a>
             ) : (
-                <p className="text-gray-900">{value || 'Not specified'}</p>
+                <p className="text-gray-900 text-sm sm:text-base break-words">{value || 'Not specified'}</p>
             )}
         </div>
     </div>
 );
 
 const StatCard = ({ number, label }) => (
-    <div className="text-center p-3 bg-gray-50 rounded-lg">
-        <div className="text-xl font-bold text-blue-600">{number}</div>
-        <div className="text-sm text-gray-600">{label}</div>
+    <div className="text-center p-2 sm:p-3 bg-gray-50 rounded-lg">
+        <div className="text-lg sm:text-xl font-bold text-blue-600">{number}</div>
+        <div className="text-xs sm:text-sm text-gray-600">{label}</div>
     </div>
 );
 
 const EditableSocialLink = ({ icon, platform, url, isEditing, onChange }) => {
     if (isEditing) {
         return (
-            <div className="flex items-center gap-3 p-2">
-                <span className="text-xl text-gray-600">{icon}</span>
-                <div className="flex-1">
-                    <p className="text-sm text-gray-500">{platform}</p>
+            <div className="flex items-center gap-2 sm:gap-3 p-2">
+                <span className="text-lg sm:text-xl text-gray-600 flex-shrink-0">{icon}</span>
+                <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm text-gray-500">{platform}</p>
                     <input
                         type="url"
                         value={url}
                         onChange={(e) => onChange(e.target.value)}
                         placeholder={`${platform} URL`}
-                        className="w-full border-b border-gray-300 focus:outline-none focus:border-blue-500 text-sm"
+                        className="w-full border-b border-gray-300 focus:outline-none focus:border-blue-500 text-xs sm:text-sm"
                     />
                 </div>
             </div>
@@ -476,31 +483,87 @@ const EditableSocialLink = ({ icon, platform, url, isEditing, onChange }) => {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
+            className="flex items-center gap-2 sm:gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
         >
-            <span className="text-xl text-gray-600">{icon}</span>
-            <span className="text-gray-700">{platform}</span>
+            <span className="text-lg sm:text-xl text-gray-600 flex-shrink-0">{icon}</span>
+            <span className="text-sm sm:text-base text-gray-700 break-all">{platform}</span>
         </a>
     );
 };
 
-const JobCard = ({ job }) => (
-    <div className="p-4 border border-gray-100 rounded-lg hover:border-gray-200 transition-colors">
-        <h3 className="font-medium text-gray-900">{job.title}</h3>
-        <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
-            <MdWork />
-            <span>{job.type}</span>
-            <span className="text-gray-300">•</span>
-            <span>{job.location}</span>
-            <div className="ml-auto">
-                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                    <Typography>Off</Typography>
-                    <Switch/>
-                    <Typography>On</Typography>
-                </Stack>
+const LatestJobs = ({ jobs, onJobStatusChange }) => {
+    const [showAll, setShowAll] = useState(false);
+    
+    const displayedJobs = showAll ? jobs : jobs.slice(0, 1);
+    
+    return (
+        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base sm:text-lg font-semibold">Latest Jobs</h2>
+                {jobs.length > 1 && (
+                    <button 
+                        onClick={() => setShowAll(!showAll)}
+                        className="text-blue-600 text-xs sm:text-sm hover:text-blue-800 font-medium"
+                    >
+                        {showAll ? 'Show Less' : 'View All'}
+                    </button>
+                )}
+            </div>
+            {jobs.length === 0 ? (
+                <p className="text-gray-500 text-sm text-center py-4">No jobs posted yet</p>
+            ) : (
+                <div className="space-y-4">
+                    {displayedJobs.map((job) => (
+                        <JobCard key={job.id} job={job} onStatusChange={onJobStatusChange} />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+const JobCard = ({ job, onStatusChange }) => {
+    const [isUpdating, setIsUpdating] = useState(false);
+    
+    const handleToggle = async (event) => {
+        const newStatus = event.target.checked ? 'Active' : 'Closed';
+        setIsUpdating(true);
+        try {
+            await onStatusChange(job.id, newStatus);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+    
+    return (
+        <div className="p-3 sm:p-4 border border-gray-100 rounded-lg hover:border-gray-200 transition-colors">
+            <h3 className="font-medium text-sm sm:text-base text-gray-900 break-words">{job.title}</h3>
+            <div className="mt-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600">
+                <div className="flex items-center gap-1 sm:gap-2">
+                    <MdWork className="flex-shrink-0" />
+                    <span>{job.type}</span>
+                    <span className="text-gray-300 hidden sm:inline">•</span>
+                </div>
+                <span className="sm:ml-0">{job.location}</span>
+                <div className="mt-2 sm:mt-0 sm:ml-auto">
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                        <Typography sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, color: job.status === 'Closed' ? '#9ca3af' : '#6b7280' }}>
+                            Closed
+                        </Typography>
+                        <Switch 
+                            size="small"
+                            checked={job.status === 'Active'}
+                            onChange={handleToggle}
+                            disabled={isUpdating}
+                        />
+                        <Typography sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, color: job.status === 'Active' ? '#059669' : '#6b7280' }}>
+                            Active
+                        </Typography>
+                    </Stack>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 export default CompanyProfile;

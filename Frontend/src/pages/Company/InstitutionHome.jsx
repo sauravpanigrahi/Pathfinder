@@ -38,7 +38,7 @@ const InstitutionHome = () => {
             { withCredentials: true }
           );
           // console.log(response.data)
-          setrecentApplied(response.data || []);
+          setrecentApplied(response.data.applications || []);
 
         } catch (err) {
           console.error("Error fetching applications:", err);

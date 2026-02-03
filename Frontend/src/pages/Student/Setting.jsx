@@ -22,12 +22,12 @@ const Setting = () => {
   const [editingProjectId, setEditingProjectId] = useState(null);
   const [addproj,setaddproj]= useState(false);
   const [addexp,setaddexp]= useState(false);
-    const { resume } = useAppContext();
-    const [currentPage, setCurrentPage] = useState(1);
-      const jobsPerPage = 6;
+  const { resume } = useAppContext();
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 6;
   const [editingexperienceId, setEditingexperienceId] = useState(null);
   const [profileImageFile, setProfileImageFile] = useState(null);
-const [profileImagePreview, setProfileImagePreview] = useState(null);
+  const [profileImagePreview, setProfileImagePreview] = useState(null);
 
   const [editExperienceData, setEditExperienceData] = useState({
       company_name: "",

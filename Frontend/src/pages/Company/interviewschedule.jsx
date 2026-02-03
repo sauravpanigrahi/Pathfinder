@@ -5,9 +5,9 @@ import { toast } from "react-toastify";
 import { FaEnvelope, FaTimes } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 const Interviewschedule = () => {
-    const navigate=useNavigate();
+const navigate=useNavigate();
 const [applications, setApplications] = useState([]);
-  const [selectedApplication, setSelectedApplication] = useState(null);
+const [selectedApplication, setSelectedApplication] = useState(null);
 const { state } = useLocation();
 const companyUID =
   state?.companyUID || localStorage.getItem("company UID");
@@ -44,25 +44,31 @@ const companyUID =
   };
    // Fetch accepted applications for scheduling
   useEffect(() => {
-    const fetchAcceptedApplications = async () => {
-      try {
-        const response = await axios.get(
-          `https://pathfinder-maob.onrender.com/applications/${companyUID}`,
-          { withCredentials: true }
-        );
-        const acceptedApps = response.data.filter(app => app.status === 'accepted');
-        setApplications(acceptedApps);
-        console.log("accepted application",acceptedApps)
-      } catch (error) {
-        console.error('Error fetching applications:', error);
-        toast.error('Failed to fetch applications');
-      }
-    };
+  const fetchAcceptedApplications = async () => {
+    try {
+      const response = await axios.get(
+        `https://pathfinder-maob.onrender.com/applications/${companyUID}`,
+        { withCredentials: true }
+      );
 
-    if (companyUID) {
-      fetchAcceptedApplications();
+      // ✅ FIX HERE
+      const acceptedApps = response.data.applications.filter(
+        (app) => app.status === "accepted"
+      );
+
+      setApplications(acceptedApps);
+      console.log("accepted applications", acceptedApps);
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+      toast.error("Failed to fetch applications");
     }
-  }, [companyUID]);
+  };
+
+  if (companyUID) {
+    fetchAcceptedApplications();
+  }
+}, [companyUID]);
+
 console.log("application",applications)
   const handleScheduleInterview = async (e) => {
     e.preventDefault();
@@ -144,12 +150,12 @@ console.log("application",applications)
             
           </select>
         {selectedApplication && (
-                        <div className="bg-gray-50 border rounded p-3 text-sm text-gray-700">
-                            <p>
-                            <span className="font-semibold">Candidate Email:</span>{" "}
-                            {selectedApplication.Email}
-                            </p>
-                        </div>
+              <div className="bg-gray-50 border rounded p-3 text-sm text-gray-700">
+                <p>
+              <span className="font-semibold">Candidate Email:</span>{" "}
+                   {selectedApplication.Email}
+              </p>
+           </div>
         )}
           {/* Date */}
           <input

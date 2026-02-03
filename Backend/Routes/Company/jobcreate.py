@@ -11,7 +11,8 @@ from Schema.jobs import JobsCreate, JobsResponse
 from Schema.notifications import Notification
 from datetime import datetime
 from typing import Optional
-
+from pydantic import BaseModel
+from typing import Literal
 def get_db():
     db = Sessionlocal()
     try:
@@ -69,6 +70,29 @@ def create_job(uid: str, job_data: JobsCreate, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))    
+
+class JobStatusUpdate(BaseModel):
+    status: Literal["Active", "Closed"]
+
+@router.patch("/{jobId}/status/change")
+async def update_job_status(
+    jobId: int,
+    status_update: JobStatusUpdate,
+    db: Session = Depends(get_db)
+):
+    job = db.query(Jobs).filter(Jobs.id == jobId).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    job.status = status_update.status
+    db.commit()
+    db.refresh(job)
+    
+    return {
+        "success": True,
+        "message": f"Job status updated to {status_update.status}",
+        "job": {"id": job.id, "title": job.title, "status": job.status}
+    }
 
 
 # ==================== NOTIFICATIONS ENDPOINTS ====================

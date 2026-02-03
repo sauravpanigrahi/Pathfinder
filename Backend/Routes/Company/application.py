@@ -63,16 +63,26 @@ def create_notification(
         print(f"Error creating notification: {str(e)}")
         return None
     
-
 @router.get("/{companyUID}")
 def get_company_applications(companyUID: str, db: Session = Depends(get_db)):
-    try:
-        applications = db.query(Applications).filter(
-            Applications.comp_uid == companyUID
-        ).all()
-        return jsonable_encoder(applications)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+    results = (
+        db.query(Applications, Interview.status)
+        .outerjoin(Interview, Interview.application_id == Applications.id)
+        .filter(Applications.comp_uid == companyUID)
+        .all()
+    )
+
+    response = [
+        {
+            **jsonable_encoder(app),
+            "interview_status": status
+        }
+        for app, status in results
+    ]
+
+    return {"applications": response}
+
 
 class StatusUpdate(BaseModel):
     status: str

@@ -9,47 +9,65 @@ import { Loader } from "../../components/loader";
 const Application = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
+const [projects, setProjects] = useState({});
+const [experiences, setExperiences] = useState({});
+
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
   const companyUID = localStorage.getItem('company UID');
 
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        const response = await axios.get(
-          `https://pathfinder-maob.onrender.com/applications/${companyUID}`,
-          { withCredentials: true }
-        );
-        const apps = response.data;
-        
-        const appsWithMatch = await Promise.all(
-          apps.map(async (app) => {
+useEffect(() => {
+  const fetchApplications = async () => {
+    try {
+      const response = await axios.get(
+        `https://pathfinder-maob.onrender.com/applications/${companyUID}`,
+        { withCredentials: true }
+      );
+
+      const apps = response.data.applications;
+
+      const appsWithMatch = await Promise.all(
+        apps.map(async (app) => {
+          if (app.match_percentage == null) {
             try {
-              if (!app.match_percentage) {
-                const matchRes = await axios.get(
-                  `https://pathfinder-maob.onrender.com/applications/${app.id}/match-percentage`,
-                  { withCredentials: true }
-                );
-                return { ...app, match_percentage: matchRes.data.match_percentage };
-              }
-              return app;
-            } catch (err) {
-              console.error(`Error calculating match for app ${app.id}:`, err);
+              const matchRes = await axios.get(
+                `https://pathfinder-maob.onrender.com/applications/${app.id}/match-percentage`,
+                { withCredentials: true }
+              );
+              return { ...app, match_percentage: matchRes.data.match_percentage };
+            } catch {
               return { ...app, match_percentage: 0 };
             }
-          })
-        );
-        
-        setApplications(appsWithMatch);
-      } catch (error) {
-        toast.error('Failed to fetch applications');
-      } finally {
-        setLoading(false);
-      }
+          }
+          return app;
+        })
+      );
+
+      setApplications(appsWithMatch);
+    } catch (error) {
+      toast.error("Failed to fetch applications");
+    } finally {
+      setLoading(false);
     }
-    fetchApplications(); 
-  }, [companyUID]);
+  };
+
+  fetchApplications();
+}, [companyUID]);
+
+
+console.log(applications)
+const fetchCandidateData = async (stud_uid) => {
+  if (projects[stud_uid]) return; // ✅ cache
+
+  const [projRes, expRes] = await Promise.all([
+    axios.get(`https://pathfinder-maob.onrender.com/project/${stud_uid}`, { withCredentials: true }),
+    axios.get(`https://pathfinder-maob.onrender.com/experience/${stud_uid}`, { withCredentials: true })
+  ]);
+
+  setProjects(prev => ({ ...prev, [stud_uid]: projRes.data }));
+  setExperiences(prev => ({ ...prev, [stud_uid]: expRes.data }));
+};
 
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
@@ -72,7 +90,7 @@ const Application = () => {
 
   // ✅ SORT BY MATCH PERCENTAGE ASCENDING (LOWEST FIRST)
   const rankedApplications = useMemo(() => {
-    return applications
+    return[...applications] 
       .sort((a, b) => {
         const matchA = a.match_percentage || 0;
         const matchB = b.match_percentage || 0;
@@ -100,33 +118,33 @@ const Application = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Applications</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Applications</h1>
+              <p className="mt-1 text-xs sm:text-sm text-gray-500">
                 Sorted by match percentage (lowest first). {stats.total} total applications.
               </p>
             </div>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center overflow-x-auto pb-2 lg:pb-0">
+              <div className="flex items-center gap-3 sm:gap-4 text-sm min-w-max">
                 <div className="text-center">
-                  <div className="text-2xl font-semibold text-gray-900">{stats.total}</div>
+                  <div className="text-xl sm:text-2xl font-semibold text-gray-900">{stats.total}</div>
                   <div className="text-xs text-gray-500 uppercase tracking-wide">Total</div>
                 </div>
-                <div className="w-px h-10 bg-gray-200" />
+                <div className="w-px h-8 sm:h-10 bg-gray-200" />
                 <div className="text-center">
-                  <div className="text-2xl font-semibold text-amber-600">{stats.pending}</div>
+                  <div className="text-xl sm:text-2xl font-semibold text-amber-600">{stats.pending}</div>
                   <div className="text-xs text-gray-500 uppercase tracking-wide">Pending</div>
                 </div>
-                <div className="w-px h-10 bg-gray-200" />
+                <div className="w-px h-8 sm:h-10 bg-gray-200" />
                 <div className="text-center">
-                  <div className="text-2xl font-semibold text-green-600">{stats.accepted}</div>
+                  <div className="text-xl sm:text-2xl font-semibold text-green-600">{stats.accepted}</div>
                   <div className="text-xs text-gray-500 uppercase tracking-wide">Accepted</div>
                 </div>
-                <div className="w-px h-10 bg-gray-200" />
+                <div className="w-px h-8 sm:h-10 bg-gray-200" />
                 <div className="text-center">
-                  <div className="text-2xl font-semibold text-gray-400">{stats.rejected}</div>
+                  <div className="text-xl sm:text-2xl font-semibold text-gray-400">{stats.rejected}</div>
                   <div className="text-xs text-gray-500 uppercase tracking-wide">Rejected</div>
                 </div>
               </div>
@@ -135,10 +153,10 @@ const Application = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         {/* Filters */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
-          <div className="flex gap-4">
+        <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1 relative">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -154,7 +172,7 @@ const Application = () => {
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Applications</option>
               <option value="pending">Pending Review</option>
@@ -167,8 +185,8 @@ const Application = () => {
         {/* Application List */}
         <div className="space-y-3">
           {rankedApplications.length === 0 ? (
-            <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
-              <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white border border-gray-200 rounded-lg p-8 sm:p-12 text-center">
+              <svg className="mx-auto h-10 sm:h-12 w-10 sm:w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <h3 className="text-sm font-medium text-gray-900 mb-1">No applications found</h3>
@@ -183,6 +201,9 @@ const Application = () => {
                 onStatusChange={handleStatusChange}
                 navigate={navigate}
                 companyUID={companyUID}
+                fetchCandidateData={fetchCandidateData}   // ✅ ADD
+              projects={projects}                       // ✅ ADD
+              experiences={experiences} 
               />
             ))
           )}
@@ -193,7 +214,7 @@ const Application = () => {
 };
 
 /* ------------------------- APPLICATION CARD ------------------------- */
-const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyUID }) => {
+const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyUID, fetchCandidateData,projects,experiences }) => {
   const [expanded, setExpanded] = useState(false);
   
   const getStatusBadge = (status) => {
@@ -217,20 +238,20 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors">
-      <div className="p-5">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-4 flex-1 min-w-0">
+      <div className="p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
             {/* Avatar */}
-            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-              <span className="text-lg font-medium text-gray-600">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <span className="text-base sm:text-lg font-medium text-gray-600">
                 {application.Fullname?.charAt(0)?.toUpperCase() || '?'}
               </span>
             </div>
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-base font-semibold text-gray-900 truncate">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 truncate">
                   {application.Fullname}
                 </h3>
                 {getStatusBadge(application.status)}
@@ -241,15 +262,15 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
                 )}
               </div>
               <p className="text-sm text-gray-600 mb-2">{application.Job_role}</p>
-              <div className="flex items-center gap-4 text-xs text-gray-500">
-                <span className="flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-gray-500">
+                <span className="flex items-center gap-1 break-all">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   {application.Email}
                 </span>
                 <span className="flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                   {application.phonenumber}
@@ -259,14 +280,30 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+          <div className="flex flex-wrap items-center gap-2 sm:ml-4">
             <Resume stud_uid={application.stud_uid} />
             
-            {application.status === 'accepted' ? (
+            {application.interview_status ==="scheduled" ?(
+              <p className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-center whitespace-nowrap"
+                >
+                   Interview Scheduled
+                </p>
+            ):application.interview_status ==="cancelled" ?(
+              <p className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-red-400 text-white text-sm font-medium rounded-md hover:bg-red-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-center whitespace-nowrap"
+                >
+                   Rejected
+                </p>
+            ):application.interview_status ==="scheduled" ?(
+              <p className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-center whitespace-nowrap"
+                >
+                   Interview Scheduled
+                </p>
+            )
+              :application.status === 'accepted' ? (
               <>
                 <button
                   onClick={() => navigate(`/company/interview/schedule`)}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors whitespace-nowrap"
+                  className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors whitespace-nowrap"
                 >
                   Schedule Interview
                 </button>
@@ -283,7 +320,7 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
             ) : application.status === 'rejected' ? (
               <button
                 onClick={() => onStatusChange(application.id, 'accepted')}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                className="w-full sm:w-auto px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
                 Reconsider
               </button>
@@ -291,13 +328,13 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
               <>
                 <button
                   onClick={() => onStatusChange(application.id, 'accepted')}
-                  className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+                  className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
                 >
                   Accept
                 </button>
                 <button
                   onClick={() => onStatusChange(application.id, 'rejected')}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+                  className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                 >
                   Reject
                 </button>
@@ -305,10 +342,13 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
             )}
             
             <button
-              onClick={() => setExpanded(!expanded)}
-              className="p-2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
+              onClick={() => {
+                setExpanded(!expanded);
+                fetchCandidateData(application.stud_uid);
+              }}
+              className="w-full sm:w-auto p-2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors sm:ml-auto"
             >
-              <svg className={`w-5 h-5 transition-transform ${expanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 mx-auto transition-transform ${expanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
@@ -316,58 +356,187 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
         </div>
 
         {/* Expanded Details */}
-        {expanded && (
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="grid grid-cols-3 gap-6 mb-6">
-              <InfoField label="Education" value={application.high_qualification} />
-              <InfoField label="College" value={application.college} />
-              <InfoField label="Graduation Year" value={application.graduation_year} />
-              <InfoField label="Previous Company" value={application.prev_company || 'Fresher'} />
-              <InfoField label="Job Location" value={application.Job_location} />
-              <InfoField label="Company" value={application.Job_company} />
-            </div>
+      {expanded && (
+    <div className="mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-gray-100">
 
-            <div className="mb-6">
-              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-                Why Interested
-              </label>
-              <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-md">
-                {application.why_join}
-              </p>
-            </div>
+      {/* ════════════════════════════════════════════
+          ZONE 1 — Candidate snapshot
+          ════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pb-4 sm:pb-5 border-b border-gray-100">
+        <InfoField label="Education"       value={application.high_qualification} />
+        <InfoField label="College"         value={application.college} />
+        <InfoField label="Graduation Year" value={application.graduation_year} />
+        <InfoField label="Job Location"    value={application.Job_location} />
+        <InfoField label="Company"         value={application.Job_company} />
+      </div>
 
-            {(application.linkedin_url || application.github_url) && (
-              <div className="flex gap-3">
-                {application.linkedin_url && (
-                  <a
-                    href={application.linkedin_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+      {/* ════════════════════════════════════════════
+          ZONE 2 — Projects & Experience
+          ════════════════════════════════════════════ */}
+      <div className="py-4 sm:py-5 border-b border-gray-100 space-y-4 sm:space-y-5">
+
+        {/* Projects */}
+        <div>
+          <h4 className="jaf-section-title text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+            Projects
+          </h4>
+          <div className="flex flex-col gap-2">
+            {projects[application.stud_uid]?.length > 0
+              ? projects[application.stud_uid].map((proj) => (
+                  <div
+                    key={proj.id}
+                    className="jaf-item-card group bg-gray-50 border border-gray-200 rounded-lg px-3 sm:px-4 py-3 sm:py-3.5 hover:border-gray-300 hover:shadow-sm transition-all duration-150"
                   >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                    </svg>
-                    LinkedIn
-                  </a>
-                )}
-                {application.github_url && (
-                  <a
-                    href={application.github_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                    <p className="jaf-item-card--title text-sm font-semibold text-gray-800 break-words">
+                      {proj.Title}
+                    </p>
+
+                    {proj.description && (
+                      <p className="jaf-item-card--desc text-xs text-gray-500 leading-[1.6] mt-1 break-words">
+                        {proj.description}
+                      </p>
+                    )}
+
+                    {proj.tech_stack && (
+                      <div className="jaf-item-card--tags flex flex-wrap gap-1.5 mt-2.5">
+                        {(typeof proj.tech_stack === 'string'
+                          ? proj.tech_stack.split(',')
+                          : proj.tech_stack
+                        ).map((t, i) => (
+                          <span
+                            key={i}
+                            className="jaf-tag inline-block text-[10.5px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full"
+                          >
+                            {t.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {proj.link && (
+                      <a
+                        href={proj.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="jaf-item-card--link inline-flex items-center gap-1 text-xs font-semibold text-indigo-500 hover:text-indigo-700 mt-2.5 transition-colors duration-150 break-all"
+                      >
+                        View Project
+                        <svg className="flex-shrink-0" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="7" y1="17" x2="17" y2="7" />
+                          <polyline points="7,7 17,7 17,17" />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
+                ))
+              : <p className="jaf-empty text-xs text-gray-400 italic">No projects added.</p>
+            }
+          </div>
+        </div>
+
+        {/* Work Experience */}
+        <div>
+          <h4 className="jaf-section-title text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+            Work Experience
+          </h4>
+          <div className="flex flex-col gap-2">
+            {experiences[application.stud_uid]?.length > 0
+              ? experiences[application.stud_uid].map((exp, index) => (
+                  <div
+                    key={index}
+                    className="jaf-item-card bg-gray-50 border border-gray-200 rounded-lg px-3 sm:px-4 py-3 sm:py-3.5 hover:border-gray-300 hover:shadow-sm transition-all duration-150"
                   >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
-                    </svg>
-                    GitHub
-                  </a>
-                )}
-              </div>
+                    <p className="jaf-item-card--title text-sm font-semibold text-gray-800 break-words">
+                      {exp.role}
+                      <span className="text-gray-300 mx-2 hidden sm:inline">—</span>
+                      <span className="block sm:inline font-medium text-gray-600 mt-1 sm:mt-0">{exp.company_name}</span>
+                    </p>
+
+                    {exp.duration && (
+                      <p className="jaf-item-card--sub text-xs text-gray-400 mt-0.5">
+                        {exp.duration}
+                      </p>
+                    )}
+
+                    {exp.description && (
+                      <p className="jaf-item-card--desc text-xs text-gray-500 leading-[1.6] mt-1.5 break-words">
+                        {exp.description}
+                      </p>
+                    )}
+                  </div>
+                ))
+              : <p className="jaf-empty text-xs text-gray-400 italic">No work experience added.</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════
+          ZONE 3 — Motivation + Social links
+          ════════════════════════════════════════════ */}
+      <div className="pt-4 sm:pt-5 space-y-4">
+
+        {/* Why Interested */}
+        <div>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
+            Why Interested
+          </p>
+          <div className="relative bg-gray-50 border border-gray-200 rounded-lg pl-3 sm:pl-4 pr-3 sm:pr-4 py-3 sm:py-3.5">
+            <div className="absolute left-0 top-2.5 bottom-2.5 w-[3px] bg-indigo-500 rounded-r-full" />
+            <p className="text-[13px] text-gray-600 leading-[1.7] break-words">
+              {application.why_join}
+            </p>
+          </div>
+        </div>
+
+        {/* Social Links */}
+        {(application.linkedin_url || application.github_url) && (
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2 pt-1">
+
+            {application.linkedin_url && (
+              <a
+                href={application.linkedin_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-1.5
+                           px-3.5 py-1.5 rounded-md
+                           bg-blue-50 border border-blue-100 text-blue-600
+                           text-xs font-semibold
+                           hover:bg-blue-100 hover:border-blue-200
+                           transition-all duration-150"
+              >
+                <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+                LinkedIn
+              </a>
             )}
+
+            {application.github_url && (
+              <a
+                href={application.github_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-1.5
+                           px-3.5 py-1.5 rounded-md
+                           bg-gray-50 border border-gray-200 text-gray-600
+                           text-xs font-semibold
+                           hover:bg-gray-100 hover:border-gray-300
+                           transition-all duration-150"
+              >
+                <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
+                GitHub
+              </a>
+            )}
+
           </div>
         )}
+      </div>
+
+    </div>
+  )}
       </div>
     </div>
   );
@@ -379,7 +548,7 @@ const InfoField = ({ label, value }) => (
     <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
       {label}
     </label>
-    <p className="text-sm text-gray-900 font-medium">{value || 'Not provided'}</p>
+    <p className="text-sm text-gray-900 font-medium break-words">{value || 'Not provided'}</p>
   </div>
 );
 
