@@ -14,9 +14,9 @@ def run_gemini_query(prompt: str):
     Stop immediately when one succeeds.
     """
     model_priority = [
-        # "gemini-2.5-flash",
-        # "gemini-2.5-flash-lite",
-        # "gemini-1.5-pro",
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-1.5-pro",
     ]
 
     prompt = prompt[:8000]  # safety limit

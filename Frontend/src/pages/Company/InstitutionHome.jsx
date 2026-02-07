@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "/src/css/Loader.css";
 import { Loader } from "../../components/loader";
-import {timeAgo} from "../../js/Time";
+import { timeAgo } from "../../js/Time";
 const InstitutionHome = () => {
   const location = useLocation();
   const navigate = useNavigate();

@@ -55,19 +55,32 @@ async def upload_resume(
             temp_path = temp.name
 
         # 3. Upload directly (NO compression)
-        upload_result = cloudinary.uploader.upload(
-            temp_path,
-            resource_type="auto",
-            folder=f"resumes/{userID}"
-        )
+        try:
+            upload_result = cloudinary.uploader.upload(
+                temp_path,
+                resource_type="auto",
+                folder=f"resumes/{userID}"
+            )
+        except Exception as cloud_err:
+            # log detailed error to console for server-side debugging
+            import traceback as _tb
+            print("Cloudinary upload failed:")
+            print(repr(cloud_err))
+            print(_tb.format_exc())
+            # ensure temp file is removed
+            try:
+                os.unlink(temp_path)
+            except Exception:
+                pass
+            raise HTTPException(status_code=500, detail=f"Cloudinary upload failed: {str(cloud_err)}")
 
         # 4. Save DB
         resume_entry = Resume(
             uid=userID,
             filename=resume.filename,
-            secure_url=upload_result["secure_url"],
-            public_id=upload_result["public_id"],
-            format=upload_result["format"],
+            secure_url=upload_result.get("secure_url", ""),
+            public_id=upload_result.get("public_id", ""),
+            format=upload_result.get("format", ""),
             uploaded_at=datetime.utcnow()
         )
 
@@ -83,7 +96,19 @@ async def upload_resume(
 
     except Exception as e:
         db.rollback()
+        # print stack for debugging (app.py global handler also prints)
+        import traceback as _tb
+        print("Error in upload_resume:")
+        print(repr(e))
+        print(_tb.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        # cleanup temp file if it still exists
+        try:
+            if 'temp_path' in locals() and os.path.exists(temp_path):
+                os.unlink(temp_path)
+        except Exception:
+            pass
 
 @router.get("/checkresume/{user_id}")
 def check_resume(user_id: str, db: Session = Depends(get_db)):
