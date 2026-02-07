@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import Badge from '@mui/material/Badge';
-import { useNavigate } from 'react-router-dom';
-import NotificationsPanel from './NotificationsPanel';
-import '../css/navbar.css';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import Badge from "@mui/material/Badge";
+import { useNavigate } from "react-router-dom";
+import NotificationsPanel from "./NotificationsPanel";
+import "../css/navbar.css";
+import axios from "axios";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ export default function Navbar() {
   const [hintMessage, setHintMessage] = useState("");
   const [hintShownOnce, setHintShownOnce] = useState(false);
   const handleDrawerToggle = () => {
-    setMobileOpen(prev => !prev);
+    setMobileOpen((prev) => !prev);
   };
 
   const handleNavigate = (path) => {
@@ -36,7 +36,7 @@ export default function Navbar() {
   };
 
   const handleHomeRedirect = () => {
-    navigate('/home');
+    navigate("/home");
   };
 
   // Fetch unread notification count
@@ -53,11 +53,11 @@ export default function Navbar() {
     try {
       const response = await axios.get(
         `https://pathfinder-maob.onrender.com/notifications/${userID}/unread-count`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setUnreadCount(response.data.unread_count || 0);
     } catch (error) {
-      console.error('Error fetching unread count:', error);
+      console.error("Error fetching unread count:", error);
     }
   };
 
@@ -78,9 +78,9 @@ export default function Navbar() {
     try {
       const res = await axios.get(
         `https://pathfinder-maob.onrender.com/profile/check/${userID}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
-       console.log("PROFILE CHECK RESPONSE 👉", res.data);
+      console.log("PROFILE CHECK RESPONSE 👉", res.data);
       if (res.data.message && !hintShownOnce) {
         setHintMessage(res.data.message);
         setShowHint(true);
@@ -90,31 +90,32 @@ export default function Navbar() {
           setShowHint(false);
         }, 15000); // 5 seconds
       }
-
     } catch (err) {
       console.log("profile check error", err);
     }
   };
 
-
-
   const menuItems = [
-    { label: 'Home', path: '/home', onClick: handleHomeRedirect },
-    { label: 'Jobs', path: '/listedjobs' },
-    { label: 'Blogs', path: '/blogs' },
-    { label: 'Contact', path: '/contact' },
-    { label: 'Profile', path: `/settings/${userID}`, icon: <AccountCircleIcon /> },
+    { label: "Home", path: "/home", onClick: handleHomeRedirect },
+    { label: "Jobs", path: "/listedjobs" },
+    { label: "Blogs", path: "/blogs" },
+    { label: "Contact", path: "/contact" },
+    {
+      label: "Profile",
+      path: `/settings/${userID}`,
+      icon: <AccountCircleIcon />,
+    },
   ];
 
   /* ---------------- Mobile Drawer ---------------- */
   const drawer = (
-    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
+    <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
       <Typography
         variant="h6"
         sx={{
-          fontFamily: 'Poppins, sans-serif',
+          fontFamily: "Poppins, sans-serif",
           fontWeight: 500,
-          fontSize: '1.575rem',
+          fontSize: "1.575rem",
           my: 2,
         }}
       >
@@ -126,10 +127,11 @@ export default function Navbar() {
           <ListItem
             // button
             key={item.label}
-            onClick={() => item.onClick ? item.onClick() : handleNavigate(item.path)}
-            
+            onClick={() =>
+              item.onClick ? item.onClick() : handleNavigate(item.path)
+            }
           >
-            <ListItemText primary={item.label} sx={{ textAlign: 'center' }} />
+            <ListItemText primary={item.label} sx={{ textAlign: "center" }} />
           </ListItem>
         ))}
       </List>
@@ -142,20 +144,19 @@ export default function Navbar() {
       <AppBar
         position="static"
         sx={{
-          backgroundColor: 'white',
-          color: 'black',
-          boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-          borderBottom: '1px solid #ddd'
+          backgroundColor: "white",
+          color: "black",
+          boxShadow: "0px 2px 10px rgba(0,0,0,0.1)",
+          borderBottom: "1px solid #ddd",
         }}
       >
         <Toolbar>
-
           {/* ☰ Mobile Menu Icon */}
           <IconButton
             color="inherit"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: 2, display: { sm: "none" } }}
           >
             <MenuIcon />
           </IconButton>
@@ -165,12 +166,12 @@ export default function Navbar() {
             variant="h6"
             sx={{
               flexGrow: 1,
-              fontFamily: 'Poppins, sans-serif',
+              fontFamily: "Poppins, sans-serif",
               fontWeight: 700,
-              fontSize: { xs: '1.25rem', sm: '1.575rem' },
-              ml: { xs: 0, sm: '4rem' },
-              display: 'flex',
-              alignItems: 'center'
+              fontSize: { xs: "1.25rem", sm: "1.575rem" },
+              ml: { xs: 0, sm: "4rem" },
+              display: "flex",
+              alignItems: "center",
             }}
           >
             <svg
@@ -194,52 +195,54 @@ export default function Navbar() {
             sx={{ mr: { xs: 1, sm: 2 } }}
             onClick={handleNotificationsClick}
           >
-            <Badge badgeContent={unreadCount > 0 ? unreadCount : 0} color="error">
+            <Badge
+              badgeContent={unreadCount > 0 ? unreadCount : 0}
+              color="error"
+            >
               <NotificationsIcon />
             </Badge>
           </IconButton>
 
           {/* Desktop Menu (HIDDEN ON MOBILE) */}
-         <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
-  {menuItems.map((item) => {
-
-    // 👉 PROFILE SPECIAL CASE
-    if (item.label === 'Profile') {
-      return (
-        <Box key={item.label} sx={{ position: "relative" }}>
-          <Button
-            color="inherit"
-            startIcon={item.icon}
-            className="profile-btn"
-            onClick={() => handleNavigate(item.path)}
+          <Box
+            sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center" }}
           >
-            {item.label}
-          </Button>
+            {menuItems.map((item) => {
+              // 👉 PROFILE SPECIAL CASE
+              if (item.label === "Profile") {
+                return (
+                  <Box key={item.label} sx={{ position: "relative" }}>
+                    <Button
+                      color="inherit"
+                      startIcon={item.icon}
+                      className="profile-btn"
+                      onClick={() => handleNavigate(item.path)}
+                    >
+                      {item.label}
+                    </Button>
 
-          {showHint && (
-            <Box className="profile-hint">
-              {hintMessage}
-            </Box>
-          )}
-        </Box>
-      );
-    }
+                    {showHint && (
+                      <Box className="profile-hint">{hintMessage}</Box>
+                    )}
+                  </Box>
+                );
+              }
 
-    // 👉 NORMAL BUTTONS
-    return (
-      <Button
-        key={item.label}
-        color="inherit"
-        onClick={() => item.onClick ? item.onClick() : handleNavigate(item.path)}
-        startIcon={item.icon}
-      >
-        {item.label}
-      </Button>
-    );
-  })}
-</Box>
-
-
+              // 👉 NORMAL BUTTONS
+              return (
+                <Button
+                  key={item.label}
+                  color="inherit"
+                  onClick={() =>
+                    item.onClick ? item.onClick() : handleNavigate(item.path)
+                  }
+                  startIcon={item.icon}
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -250,10 +253,10 @@ export default function Navbar() {
         onClose={handleDrawerToggle}
         ModalProps={{ keepMounted: true }}
         sx={{
-          display: { xs: 'block', sm: 'none' },
-          '& .MuiDrawer-paper': {
-            boxSizing: 'border-box',
-            width: 240
+          display: { xs: "block", sm: "none" },
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width: 240,
           },
         }}
       >

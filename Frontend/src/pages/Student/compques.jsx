@@ -45,8 +45,6 @@ export default function Companyques() {
     }
   };
 
-
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
       {/* Header Section with Gradient */}
@@ -151,7 +149,7 @@ export default function Companyques() {
                   </div>
                   <span
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold border flex-shrink-0 ${getDifficultyColor(
-                      q.difficulty
+                      q.difficulty,
                     )}`}
                   >
                     {q.difficulty}
@@ -169,10 +167,10 @@ export default function Companyques() {
                     {(Array.isArray(q.topics)
                       ? q.topics
                       : typeof q.topics === "string"
-                      ? q.topics.includes("[")
-                        ? JSON.parse(q.topics)
-                        : q.topics.split(",")
-                      : []
+                        ? q.topics.includes("[")
+                          ? JSON.parse(q.topics)
+                          : q.topics.split(",")
+                        : []
                     ).map((t, i) => (
                       <span
                         key={i}

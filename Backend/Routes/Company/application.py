@@ -16,6 +16,8 @@ from pydantic import BaseModel
 from typing import Optional
 from utils.ai_analysis import calculate_ats_score
 
+
+
 def get_db():
     db = Sessionlocal()
     try:
@@ -249,7 +251,8 @@ def check_application_status(
             "status": final_status,
             "meeting_link": meeting_link,
             "platform": platform,
-            "application_id": application.id
+            "application_id": application.id,
+            "interview_timestamp": interview.interview_datetime if interview else None
         }
 
     except Exception as e:

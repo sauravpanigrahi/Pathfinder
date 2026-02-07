@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { BookOpen, Sparkles, Filter, ChevronDown, ChevronRight, Check } from "lucide-react";
+import {
+  BookOpen,
+  Sparkles,
+  Filter,
+  ChevronDown,
+  ChevronRight,
+  Check,
+} from "lucide-react";
 
 const Ciq = () => {
   const [questions, setQuestions] = useState([]);
@@ -13,15 +20,15 @@ const Ciq = () => {
     try {
       const params = new URLSearchParams({
         domain,
-        ...(difficulty && { difficulty })
+        ...(difficulty && { difficulty }),
       });
-      
+
       const res = await fetch(
-        `https://pathfinder-maob.onrender.com/api/interview-questions?${params}`
+        `https://pathfinder-maob.onrender.com/api/interview-questions?${params}`,
       );
-      
-      if (!res.ok) throw new Error('Failed to fetch');
-      
+
+      if (!res.ok) throw new Error("Failed to fetch");
+
       const data = await res.json();
       setQuestions(data);
     } catch (err) {
@@ -39,7 +46,7 @@ const Ciq = () => {
     const colors = {
       easy: "bg-emerald-50 text-emerald-700 border-emerald-200",
       medium: "bg-amber-50 text-amber-700 border-amber-200",
-      hard: "bg-rose-50 text-rose-700 border-rose-200"
+      hard: "bg-rose-50 text-rose-700 border-rose-200",
     };
     return colors[level] || "bg-gray-50 text-gray-700 border-gray-200";
   };
@@ -48,7 +55,7 @@ const Ciq = () => {
     javascript: "JS",
     html: "HTML",
     css: "CSS",
-    "frontend-system-design": "FSD"
+    "frontend-system-design": "FSD",
   };
 
   return (
@@ -65,15 +72,15 @@ const Ciq = () => {
               Premium Interview Prep
             </div>
           </div>
-          
+
           <h1 className="text-5xl font-bold mb-4 tracking-tight">
             Master Your Interview
           </h1>
           <p className="text-xl text-indigo-100 max-w-2xl">
-            Industry-vetted questions with comprehensive explanations. 
-            Prepare like a pro, interview with confidence.
+            Industry-vetted questions with comprehensive explanations. Prepare
+            like a pro, interview with confidence.
           </p>
-          
+
           <div className="mt-8 flex flex-wrap gap-6 text-sm">
             <div className="flex items-center gap-2">
               <Check className="w-5 h-5 text-emerald-300" />
@@ -93,14 +100,15 @@ const Ciq = () => {
 
       {/* Main Content */}
       <div className="mx-auto max-w-6xl px-6 -mt-8">
-        
         {/* Filters Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-8">
           <div className="flex items-center gap-2 mb-4">
             <Filter className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Filter Questions</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              Filter Questions
+            </h2>
           </div>
-          
+
           <div className="flex flex-wrap gap-4">
             <div className="flex-1 min-w-[200px]">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -114,7 +122,9 @@ const Ciq = () => {
                 <option value="javascript">JavaScript</option>
                 <option value="html">HTML</option>
                 <option value="css">CSS</option>
-                <option value="frontend-system-design">Frontend System Design</option>
+                <option value="frontend-system-design">
+                  Frontend System Design
+                </option>
                 <option value="data analysis">data analysis</option>
                 <option value="predictive modeling">predictive modeling</option>
                 <option value="probability">probability</option>
@@ -138,7 +148,7 @@ const Ciq = () => {
               </select>
             </div>
           </div>
-          
+
           <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
             <span className="font-medium">{questions.length}</span>
             <span>questions found</span>
@@ -156,7 +166,9 @@ const Ciq = () => {
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <BookOpen className="w-10 h-10 text-gray-400" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Questions Found</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No Questions Found
+            </h3>
             <p className="text-gray-600">
               Try adjusting your filters to see more questions.
             </p>
@@ -179,7 +191,9 @@ const Ciq = () => {
                           <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded text-xs font-semibold">
                             {domainIcons[domain]}
                           </span>
-                          <span className={`px-3 py-0.5 rounded-full text-xs font-semibold border ${getDifficultyColor(q.difficulty)}`}>
+                          <span
+                            className={`px-3 py-0.5 rounded-full text-xs font-semibold border ${getDifficultyColor(q.difficulty)}`}
+                          >
                             {q.difficulty}
                           </span>
                         </div>
@@ -191,7 +205,9 @@ const Ciq = () => {
                   </div>
 
                   <button
-                    onClick={() => setOpenAnswer(openAnswer === q.id ? null : q.id)}
+                    onClick={() =>
+                      setOpenAnswer(openAnswer === q.id ? null : q.id)
+                    }
                     className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium text-sm group/btn transition-colors"
                   >
                     {openAnswer === q.id ? (
@@ -212,7 +228,9 @@ const Ciq = () => {
                       <div className="bg-gradient-to-br from-slate-50 to-indigo-50 rounded-xl p-6">
                         <div className="flex items-center gap-2 mb-3">
                           <Sparkles className="w-5 h-5 text-indigo-600" />
-                          <span className="font-semibold text-gray-900">Answer</span>
+                          <span className="font-semibold text-gray-900">
+                            Answer
+                          </span>
                         </div>
                         <p className="whitespace-pre-line text-gray-700 leading-relaxed">
                           {q.answer}

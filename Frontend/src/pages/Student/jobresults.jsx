@@ -4,11 +4,10 @@ import axios from "axios";
 
 const JobResults = () => {
   const location = useLocation();
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const query = new URLSearchParams(location.search).get("query");
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  
 
   useEffect(() => {
     if (!query) {
@@ -18,10 +17,10 @@ const JobResults = () => {
     const fetchJobs = async () => {
       try {
         const response = await axios.get(
-          `https://pathfinder-maob.onrender.com/jobs/search?query=${query}`
+          `https://pathfinder-maob.onrender.com/jobs/search?query=${query}`,
         );
         setJobs(response.data);
-        console.log(response.data)
+        console.log(response.data);
       } catch (error) {
         console.error("Error fetching jobs:", error);
         setJobs([]);
@@ -32,29 +31,27 @@ const JobResults = () => {
 
     fetchJobs();
   }, [query]);
-// const handleApply = (job) => {
-//     navigate(`/Student/Apply/${job.uid}`, {
-//       state: {
-//         jobId: job.id,
-//         jobTitle: job.title,
-//         companyName: job.company,
-//         jobLocation: job.location,
-//         salary: job.salary,
-//         jobType: job.type
-//       }
-//     });
-//   };
+  // const handleApply = (job) => {
+  //     navigate(`/Student/Apply/${job.uid}`, {
+  //       state: {
+  //         jobId: job.id,
+  //         jobTitle: job.title,
+  //         companyName: job.company,
+  //         jobLocation: job.location,
+  //         salary: job.salary,
+  //         jobType: job.type
+  //       }
+  //     });
+  //   };
   return (
     <div className="max-w-9xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">
-        Search Results for “{query}”
-      </h1>
+      <h1 className="text-2xl font-bold mb-6">Search Results for “{query}”</h1>
 
       {jobs.length === 0 ? (
         <p className="text-gray-500">No jobs found.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6">
-          {jobs.map(job => (
+          {jobs.map((job) => (
             <div
               key={job.id}
               className="bg-white shadow rounded-xl p-5 hover:shadow-lg transition"
@@ -86,24 +83,24 @@ const JobResults = () => {
                     ))}
                 </div>
               )}
-               <div className="relative group inline-block">
-              <button
-                disabled
-                className="mt-5 inline-flex items-center justify-center rounded-lg
+              <div className="relative group inline-block">
+                <button
+                  disabled
+                  className="mt-5 inline-flex items-center justify-center rounded-lg
                           bg-gray-400 px-4 py-2 text-sm font-medium text-white
                           cursor-not-allowed opacity-70"
-              >
-                Apply
-              </button>
-              {/* Hover Text */}
-              <span
-                className="absolute -top-2 left-1/2 -translate-x-1/2
+                >
+                  Apply
+                </button>
+                {/* Hover Text */}
+                <span
+                  className="absolute -top-2 left-1/2 -translate-x-1/2
                           whitespace-nowrap rounded-md bg-black px-3 py-1 text-xs text-white
                           opacity-0 group-hover:opacity-100 transition"
-              >
-                Login to apply
-              </span>
-            </div>
+                >
+                  Login to apply
+                </span>
+              </div>
             </div>
           ))}
         </div>

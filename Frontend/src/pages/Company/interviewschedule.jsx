@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaEnvelope, FaTimes } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 const Interviewschedule = () => {
-const navigate=useNavigate();
-const [applications, setApplications] = useState([]);
-const [selectedApplication, setSelectedApplication] = useState(null);
-const { state } = useLocation();
-const companyUID =
-  state?.companyUID || localStorage.getItem("company UID");
+  const navigate = useNavigate();
+  const [applications, setApplications] = useState([]);
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const { state } = useLocation();
+  const companyUID = state?.companyUID || localStorage.getItem("company UID");
   const [formData, setFormData] = useState({
     application_id: "",
     student_uid: "",
@@ -38,38 +37,38 @@ const companyUID =
       ...prev,
       application_id: application.id,
       student_uid: application.stud_uid,
-      name: application.Fullname,      // ✅ ADD
-      role: application.Job_role 
+      name: application.Fullname, // ✅ ADD
+      role: application.Job_role,
     }));
   };
-   // Fetch accepted applications for scheduling
+  // Fetch accepted applications for scheduling
   useEffect(() => {
-  const fetchAcceptedApplications = async () => {
-    try {
-      const response = await axios.get(
-        `https://pathfinder-maob.onrender.com/applications/${companyUID}`,
-        { withCredentials: true }
-      );
+    const fetchAcceptedApplications = async () => {
+      try {
+        const response = await axios.get(
+          `https://pathfinder-maob.onrender.com/applications/${companyUID}`,
+          { withCredentials: true },
+        );
 
-      // ✅ FIX HERE
-      const acceptedApps = response.data.applications.filter(
-        (app) => app.status === "accepted"
-      );
+        // ✅ FIX HERE
+        const acceptedApps = response.data.applications.filter(
+          (app) => app.status === "accepted",
+        );
 
-      setApplications(acceptedApps);
-      console.log("accepted applications", acceptedApps);
-    } catch (error) {
-      console.error("Error fetching applications:", error);
-      toast.error("Failed to fetch applications");
+        setApplications(acceptedApps);
+        console.log("accepted applications", acceptedApps);
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+        toast.error("Failed to fetch applications");
+      }
+    };
+
+    if (companyUID) {
+      fetchAcceptedApplications();
     }
-  };
+  }, [companyUID]);
 
-  if (companyUID) {
-    fetchAcceptedApplications();
-  }
-}, [companyUID]);
-
-console.log("application",applications)
+  console.log("application", applications);
   const handleScheduleInterview = async (e) => {
     e.preventDefault();
 
@@ -86,15 +85,15 @@ console.log("application",applications)
     try {
       const payload = {
         ...formData,
-        interview_datetime: new Date(
-          formData.interview_datetime
-        ).toISOString(),
+        interview_datetime: new Date(formData.interview_datetime).toISOString(),
       };
 
       await axios.post(
         "https://pathfinder-maob.onrender.com/interviews/schedule",
         payload,
-        { withCredentials: true }
+        {
+          withCredentials: true,
+        },
       );
 
       toast.success("Interview scheduled successfully");
@@ -123,7 +122,7 @@ console.log("application",applications)
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
         <div className="border-b px-6 py-4 flex justify-between items-center">
           <h2 className="text-2xl font-bold">Schedule Interview</h2>
-          <button onClick={()=>navigate(-1)}>
+          <button onClick={() => navigate(-1)}>
             <FaTimes />
           </button>
         </div>
@@ -135,7 +134,7 @@ console.log("application",applications)
             value={formData.application_id}
             onChange={(e) => {
               const app = applications.find(
-                (a) => a.id === Number(e.target.value)
+                (a) => a.id === Number(e.target.value),
               );
               handleApplicationSelect(app);
             }}
@@ -147,16 +146,15 @@ console.log("application",applications)
                 {app.Fullname} - {app.Job_role}
               </option>
             ))}
-            
           </select>
-        {selectedApplication && (
-              <div className="bg-gray-50 border rounded p-3 text-sm text-gray-700">
-                <p>
-              <span className="font-semibold">Candidate Email:</span>{" "}
-                   {selectedApplication.Email}
+          {selectedApplication && (
+            <div className="bg-gray-50 border rounded p-3 text-sm text-gray-700">
+              <p>
+                <span className="font-semibold">Candidate Email:</span>{" "}
+                {selectedApplication.Email}
               </p>
-           </div>
-        )}
+            </div>
+          )}
           {/* Date */}
           <input
             type="datetime-local"

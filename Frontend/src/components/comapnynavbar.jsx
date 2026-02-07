@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Typography from '@mui/material/Typography';
-import axios from 'axios';
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Typography from "@mui/material/Typography";
+import axios from "axios";
 import { toast } from "react-toastify";
 
 const CompanyNavbar = () => {
@@ -9,36 +9,35 @@ const CompanyNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
-  
-  const getMenuItems = () => {
-    const uid = localStorage.getItem('company UID');
-    return [
-      { label: 'Home', path: '/companyhome' },
-      { label: 'Create Job', path: `/companyhome/${uid}/create` },
-      { label: 'Applications', path: '/company/application' },
-      { label: 'Interview', path: `/company/${uid}/interview` },
 
+  const getMenuItems = () => {
+    const uid = localStorage.getItem("company UID");
+    return [
+      { label: "Home", path: "/companyhome" },
+      { label: "Create Job", path: `/companyhome/${uid}/create` },
+      { label: "Applications", path: "/company/application" },
+      { label: "Interview", path: `/company/${uid}/interview` },
     ];
   };
 
   const menuItems = getMenuItems();
 
- const handleLogout = async () => {
-  try {
-    await axios.post(
-      "https://pathfinder-maob.onrender.com/company/logout",
-      {},
-      { withCredentials: true }
-    );
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "https://pathfinder-maob.onrender.com/company/logout",
+        {},
+        { withCredentials: true },
+      );
 
-    localStorage.clear();
-    toast.success("Logout successful");
-    navigate("/", { replace: true });
-  } catch (error) {
-    console.error(error);
-    toast.error("Logout failed");
-  }
-};
+      localStorage.clear();
+      toast.success("Logout successful");
+      navigate("/", { replace: true });
+    } catch (error) {
+      console.error(error);
+      toast.error("Logout failed");
+    }
+  };
   // Close profile dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -46,9 +45,9 @@ const CompanyNavbar = () => {
         setIsProfileOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -61,27 +60,26 @@ const CompanyNavbar = () => {
             <Typography
               variant="h5"
               sx={{
-                fontFamily: 'Poppins, sans-serif',
-              fontWeight: 700,
-              ml: { xs: 0, sm: '4rem' },
-              fontSize: { xs: '1.25rem', sm: '1.575rem' },
-                 display:"flex",
-                 alignItems:"center"
+                fontFamily: "Poppins, sans-serif",
+                fontWeight: 700,
+                ml: { xs: 0, sm: "4rem" },
+                fontSize: { xs: "1.25rem", sm: "1.575rem" },
+                display: "flex",
+                alignItems: "center",
               }}
             >
               <svg
-              width="40"
-              height="40"
-              viewBox="0 0 24 24"
-              fill="black"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{ marginRight: 8 }}
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polygon points="12,5 7,17 12,14 17,17" fill="white" />
-              <circle cx="12" cy="12" r="2" />
-            </svg>
-
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="black"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ marginRight: 8 }}
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="12,5 7,17 12,14 17,17" fill="white" />
+                <circle cx="12" cy="12" r="2" />
+              </svg>
               PathFinder
             </Typography>
           </div>
@@ -124,8 +122,8 @@ const CompanyNavbar = () => {
                   >
                     Settings
                   </Link>
-                  <button 
-                    onClick={handleLogout} 
+                  <button
+                    onClick={handleLogout}
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Sign out

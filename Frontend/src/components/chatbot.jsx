@@ -4,7 +4,10 @@ import { Send, Bot, User } from "lucide-react";
 
 const ChatBot = ({ resumeText }) => {
   const [messages, setMessages] = useState([
-    { sender: "bot", text: "👋 Hi! I'm your AI Resume Coach. Ask me anything about your resume." },
+    {
+      sender: "bot",
+      text: "👋 Hi! I'm your AI Resume Coach. Ask me anything about your resume.",
+    },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,10 +27,13 @@ const ChatBot = ({ resumeText }) => {
     setLoading(true);
 
     try {
-      const res = await axios.post("https://pathfinder-maob.onrender.com/chat_ai", {
-        user_message: input,
-        resume_text: resumeText || "",
-      });
+      const res = await axios.post(
+        "https://pathfinder-maob.onrender.com/chat_ai",
+        {
+          user_message: input,
+          resume_text: resumeText || "",
+        },
+      );
 
       const botMessage = { sender: "bot", text: res.data.response };
       setMessages((prev) => [...prev, botMessage]);

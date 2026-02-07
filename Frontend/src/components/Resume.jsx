@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useAppContext } from '../AppContext';
+import { useAppContext } from "../AppContext";
 
-
-const Resume = ({stud_uid}) => {
+const Resume = ({ stud_uid }) => {
   const [resumeFile, setResumeFile] = useState(null);
   const [upload, setUpload] = useState(false);
-  // ✅ FIX: When stud_uid is provided (from company viewing applications), 
+  // ✅ FIX: When stud_uid is provided (from company viewing applications),
   // always use that. Only use localStorage when component is used by student themselves.
-  const userID = stud_uid || localStorage.getItem('userUID');
-  const { resume,setResume } = useAppContext(); // <-- Fix: use setResume
-  
+  const userID = stud_uid || localStorage.getItem("userUID");
+  const { resume, setResume } = useAppContext(); // <-- Fix: use setResume
+
   useEffect(() => {
     const checkResumeStatus = async () => {
       if (!userID) return;
       try {
-        const res = await axios.get(`https://pathfinder-maob.onrender.com/resume/checkresume/${userID}`);
+        const res = await axios.get(
+          `https://pathfinder-maob.onrender.com/resume/checkresume/${userID}`,
+        );
         if (res.data && res.data.uploaded) {
           setUpload(true);
           setResumeFile(res.data.url);
@@ -45,7 +46,7 @@ const Resume = ({stud_uid}) => {
       const response = await axios.post(
         `https://pathfinder-maob.onrender.com/resume/uploadresume/${userID}`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        { headers: { "Content-Type": "multipart/form-data" } },
       );
       // ✅ Update state immediately so button changes right away
       setResumeFile(response.data.url);
@@ -53,12 +54,14 @@ const Resume = ({stud_uid}) => {
       setResume(true);
       toast.success("Resume uploaded successfully ✅");
       console.log("Upload response:", response.data);
-      
+
       // ✅ Re-check resume status to ensure consistency (optional, but good for reliability)
       // The state is already updated above, so this is just a verification
       setTimeout(async () => {
         try {
-          const res = await axios.get(`https://pathfinder-maob.onrender.com/resume/checkresume/${userID}`);
+          const res = await axios.get(
+            `https://pathfinder-maob.onrender.com/resume/checkresume/${userID}`,
+          );
           if (res.data && res.data.uploaded) {
             setResumeFile(res.data.url);
             setUpload(true);
@@ -80,12 +83,11 @@ const Resume = ({stud_uid}) => {
 
   // ✅ Check if this is company view (stud_uid provided) vs student view
   const isCompanyView = !!stud_uid;
-  
 
   return (
     <div className="flex flex-col items-start space-y-3">
       {upload ? (
-        < >
+        <>
           {/* View Resume */}
           <button
             onClick={() => window.open(resumeFile, "_blank")}
@@ -95,9 +97,7 @@ const Resume = ({stud_uid}) => {
           </button>
 
           {/* Delete Resume */}
-          
         </>
-
       ) : (
         <>
           {isCompanyView ? (
@@ -109,7 +109,12 @@ const Resume = ({stud_uid}) => {
             // ✅ Student view: Show upload button
             <label className="inline-flex items-center justify-center rounded-xl bg-blue-600 hover:bg-blue-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm cursor-pointer transition-colors duration-300">
               Resume Upload 📤
-              <input type="file" className="hidden" onChange={resumeUpload} accept=".pdf" />
+              <input
+                type="file"
+                className="hidden"
+                onChange={resumeUpload}
+                accept=".pdf"
+              />
             </label>
           )}
         </>

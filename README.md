@@ -258,11 +258,13 @@ cd Pathfinder
 ### Step 2: Backend Setup
 
 1. **Navigate to the Backend directory:**
+
    ```bash
    cd Backend
    ```
 
 2. **Create a virtual environment:**
+
    ```bash
    # On Windows
    python -m venv venv
@@ -281,6 +283,7 @@ cd Pathfinder
 ### Step 3: Frontend Setup
 
 1. **Navigate to the Frontend directory:**
+
    ```bash
    cd ../Frontend
    ```
@@ -293,6 +296,7 @@ cd Pathfinder
 ### Step 4: Database Setup
 
 1. **Create a MySQL database:**
+
    ```sql
    CREATE DATABASE pathfinder;
    ```
@@ -314,12 +318,14 @@ cd Pathfinder
 ### Backend Configuration
 
 1. **Create a `.env` file in the `Backend` directory:**
+
    ```bash
    cd Backend
    touch .env  # On Windows: type nul > .env
    ```
 
 2. **Add the following environment variables to `.env`:**
+
    ```env
    # Database Configuration
    DATABASE_URL=mysql+pymysql://username:password@localhost:3306/pathfinder
@@ -370,6 +376,7 @@ cd Pathfinder
 ### Running the Backend
 
 1. **Activate your virtual environment** (if not already activated):
+
    ```bash
    cd Backend
    # On Windows
@@ -379,24 +386,27 @@ cd Pathfinder
    ```
 
 2. **Start the FastAPI server:**
+
    ```bash
    uvicorn app:app --reload --host 0.0.0.0 --port 8000
    ```
 
    The backend API will be available at: `https://pathfinder-maob.onrender.com`
-<!-- 
-   - API Documentation (Swagger UI): `https://pathfinder-maob.onrender.com/docs`
-   - Alternative API Docs (ReDoc): `https://pathfinder-maob.onrender.com/redoc`
-   - Health Check: `https://pathfinder-maob.onrender.com/health` -->
+   <!--
+      - API Documentation (Swagger UI): `https://pathfinder-maob.onrender.com/docs`
+      - Alternative API Docs (ReDoc): `https://pathfinder-maob.onrender.com/redoc`
+      - Health Check: `https://pathfinder-maob.onrender.com/health` -->
 
 ### Running the Frontend
 
 1. **Navigate to the Frontend directory:**
+
    ```bash
    cd Frontend
    ```
 
 2. **Start the development server:**
+
    ```bash
    npm run dev
    ```
@@ -408,6 +418,7 @@ cd Pathfinder
 You can run both servers simultaneously in separate terminal windows/tabs:
 
 **Terminal 1 (Backend):**
+
 ```bash
 cd Backend
 venv\Scripts\activate  # Windows
@@ -417,6 +428,7 @@ uvicorn app:app --reload --host 0.0.0.0 --port 8000
 ```
 
 **Terminal 2 (Frontend):**
+
 ```bash
 cd Frontend
 npm run dev
@@ -464,12 +476,14 @@ We welcome contributions from the open-source community! Pathfinder is an open-s
    - This creates a copy of the repository in your GitHub account
 
 2. **Clone Your Fork**
+
    ```bash
    git clone https://github.com/yourusername/Pathfinder.git
    cd Pathfinder
    ```
 
 3. **Create a Branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    # or
@@ -483,14 +497,17 @@ We welcome contributions from the open-source community! Pathfinder is an open-s
    - Test your changes thoroughly
 
 5. **Commit Your Changes**
+
    ```bash
    git add .
    git commit -m "Description of your changes"
    ```
+
    - Write clear, descriptive commit messages
    - Reference any related issues in your commit message
 
 6. **Push to Your Fork**
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -548,6 +565,7 @@ We welcome contributions from the open-source community! Pathfinder is an open-s
 ### Questions?
 
 If you have questions about contributing, feel free to:
+
 - Open an issue with the `question` label
 - Reach out to the maintainers
 - Check existing issues and discussions

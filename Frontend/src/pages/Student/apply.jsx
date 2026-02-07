@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import '/src/css/Loader.css';
-import Resume from '../../components/Resume';
-import { useAppContext } from '../../AppContext';
-import { Loader, DeleteLoader } from '../../components/loader';
-import { Trash } from 'lucide-react';
+import "/src/css/Loader.css";
+import Resume from "../../components/Resume";
+import { useAppContext } from "../../AppContext";
+import { Loader, DeleteLoader } from "../../components/loader";
+import { Trash } from "lucide-react";
 
 const JobApplicationForm = () => {
   const navigate = useNavigate();
@@ -32,9 +32,18 @@ const JobApplicationForm = () => {
     const fetchDetails = async () => {
       try {
         const [profileRes, projectRes, experienceRes] = await Promise.all([
-          axios.get(`https://pathfinder-maob.onrender.com/profile/${userUID}`, { withCredentials: true }),
-          axios.get(`https://pathfinder-maob.onrender.com/project/${userUID}`, { withCredentials: true }),
-          axios.get(`https://pathfinder-maob.onrender.com/experience/${userUID}`, { withCredentials: true }),
+          axios.get(`https://pathfinder-maob.onrender.com/profile/${userUID}`, {
+            withCredentials: true,
+          }),
+          axios.get(`https://pathfinder-maob.onrender.com/project/${userUID}`, {
+            withCredentials: true,
+          }),
+          axios.get(
+            `https://pathfinder-maob.onrender.com/experience/${userUID}`,
+            {
+              withCredentials: true,
+            },
+          ),
         ]);
         const { details, ...userInfo } = profileRes.data;
         setProfileData({ ...userInfo, details });
@@ -67,7 +76,7 @@ const JobApplicationForm = () => {
 
   useEffect(() => {
     if (!profiledata?.name) return;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       Fullname: profiledata.name,
       Email: profiledata.email,
@@ -86,17 +95,17 @@ const JobApplicationForm = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
-    if (type === 'file') {
-      setFormData(prev => ({ ...prev, [name]: files[0] }));
+    if (type === "file") {
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   useEffect(() => {
     if (!userUID) {
       toast.error("Please login first");
-      navigate('/login/student');
+      navigate("/login/student");
     }
   }, [userUID, navigate]);
 
@@ -104,10 +113,14 @@ const JobApplicationForm = () => {
     e.preventDefault();
     try {
       console.log("Submitting:", formData);
-      await axios.post("https://pathfinder-maob.onrender.com/student/apply", formData, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      });
+      await axios.post(
+        "https://pathfinder-maob.onrender.com/student/apply",
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        },
+      );
       toast.success("Application Submitted Successfully");
       navigate("/listedjobs");
     } catch (err) {
@@ -118,9 +131,9 @@ const JobApplicationForm = () => {
 
   const nextStep = () => {
     if (!completedSteps.includes(currentStep)) {
-      setCompletedSteps(prev => [...prev, currentStep]);
+      setCompletedSteps((prev) => [...prev, currentStep]);
     }
-    setCurrentStep(prev => Math.min(prev + 1, steps.length));
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length));
   };
 
   const prevStep = () => {
@@ -130,16 +143,21 @@ const JobApplicationForm = () => {
   const goToStep = (step) => setCurrentStep(step);
 
   const steps = [
-    { id: 1, name: 'Profile Review' },
-    { id: 2, name: 'Cover Letter' },
+    { id: 1, name: "Profile Review" },
+    { id: 2, name: "Cover Letter" },
   ];
 
   const handleDeleteResume = async () => {
-    const confirmed = window.confirm("Are you sure you want to delete this resume?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this resume?",
+    );
     if (!confirmed || deleting) return;
     try {
       setDeleting(true);
-      await axios.delete(`https://pathfinder-maob.onrender.com/student/resume/delete/${userUID}`, { withCredentials: true });
+      await axios.delete(
+        `https://pathfinder-maob.onrender.com/student/resume/delete/${userUID}`,
+        { withCredentials: true },
+      );
       toast.success("Resume deleted successfully");
       setResumeFile(null);
       setIsDeleted(true);
@@ -154,19 +172,33 @@ const JobApplicationForm = () => {
 
   // ─── small helper ───────────────────────────────────
   const InfoRow = ({ label, value }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8a8fa8' }}>{label}</span>
-      <span style={{ fontSize: 13.5, color: '#1e2030', fontWeight: 500 }}>{value || '—'}</span>
+    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <span
+        style={{
+          fontSize: 11,
+          fontWeight: 600,
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+          color: "#8a8fa8",
+        }}
+      >
+        {label}
+      </span>
+      <span style={{ fontSize: 13.5, color: "#1e2030", fontWeight: 500 }}>
+        {value || "—"}
+      </span>
     </div>
   );
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#f4f5f7',
-      fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
-      padding: '32px 16px',
-    }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f4f5f7",
+        fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
+        padding: "32px 16px",
+      }}
+    >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
 
@@ -387,26 +419,52 @@ const JobApplicationForm = () => {
       `}</style>
 
       <div className="jaf-page">
-
         {/* ── Header ── */}
         <div className="jaf-header">
           <div className="jaf-header-inner">
             <div className="jaf-icon-wrap">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
               </svg>
             </div>
             <div className="jaf-header-text">
-              <div className="jaf-role">{jobTitle || 'Position'}</div>
+              <div className="jaf-role">{jobTitle || "Position"}</div>
               <div className="jaf-meta">
                 <span className="jaf-meta-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
-                  {companyName || 'Company'}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    <polyline points="9,22 9,12 15,12 15,22" />
+                  </svg>
+                  {companyName || "Company"}
                 </span>
                 <span className="jaf-meta-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  {jobLocation || 'Location'}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  {jobLocation || "Location"}
                 </span>
               </div>
             </div>
@@ -423,17 +481,32 @@ const JobApplicationForm = () => {
                 <button
                   type="button"
                   onClick={() => goToStep(step.id)}
-                  className={`jaf-step ${isActive ? 'jaf-step--active' : isDone ? 'jaf-step--done' : ''}`}
+                  className={`jaf-step ${isActive ? "jaf-step--active" : isDone ? "jaf-step--done" : ""}`}
                 >
                   <div className="jaf-step-indicator">
                     {isDone ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
-                    ) : step.id}
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20,6 9,17 4,12" />
+                      </svg>
+                    ) : (
+                      step.id
+                    )}
                   </div>
                   <span className="jaf-step-label">{step.name}</span>
                 </button>
                 {index < steps.length - 1 && (
-                  <div className={`jaf-step-line ${completedSteps.includes(step.id) ? 'jaf-step-line--done' : ''}`} />
+                  <div
+                    className={`jaf-step-line ${completedSteps.includes(step.id) ? "jaf-step-line--done" : ""}`}
+                  />
                 )}
               </React.Fragment>
             );
@@ -443,60 +516,110 @@ const JobApplicationForm = () => {
         {/* ── Form Card ── */}
         <div className="jaf-card">
           <form onSubmit={handleSubmit}>
-
             {/* ─── STEP 1 ─── */}
             {currentStep === 1 && (
               <div className="jaf-animate">
-
                 {/* Personal Info */}
                 <div className="jaf-section-title">Personal Information</div>
                 <div className="jaf-info-grid">
                   <InfoRow label="Full Name" value={profiledata.name} />
                   <InfoRow label="Email" value={profiledata.email} />
-                  <InfoRow label="Phone" value={profiledata.details?.phone_number} />
-                  <InfoRow label="Date of Birth" value={profiledata.details?.date_of_birth} />
-                  <InfoRow label="LinkedIn" value={profiledata.details?.linkedin_url} />
-                  <InfoRow label="GitHub" value={profiledata.details?.github_url} />
+                  <InfoRow
+                    label="Phone"
+                    value={profiledata.details?.phone_number}
+                  />
+                  <InfoRow
+                    label="Date of Birth"
+                    value={profiledata.details?.date_of_birth}
+                  />
+                  <InfoRow
+                    label="LinkedIn"
+                    value={profiledata.details?.linkedin_url}
+                  />
+                  <InfoRow
+                    label="GitHub"
+                    value={profiledata.details?.github_url}
+                  />
                 </div>
 
                 {/* Address */}
                 <div className="jaf-section-title">Address</div>
                 <div className="jaf-info-full">
-                  <span style={{ fontSize: 13.5, color: '#1e2030', fontWeight: 500 }}>
-                    {profiledata.details?.address || '—'}
+                  <span
+                    style={{
+                      fontSize: 13.5,
+                      color: "#1e2030",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {profiledata.details?.address || "—"}
                   </span>
                 </div>
 
                 {/* Bio */}
                 <div className="jaf-section-title">About You</div>
                 <div className="jaf-info-full">
-                  <span style={{ fontSize: 13.5, color: '#4a4f6a', lineHeight: 1.65 }}>
-                    {profiledata.details?.bio || 'No bio provided'}
+                  <span
+                    style={{
+                      fontSize: 13.5,
+                      color: "#4a4f6a",
+                      lineHeight: 1.65,
+                    }}
+                  >
+                    {profiledata.details?.bio || "No bio provided"}
                   </span>
                 </div>
 
                 {/* Projects */}
                 <div className="jaf-section-title">Projects</div>
                 <div style={{ marginBottom: 28 }}>
-                  {project?.length > 0 ? project.map((proj) => (
-                    <div key={proj.id} className="jaf-item-card">
-                      <div className="jaf-item-card--title">{proj.Title}</div>
-                      {proj.description && <div className="jaf-item-card--desc">{proj.description}</div>}
-                      {proj.tech_stack && (
-                        <div className="jaf-item-card--tags">
-                          {(typeof proj.tech_stack === 'string' ? proj.tech_stack.split(',') : proj.tech_stack).map((t, i) => (
-                            <span key={i} className="jaf-tag">{t.trim()}</span>
-                          ))}
-                        </div>
-                      )}
-                      {proj.link && (
-                        <a href={proj.link} target="_blank" rel="noopener noreferrer" className="jaf-item-card--link">
-                          View Project
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/></svg>
-                        </a>
-                      )}
-                    </div>
-                  )) : (
+                  {project?.length > 0 ? (
+                    project.map((proj) => (
+                      <div key={proj.id} className="jaf-item-card">
+                        <div className="jaf-item-card--title">{proj.Title}</div>
+                        {proj.description && (
+                          <div className="jaf-item-card--desc">
+                            {proj.description}
+                          </div>
+                        )}
+                        {proj.tech_stack && (
+                          <div className="jaf-item-card--tags">
+                            {(typeof proj.tech_stack === "string"
+                              ? proj.tech_stack.split(",")
+                              : proj.tech_stack
+                            ).map((t, i) => (
+                              <span key={i} className="jaf-tag">
+                                {t.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {proj.link && (
+                          <a
+                            href={proj.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="jaf-item-card--link"
+                          >
+                            View Project
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <line x1="7" y1="17" x2="17" y2="7" />
+                              <polyline points="7,7 17,7 17,17" />
+                            </svg>
+                          </a>
+                        )}
+                      </div>
+                    ))
+                  ) : (
                     <p className="jaf-empty">No projects added.</p>
                   )}
                 </div>
@@ -504,20 +627,40 @@ const JobApplicationForm = () => {
                 {/* Experience */}
                 <div className="jaf-section-title">Work Experience</div>
                 <div>
-                  {experience?.length > 0 ? experience.map((exp, index) => (
-                    <div key={index} className="jaf-item-card">
-                      <div className="jaf-item-card--title">{exp.role} — {exp.company_name}</div>
-                      {exp.duration && <div className="jaf-item-card--sub">{exp.duration}</div>}
-                      {exp.description && <div className="jaf-item-card--desc">{exp.description}</div>}
-                    </div>
-                  )) : (
+                  {experience?.length > 0 ? (
+                    experience.map((exp, index) => (
+                      <div key={index} className="jaf-item-card">
+                        <div className="jaf-item-card--title">
+                          {exp.role} — {exp.company_name}
+                        </div>
+                        {exp.duration && (
+                          <div className="jaf-item-card--sub">
+                            {exp.duration}
+                          </div>
+                        )}
+                        {exp.description && (
+                          <div className="jaf-item-card--desc">
+                            {exp.description}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
                     <p className="jaf-empty">No work experience added.</p>
                   )}
                 </div>
 
                 {/* Note */}
-                <p style={{ fontSize: 11.5, color: '#9ca3af', marginTop: 24, fontStyle: 'italic' }}>
-                  If any information is incorrect, please update your profile before continuing.
+                <p
+                  style={{
+                    fontSize: 11.5,
+                    color: "#9ca3af",
+                    marginTop: 24,
+                    fontStyle: "italic",
+                  }}
+                >
+                  If any information is incorrect, please update your profile
+                  before continuing.
                 </p>
               </div>
             )}
@@ -528,7 +671,9 @@ const JobApplicationForm = () => {
                 <div className="jaf-section-title">Cover Letter</div>
 
                 <div className="jaf-textarea-wrap">
-                  <label>Why do you want to join us? <span className="req">*</span></label>
+                  <label>
+                    Why do you want to join us? <span className="req">*</span>
+                  </label>
                   <textarea
                     className="jaf-textarea"
                     name="why_join"
@@ -538,11 +683,15 @@ const JobApplicationForm = () => {
                     rows="7"
                     required
                   />
-                  <div className="jaf-char-count">{formData.why_join.length} characters</div>
+                  <div className="jaf-char-count">
+                    {formData.why_join.length} characters
+                  </div>
                 </div>
 
                 {/* Resume */}
-                <div className="jaf-section-title" style={{ marginTop: 28 }}>Resume</div>
+                <div className="jaf-section-title" style={{ marginTop: 28 }}>
+                  Resume
+                </div>
                 <div className="jaf-resume-row">
                   <Resume />
                   {resume && !isDeleted && (
@@ -553,7 +702,11 @@ const JobApplicationForm = () => {
                       className="jaf-del-btn"
                       title="Delete Resume"
                     >
-                      {deleting ? <DeleteLoader /> : <Trash size={16} strokeWidth={2} />}
+                      {deleting ? (
+                        <DeleteLoader />
+                      ) : (
+                        <Trash size={16} strokeWidth={2} />
+                      )}
                     </button>
                   )}
                 </div>
@@ -568,24 +721,66 @@ const JobApplicationForm = () => {
                 disabled={currentStep === 1}
                 className="jaf-btn jaf-btn--ghost"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="19" y1="12" x2="5" y2="12" />
+                  <polyline points="12,19 5,12 12,5" />
+                </svg>
                 Previous
               </button>
 
               <div className="jaf-dots">
-                {steps.map(step => (
-                  <div key={step.id} className={`jaf-dot ${currentStep === step.id ? 'jaf-dot--active' : ''}`} />
+                {steps.map((step) => (
+                  <div
+                    key={step.id}
+                    className={`jaf-dot ${currentStep === step.id ? "jaf-dot--active" : ""}`}
+                  />
                 ))}
               </div>
 
               {currentStep < steps.length ? (
-                <button type="button" onClick={nextStep} className="jaf-btn jaf-btn--primary">
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="jaf-btn jaf-btn--primary"
+                >
                   Next
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12,5 19,12 12,19"/></svg>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12,5 19,12 12,19" />
+                  </svg>
                 </button>
               ) : (
                 <button type="submit" className="jaf-btn jaf-btn--submit">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20,6 9,17 4,12" />
+                  </svg>
                   Submit Application
                 </button>
               )}
@@ -595,8 +790,19 @@ const JobApplicationForm = () => {
 
         {/* ── Footer ── */}
         <div className="jaf-footer">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          Your information is secure and will only be used for recruitment purposes.
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+          Your information is secure and will only be used for recruitment
+          purposes.
         </div>
       </div>
     </div>

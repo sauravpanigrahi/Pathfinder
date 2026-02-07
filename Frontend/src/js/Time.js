@@ -1,4 +1,4 @@
-export default function timeAgo(dateString) {
+export  function timeAgo(dateString) {
   if (!dateString) return "Just now";
   const now = new Date();
   const past = new Date(dateString );
@@ -15,3 +15,25 @@ export default function timeAgo(dateString) {
 
   return past.toLocaleDateString();
 }
+
+export  function formatDateTime(dateTimeString) {
+  if (!dateTimeString) {
+    return { date: "", time: "" };
+  }
+
+  const dateObj = new Date(dateTimeString);
+
+  return {
+    date: dateObj.toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    }),
+    time: dateObj.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    })
+  };
+}
+

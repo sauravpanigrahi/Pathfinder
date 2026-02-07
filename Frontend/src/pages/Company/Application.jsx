@@ -1,113 +1,124 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import '/src/css/Loader.css';
-import Resume from '../../components/Resume';
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "/src/css/Loader.css";
+import Resume from "../../components/Resume";
 import { Loader } from "../../components/loader";
 
 const Application = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
-const [projects, setProjects] = useState({});
-const [experiences, setExperiences] = useState({});
+  const [projects, setProjects] = useState({});
+  const [experiences, setExperiences] = useState({});
 
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('all');
-  const companyUID = localStorage.getItem('company UID');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("all");
+  const companyUID = localStorage.getItem("company UID");
 
-useEffect(() => {
-  const fetchApplications = async () => {
-    try {
-      const response = await axios.get(
-        `https://pathfinder-maob.onrender.com/applications/${companyUID}`,
-        { withCredentials: true }
-      );
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const response = await axios.get(
+          `https://pathfinder-maob.onrender.com/applications/${companyUID}`,
+          { withCredentials: true },
+        );
 
-      const apps = response.data.applications;
+        const apps = response.data.applications;
 
-      const appsWithMatch = await Promise.all(
-        apps.map(async (app) => {
-          if (app.match_percentage == null) {
-            try {
-              const matchRes = await axios.get(
-                `https://pathfinder-maob.onrender.com/applications/${app.id}/match-percentage`,
-                { withCredentials: true }
-              );
-              return { ...app, match_percentage: matchRes.data.match_percentage };
-            } catch {
-              return { ...app, match_percentage: 0 };
+        const appsWithMatch = await Promise.all(
+          apps.map(async (app) => {
+            if (app.match_percentage == null) {
+              try {
+                const matchRes = await axios.get(
+                  `https://pathfinder-maob.onrender.com/applications/${app.id}/match-percentage`,
+                  { withCredentials: true },
+                );
+                return {
+                  ...app,
+                  match_percentage: matchRes.data.match_percentage,
+                };
+              } catch {
+                return { ...app, match_percentage: 0 };
+              }
             }
-          }
-          return app;
-        })
-      );
+            return app;
+          }),
+        );
 
-      setApplications(appsWithMatch);
-    } catch (error) {
-      toast.error("Failed to fetch applications");
-    } finally {
-      setLoading(false);
-    }
+        setApplications(appsWithMatch);
+      } catch (error) {
+        toast.error("Failed to fetch applications");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, [companyUID]);
+
+  console.log(applications);
+  const fetchCandidateData = async (stud_uid) => {
+    if (projects[stud_uid]) return; // ✅ cache
+
+    const [projRes, expRes] = await Promise.all([
+      axios.get(`https://pathfinder-maob.onrender.com/project/${stud_uid}`, {
+        withCredentials: true,
+      }),
+      axios.get(`https://pathfinder-maob.onrender.com/experience/${stud_uid}`, {
+        withCredentials: true,
+      }),
+    ]);
+
+    setProjects((prev) => ({ ...prev, [stud_uid]: projRes.data }));
+    setExperiences((prev) => ({ ...prev, [stud_uid]: expRes.data }));
   };
-
-  fetchApplications();
-}, [companyUID]);
-
-
-console.log(applications)
-const fetchCandidateData = async (stud_uid) => {
-  if (projects[stud_uid]) return; // ✅ cache
-
-  const [projRes, expRes] = await Promise.all([
-    axios.get(`https://pathfinder-maob.onrender.com/project/${stud_uid}`, { withCredentials: true }),
-    axios.get(`https://pathfinder-maob.onrender.com/experience/${stud_uid}`, { withCredentials: true })
-  ]);
-
-  setProjects(prev => ({ ...prev, [stud_uid]: projRes.data }));
-  setExperiences(prev => ({ ...prev, [stud_uid]: expRes.data }));
-};
 
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
       await axios.patch(
         `https://pathfinder-maob.onrender.com/applications/${applicationId}/status`,
         { status: newStatus },
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setApplications((prev) =>
         prev.map((app) =>
-          app.id === applicationId ? { ...app, status: newStatus } : app
-        )
+          app.id === applicationId ? { ...app, status: newStatus } : app,
+        ),
       );
       toast.success(`Application ${newStatus} successfully!`);
     } catch (error) {
-      console.error('Status update error:', error);
-      toast.error(error.response?.data?.detail || 'Failed to update application status');
+      console.error("Status update error:", error);
+      toast.error(
+        error.response?.data?.detail || "Failed to update application status",
+      );
     }
   };
 
   // ✅ SORT BY MATCH PERCENTAGE ASCENDING (LOWEST FIRST)
   const rankedApplications = useMemo(() => {
-    return[...applications] 
+    return [...applications]
       .sort((a, b) => {
         const matchA = a.match_percentage || 0;
         const matchB = b.match_percentage || 0;
         return matchB - matchA; // LOWEST to HIGHEST (ascending order)
       })
-      .filter((app) =>
-        app.Fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.Job_role.toLowerCase().includes(searchTerm.toLowerCase())
+      .filter(
+        (app) =>
+          app.Fullname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          app.Job_role.toLowerCase().includes(searchTerm.toLowerCase()),
       )
-      .filter((app) => filter === 'all' || app.status === filter);
+      .filter((app) => filter === "all" || app.status === filter);
   }, [applications, searchTerm, filter]);
 
   const stats = {
     total: applications.length,
-    pending: applications.filter(app => app.status === 'pending' || !app.status).length,
-    accepted: applications.filter(app => app.status === 'accepted').length,
-    rejected: applications.filter(app => app.status === 'rejected').length,
+    pending: applications.filter(
+      (app) => app.status === "pending" || !app.status,
+    ).length,
+    accepted: applications.filter((app) => app.status === "accepted").length,
+    rejected: applications.filter((app) => app.status === "rejected").length,
   };
 
   if (loading) {
@@ -121,31 +132,50 @@ const fetchCandidateData = async (stud_uid) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Applications</h1>
+              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
+                Applications
+              </h1>
               <p className="mt-1 text-xs sm:text-sm text-gray-500">
-                Sorted by match percentage (lowest first). {stats.total} total applications.
+                Sorted by match percentage (lowest first). {stats.total} total
+                applications.
               </p>
             </div>
             <div className="flex items-center overflow-x-auto pb-2 lg:pb-0">
               <div className="flex items-center gap-3 sm:gap-4 text-sm min-w-max">
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-semibold text-gray-900">{stats.total}</div>
-                  <div className="text-xs text-gray-500 uppercase tracking-wide">Total</div>
+                  <div className="text-xl sm:text-2xl font-semibold text-gray-900">
+                    {stats.total}
+                  </div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wide">
+                    Total
+                  </div>
                 </div>
                 <div className="w-px h-8 sm:h-10 bg-gray-200" />
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-semibold text-amber-600">{stats.pending}</div>
-                  <div className="text-xs text-gray-500 uppercase tracking-wide">Pending</div>
+                  <div className="text-xl sm:text-2xl font-semibold text-amber-600">
+                    {stats.pending}
+                  </div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wide">
+                    Pending
+                  </div>
                 </div>
                 <div className="w-px h-8 sm:h-10 bg-gray-200" />
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-semibold text-green-600">{stats.accepted}</div>
-                  <div className="text-xs text-gray-500 uppercase tracking-wide">Accepted</div>
+                  <div className="text-xl sm:text-2xl font-semibold text-green-600">
+                    {stats.accepted}
+                  </div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wide">
+                    Accepted
+                  </div>
                 </div>
                 <div className="w-px h-8 sm:h-10 bg-gray-200" />
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-semibold text-gray-400">{stats.rejected}</div>
-                  <div className="text-xs text-gray-500 uppercase tracking-wide">Rejected</div>
+                  <div className="text-xl sm:text-2xl font-semibold text-gray-400">
+                    {stats.rejected}
+                  </div>
+                  <div className="text-xs text-gray-500 uppercase tracking-wide">
+                    Rejected
+                  </div>
                 </div>
               </div>
             </div>
@@ -158,8 +188,18 @@ const fetchCandidateData = async (stud_uid) => {
         <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1 relative">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
               <input
                 type="text"
@@ -186,11 +226,25 @@ const fetchCandidateData = async (stud_uid) => {
         <div className="space-y-3">
           {rankedApplications.length === 0 ? (
             <div className="bg-white border border-gray-200 rounded-lg p-8 sm:p-12 text-center">
-              <svg className="mx-auto h-10 sm:h-12 w-10 sm:w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                className="mx-auto h-10 sm:h-12 w-10 sm:w-12 text-gray-400 mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
-              <h3 className="text-sm font-medium text-gray-900 mb-1">No applications found</h3>
-              <p className="text-sm text-gray-500">Try adjusting your search or filter criteria</p>
+              <h3 className="text-sm font-medium text-gray-900 mb-1">
+                No applications found
+              </h3>
+              <p className="text-sm text-gray-500">
+                Try adjusting your search or filter criteria
+              </p>
             </div>
           ) : (
             rankedApplications.map((application, index) => (
@@ -201,9 +255,9 @@ const fetchCandidateData = async (stud_uid) => {
                 onStatusChange={handleStatusChange}
                 navigate={navigate}
                 companyUID={companyUID}
-                fetchCandidateData={fetchCandidateData}   // ✅ ADD
-              projects={projects}                       // ✅ ADD
-              experiences={experiences} 
+                fetchCandidateData={fetchCandidateData} // ✅ ADD
+                projects={projects} // ✅ ADD
+                experiences={experiences}
               />
             ))
           )}
@@ -214,24 +268,45 @@ const fetchCandidateData = async (stud_uid) => {
 };
 
 /* ------------------------- APPLICATION CARD ------------------------- */
-const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyUID, fetchCandidateData,projects,experiences }) => {
+const ApplicationCard = ({
+  application,
+  rank,
+  onStatusChange,
+  navigate,
+  companyUID,
+  fetchCandidateData,
+  projects,
+  experiences,
+}) => {
   const [expanded, setExpanded] = useState(false);
-  
+
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'accepted':
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Accepted</span>;
-      case 'rejected':
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">Rejected</span>;
+      case "accepted":
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+            Accepted
+          </span>
+        );
+      case "rejected":
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+            Rejected
+          </span>
+        );
       default:
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">Pending Review</span>;
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+            Pending Review
+          </span>
+        );
     }
   };
 
   const getMatchColor = (percentage) => {
-    if (percentage >= 75) return 'text-green-700 bg-green-50';
-    if (percentage >= 50) return 'text-amber-700 bg-amber-50';
-    return 'text-red-700 bg-red-50';
+    if (percentage >= 75) return "text-green-700 bg-green-50";
+    if (percentage >= 50) return "text-amber-700 bg-amber-50";
+    return "text-red-700 bg-red-50";
   };
 
   const matchPercentage = application.match_percentage;
@@ -244,7 +319,7 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
             {/* Avatar */}
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
               <span className="text-base sm:text-lg font-medium text-gray-600">
-                {application.Fullname?.charAt(0)?.toUpperCase() || '?'}
+                {application.Fullname?.charAt(0)?.toUpperCase() || "?"}
               </span>
             </div>
 
@@ -256,22 +331,46 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
                 </h3>
                 {getStatusBadge(application.status)}
                 {matchPercentage !== null && matchPercentage !== undefined && (
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${getMatchColor(matchPercentage)}`}>
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${getMatchColor(matchPercentage)}`}
+                  >
                     {matchPercentage}% Match
                   </span>
                 )}
               </div>
-              <p className="text-sm text-gray-600 mb-2">{application.Job_role}</p>
+              <p className="text-sm text-gray-600 mb-2">
+                {application.Job_role}
+              </p>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs text-gray-500">
                 <span className="flex items-center gap-1 break-all">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <svg
+                    className="w-4 h-4 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
                   </svg>
                   {application.Email}
                 </span>
                 <span className="flex items-center gap-1">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  <svg
+                    className="w-4 h-4 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
                   </svg>
                   {application.phonenumber}
                 </span>
@@ -282,24 +381,20 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
           {/* Actions */}
           <div className="flex flex-wrap items-center gap-2 sm:ml-4">
             <Resume stud_uid={application.stud_uid} />
-            
-            {application.interview_status ==="scheduled" ?(
-              <p className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-center whitespace-nowrap"
-                >
-                   Interview Scheduled
-                </p>
-            ):application.interview_status ==="cancelled" ?(
-              <p className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-red-400 text-white text-sm font-medium rounded-md hover:bg-red-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-center whitespace-nowrap"
-                >
-                   Rejected
-                </p>
-            ):application.interview_status ==="scheduled" ?(
-              <p className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-center whitespace-nowrap"
-                >
-                   Interview Scheduled
-                </p>
-            )
-              :application.status === 'accepted' ? (
+
+            {application.interview_status === "scheduled" ? (
+              <p className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-center whitespace-nowrap">
+                Interview Scheduled
+              </p>
+            ) : application.interview_status === "cancelled" ? (
+              <p className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-red-400 text-white text-sm font-medium rounded-md hover:bg-red-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-center whitespace-nowrap">
+                Rejected
+              </p>
+            ) : application.interview_status === "scheduled" ? (
+              <p className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-center whitespace-nowrap">
+                Interview Scheduled
+              </p>
+            ) : application.status === "accepted" ? (
               <>
                 <button
                   onClick={() => navigate(`/company/interview/schedule`)}
@@ -308,18 +403,28 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
                   Schedule Interview
                 </button>
                 <button
-                  onClick={() => onStatusChange(application.id, 'rejected')}
+                  onClick={() => onStatusChange(application.id, "rejected")}
                   className="p-2 text-gray-400 hover:text-red-600 focus:outline-none transition-colors"
                   title="Reject"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </>
-            ) : application.status === 'rejected' ? (
+            ) : application.status === "rejected" ? (
               <button
-                onClick={() => onStatusChange(application.id, 'accepted')}
+                onClick={() => onStatusChange(application.id, "accepted")}
                 className="w-full sm:w-auto px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
                 Reconsider
@@ -327,20 +432,20 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
             ) : (
               <>
                 <button
-                  onClick={() => onStatusChange(application.id, 'accepted')}
+                  onClick={() => onStatusChange(application.id, "accepted")}
                   className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
                 >
                   Accept
                 </button>
                 <button
-                  onClick={() => onStatusChange(application.id, 'rejected')}
+                  onClick={() => onStatusChange(application.id, "rejected")}
                   className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                 >
                   Reject
                 </button>
               </>
             )}
-            
+
             <button
               onClick={() => {
                 setExpanded(!expanded);
@@ -348,195 +453,240 @@ const ApplicationCard = ({ application, rank, onStatusChange, navigate, companyU
               }}
               className="w-full sm:w-auto p-2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors sm:ml-auto"
             >
-              <svg className={`w-5 h-5 mx-auto transition-transform ${expanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <svg
+                className={`w-5 h-5 mx-auto transition-transform ${expanded ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
           </div>
         </div>
 
         {/* Expanded Details */}
-      {expanded && (
-    <div className="mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-gray-100">
-
-      {/* ════════════════════════════════════════════
+        {expanded && (
+          <div className="mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-gray-100">
+            {/* ════════════════════════════════════════════
           ZONE 1 — Candidate snapshot
           ════════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pb-4 sm:pb-5 border-b border-gray-100">
-        <InfoField label="Education"       value={application.high_qualification} />
-        <InfoField label="College"         value={application.college} />
-        <InfoField label="Graduation Year" value={application.graduation_year} />
-        <InfoField label="Job Location"    value={application.Job_location} />
-        <InfoField label="Company"         value={application.Job_company} />
-      </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pb-4 sm:pb-5 border-b border-gray-100">
+              <InfoField
+                label="Education"
+                value={application.high_qualification}
+              />
+              <InfoField label="College" value={application.college} />
+              <InfoField
+                label="Graduation Year"
+                value={application.graduation_year}
+              />
+              <InfoField
+                label="Job Location"
+                value={application.Job_location}
+              />
+              <InfoField label="Company" value={application.Job_company} />
+            </div>
 
-      {/* ════════════════════════════════════════════
+            {/* ════════════════════════════════════════════
           ZONE 2 — Projects & Experience
           ════════════════════════════════════════════ */}
-      <div className="py-4 sm:py-5 border-b border-gray-100 space-y-4 sm:space-y-5">
-
-        {/* Projects */}
-        <div>
-          <h4 className="jaf-section-title text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-            Projects
-          </h4>
-          <div className="flex flex-col gap-2">
-            {projects[application.stud_uid]?.length > 0
-              ? projects[application.stud_uid].map((proj) => (
-                  <div
-                    key={proj.id}
-                    className="jaf-item-card group bg-gray-50 border border-gray-200 rounded-lg px-3 sm:px-4 py-3 sm:py-3.5 hover:border-gray-300 hover:shadow-sm transition-all duration-150"
-                  >
-                    <p className="jaf-item-card--title text-sm font-semibold text-gray-800 break-words">
-                      {proj.Title}
-                    </p>
-
-                    {proj.description && (
-                      <p className="jaf-item-card--desc text-xs text-gray-500 leading-[1.6] mt-1 break-words">
-                        {proj.description}
-                      </p>
-                    )}
-
-                    {proj.tech_stack && (
-                      <div className="jaf-item-card--tags flex flex-wrap gap-1.5 mt-2.5">
-                        {(typeof proj.tech_stack === 'string'
-                          ? proj.tech_stack.split(',')
-                          : proj.tech_stack
-                        ).map((t, i) => (
-                          <span
-                            key={i}
-                            className="jaf-tag inline-block text-[10.5px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full"
-                          >
-                            {t.trim()}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {proj.link && (
-                      <a
-                        href={proj.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="jaf-item-card--link inline-flex items-center gap-1 text-xs font-semibold text-indigo-500 hover:text-indigo-700 mt-2.5 transition-colors duration-150 break-all"
+            <div className="py-4 sm:py-5 border-b border-gray-100 space-y-4 sm:space-y-5">
+              {/* Projects */}
+              <div>
+                <h4 className="jaf-section-title text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                  Projects
+                </h4>
+                <div className="flex flex-col gap-2">
+                  {projects[application.stud_uid]?.length > 0 ? (
+                    projects[application.stud_uid].map((proj) => (
+                      <div
+                        key={proj.id}
+                        className="jaf-item-card group bg-gray-50 border border-gray-200 rounded-lg px-3 sm:px-4 py-3 sm:py-3.5 hover:border-gray-300 hover:shadow-sm transition-all duration-150"
                       >
-                        View Project
-                        <svg className="flex-shrink-0" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="7" y1="17" x2="17" y2="7" />
-                          <polyline points="7,7 17,7 17,17" />
-                        </svg>
-                      </a>
-                    )}
-                  </div>
-                ))
-              : <p className="jaf-empty text-xs text-gray-400 italic">No projects added.</p>
-            }
-          </div>
-        </div>
+                        <p className="jaf-item-card--title text-sm font-semibold text-gray-800 break-words">
+                          {proj.Title}
+                        </p>
 
-        {/* Work Experience */}
-        <div>
-          <h4 className="jaf-section-title text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-            Work Experience
-          </h4>
-          <div className="flex flex-col gap-2">
-            {experiences[application.stud_uid]?.length > 0
-              ? experiences[application.stud_uid].map((exp, index) => (
-                  <div
-                    key={index}
-                    className="jaf-item-card bg-gray-50 border border-gray-200 rounded-lg px-3 sm:px-4 py-3 sm:py-3.5 hover:border-gray-300 hover:shadow-sm transition-all duration-150"
-                  >
-                    <p className="jaf-item-card--title text-sm font-semibold text-gray-800 break-words">
-                      {exp.role}
-                      <span className="text-gray-300 mx-2 hidden sm:inline">—</span>
-                      <span className="block sm:inline font-medium text-gray-600 mt-1 sm:mt-0">{exp.company_name}</span>
+                        {proj.description && (
+                          <p className="jaf-item-card--desc text-xs text-gray-500 leading-[1.6] mt-1 break-words">
+                            {proj.description}
+                          </p>
+                        )}
+
+                        {proj.tech_stack && (
+                          <div className="jaf-item-card--tags flex flex-wrap gap-1.5 mt-2.5">
+                            {(typeof proj.tech_stack === "string"
+                              ? proj.tech_stack.split(",")
+                              : proj.tech_stack
+                            ).map((t, i) => (
+                              <span
+                                key={i}
+                                className="jaf-tag inline-block text-[10.5px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full"
+                              >
+                                {t.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {proj.link && (
+                          <a
+                            href={proj.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="jaf-item-card--link inline-flex items-center gap-1 text-xs font-semibold text-indigo-500 hover:text-indigo-700 mt-2.5 transition-colors duration-150 break-all"
+                          >
+                            View Project
+                            <svg
+                              className="flex-shrink-0"
+                              width="11"
+                              height="11"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <line x1="7" y1="17" x2="17" y2="7" />
+                              <polyline points="7,7 17,7 17,17" />
+                            </svg>
+                          </a>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="jaf-empty text-xs text-gray-400 italic">
+                      No projects added.
                     </p>
+                  )}
+                </div>
+              </div>
 
-                    {exp.duration && (
-                      <p className="jaf-item-card--sub text-xs text-gray-400 mt-0.5">
-                        {exp.duration}
-                      </p>
-                    )}
+              {/* Work Experience */}
+              <div>
+                <h4 className="jaf-section-title text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                  Work Experience
+                </h4>
+                <div className="flex flex-col gap-2">
+                  {experiences[application.stud_uid]?.length > 0 ? (
+                    experiences[application.stud_uid].map((exp, index) => (
+                      <div
+                        key={index}
+                        className="jaf-item-card bg-gray-50 border border-gray-200 rounded-lg px-3 sm:px-4 py-3 sm:py-3.5 hover:border-gray-300 hover:shadow-sm transition-all duration-150"
+                      >
+                        <p className="jaf-item-card--title text-sm font-semibold text-gray-800 break-words">
+                          {exp.role}
+                          <span className="text-gray-300 mx-2 hidden sm:inline">
+                            —
+                          </span>
+                          <span className="block sm:inline font-medium text-gray-600 mt-1 sm:mt-0">
+                            {exp.company_name}
+                          </span>
+                        </p>
 
-                    {exp.description && (
-                      <p className="jaf-item-card--desc text-xs text-gray-500 leading-[1.6] mt-1.5 break-words">
-                        {exp.description}
-                      </p>
-                    )}
-                  </div>
-                ))
-              : <p className="jaf-empty text-xs text-gray-400 italic">No work experience added.</p>
-            }
-          </div>
-        </div>
-      </div>
+                        {exp.duration && (
+                          <p className="jaf-item-card--sub text-xs text-gray-400 mt-0.5">
+                            {exp.duration}
+                          </p>
+                        )}
 
-      {/* ════════════════════════════════════════════
+                        {exp.description && (
+                          <p className="jaf-item-card--desc text-xs text-gray-500 leading-[1.6] mt-1.5 break-words">
+                            {exp.description}
+                          </p>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="jaf-empty text-xs text-gray-400 italic">
+                      No work experience added.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* ════════════════════════════════════════════
           ZONE 3 — Motivation + Social links
           ════════════════════════════════════════════ */}
-      <div className="pt-4 sm:pt-5 space-y-4">
+            <div className="pt-4 sm:pt-5 space-y-4">
+              {/* Why Interested */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
+                  Why Interested
+                </p>
+                <div className="relative bg-gray-50 border border-gray-200 rounded-lg pl-3 sm:pl-4 pr-3 sm:pr-4 py-3 sm:py-3.5">
+                  <div className="absolute left-0 top-2.5 bottom-2.5 w-[3px] bg-indigo-500 rounded-r-full" />
+                  <p className="text-[13px] text-gray-600 leading-[1.7] break-words">
+                    {application.why_join}
+                  </p>
+                </div>
+              </div>
 
-        {/* Why Interested */}
-        <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
-            Why Interested
-          </p>
-          <div className="relative bg-gray-50 border border-gray-200 rounded-lg pl-3 sm:pl-4 pr-3 sm:pr-4 py-3 sm:py-3.5">
-            <div className="absolute left-0 top-2.5 bottom-2.5 w-[3px] bg-indigo-500 rounded-r-full" />
-            <p className="text-[13px] text-gray-600 leading-[1.7] break-words">
-              {application.why_join}
-            </p>
-          </div>
-        </div>
-
-        {/* Social Links */}
-        {(application.linkedin_url || application.github_url) && (
-          <div className="flex flex-col sm:flex-row flex-wrap gap-2 pt-1">
-
-            {application.linkedin_url && (
-              <a
-                href={application.linkedin_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5
+              {/* Social Links */}
+              {(application.linkedin_url || application.github_url) && (
+                <div className="flex flex-col sm:flex-row flex-wrap gap-2 pt-1">
+                  {application.linkedin_url && (
+                    <a
+                      href={application.linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5
                            px-3.5 py-1.5 rounded-md
                            bg-blue-50 border border-blue-100 text-blue-600
                            text-xs font-semibold
                            hover:bg-blue-100 hover:border-blue-200
                            transition-all duration-150"
-              >
-                <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                </svg>
-                LinkedIn
-              </a>
-            )}
+                    >
+                      <svg
+                        className="w-3.5 h-3.5 shrink-0"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                      </svg>
+                      LinkedIn
+                    </a>
+                  )}
 
-            {application.github_url && (
-              <a
-                href={application.github_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5
+                  {application.github_url && (
+                    <a
+                      href={application.github_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5
                            px-3.5 py-1.5 rounded-md
                            bg-gray-50 border border-gray-200 text-gray-600
                            text-xs font-semibold
                            hover:bg-gray-100 hover:border-gray-300
                            transition-all duration-150"
-              >
-                <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-                </svg>
-                GitHub
-              </a>
-            )}
-
+                    >
+                      <svg
+                        className="w-3.5 h-3.5 shrink-0"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      GitHub
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
-      </div>
-
-    </div>
-  )}
       </div>
     </div>
   );
@@ -548,7 +698,9 @@ const InfoField = ({ label, value }) => (
     <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
       {label}
     </label>
-    <p className="text-sm text-gray-900 font-medium break-words">{value || 'Not provided'}</p>
+    <p className="text-sm text-gray-900 font-medium break-words">
+      {value || "Not provided"}
+    </p>
   </div>
 );
 

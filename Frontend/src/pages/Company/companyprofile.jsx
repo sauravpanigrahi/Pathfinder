@@ -1,569 +1,669 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { FaMapMarkerAlt, FaGlobe, FaIndustry, FaUsers, FaLinkedin, FaTwitter, FaFacebook, FaBuilding, FaCalendarAlt, FaSave, FaTimes } from 'react-icons/fa';
-import { MdEmail, MdWork, MdLocationCity, MdEdit } from 'react-icons/md';
-import Switch from '@mui/material/Switch';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import {Loader} from "../../components/loader"
-import Back from "../../components/backbutton"
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import {
+  FaMapMarkerAlt,
+  FaGlobe,
+  FaIndustry,
+  FaUsers,
+  FaLinkedin,
+  FaTwitter,
+  FaFacebook,
+  FaBuilding,
+  FaCalendarAlt,
+  FaSave,
+  FaTimes,
+} from "react-icons/fa";
+import { MdEmail, MdWork, MdLocationCity, MdEdit } from "react-icons/md";
+import Switch from "@mui/material/Switch";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import { Loader } from "../../components/loader";
+import Back from "../../components/backbutton";
 
 const CompanyProfile = () => {
-    const [profile, setProfile] = useState(null);
-    const [companyJobs, setCompanyJobs] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [coverImageFile, setCoverImageFile] = useState(null);
-    const [error, setError] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedProfile, setEditedProfile] = useState(null);
-    const [saving, setSaving] = useState(false);
-    const [logoFile, setLogoFile] = useState(null);
-    const [logoPreview, setLogoPreview] = useState(null);
-    const uid = localStorage.getItem('company UID');
-    const navigate = useNavigate();
-    const [coverImagePreview, setCoverImagePreview] = useState(null);
-    
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!uid) {
-                toast.error("Please login first");
-                navigate('/login/company');
-                return;
-            }
+  const [profile, setProfile] = useState(null);
+  const [companyJobs, setCompanyJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [coverImageFile, setCoverImageFile] = useState(null);
+  const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const uid = localStorage.getItem("company UID");
+  const navigate = useNavigate();
+  const [coverImagePreview, setCoverImagePreview] = useState(null);
 
-            try {
-                setLoading(true);
-                setError(null);
-                const profileRes = await axios.get(`https://pathfinder-maob.onrender.com/company/${uid}`);
-                console.log('Profile response:', profileRes.data);
-                const jobsRes = await axios.get(`https://pathfinder-maob.onrender.com/company/${uid}/jobs`);
-                console.log('Jobs response:', jobsRes.data);
-                if (profileRes.data && Object.keys(profileRes.data).length > 0) {
-                    setProfile(profileRes.data);
-                    setEditedProfile(profileRes.data);
-                } else {
-                    throw new Error('No profile data received');
-                }
-                setCompanyJobs(jobsRes.data || []);
-            } catch (error) {
-                console.error('Error:', error);
-                const errorMessage = error.response?.data?.detail || error.message || 'Failed to load profile';
-                setError(errorMessage);
-                toast.error(errorMessage);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData()
-    }, [uid, navigate]);
-
-    const handleEditToggle = () => {
-        if (isEditing) {
-            // Cancel edit - reset to original profile
-            setEditedProfile(profile);
-        }
-        setIsEditing(!isEditing);
-    };
-
-    const handleInputChange = (field, value) => {
-        setEditedProfile(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
-
-   const handleSocialMediaChange = (field, value) => {
-    setEditedProfile(prev => ({
-        ...prev,
-        [field]: value
-    }));
-};
-
-   const handleSaveProfile = async () => {
-  try {
-    setSaving(true);
-
-    const formData = new FormData();
-
-    // text fields
-    formData.append("companyName", editedProfile.companyName);
-    formData.append("industry", editedProfile.industry);
-    formData.append("companySize", editedProfile.companySize);
-    formData.append("locations", editedProfile.locations);
-    formData.append("address", editedProfile.address);
-    formData.append("contactNumber", editedProfile.contactNumber);
-    formData.append("workEmail", editedProfile.workEmail);
-    formData.append("website", editedProfile.website);
-    formData.append(
-      "foundedYear",
-      editedProfile.foundedYear ? Number(editedProfile.foundedYear) : ""
-    );
-    formData.append("description", editedProfile.description);
-    formData.append("linkedinURL", editedProfile.linkedinURL);
-
-    // files
-    if (logoFile) {
-      formData.append("logo", logoFile);
-    }
-    if (coverImageFile) {
-      formData.append("coverImage", coverImageFile);
-    }
-
-    const response = await axios.put(
-      `https://pathfinder-maob.onrender.com/company/${uid}/edit`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!uid) {
+        toast.error("Please login first");
+        navigate("/login/company");
+        return;
       }
+
+      try {
+        setLoading(true);
+        setError(null);
+        const profileRes = await axios.get(
+          `https://pathfinder-maob.onrender.com/company/${uid}`,
+        );
+        console.log("Profile response:", profileRes.data);
+        const jobsRes = await axios.get(
+          `https://pathfinder-maob.onrender.com/company/${uid}/jobs`,
+        );
+        console.log("Jobs response:", jobsRes.data);
+        if (profileRes.data && Object.keys(profileRes.data).length > 0) {
+          setProfile(profileRes.data);
+          setEditedProfile(profileRes.data);
+        } else {
+          throw new Error("No profile data received");
+        }
+        setCompanyJobs(jobsRes.data || []);
+      } catch (error) {
+        console.error("Error:", error);
+        const errorMessage =
+          error.response?.data?.detail ||
+          error.message ||
+          "Failed to load profile";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [uid, navigate]);
+
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // Cancel edit - reset to original profile
+      setEditedProfile(profile);
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditedProfile((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSocialMediaChange = (field, value) => {
+    setEditedProfile((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      setSaving(true);
+
+      const formData = new FormData();
+
+      // text fields
+      formData.append("companyName", editedProfile.companyName);
+      formData.append("industry", editedProfile.industry);
+      formData.append("companySize", editedProfile.companySize);
+      formData.append("locations", editedProfile.locations);
+      formData.append("address", editedProfile.address);
+      formData.append("contactNumber", editedProfile.contactNumber);
+      formData.append("workEmail", editedProfile.workEmail);
+      formData.append("website", editedProfile.website);
+      formData.append(
+        "foundedYear",
+        editedProfile.foundedYear ? Number(editedProfile.foundedYear) : "",
+      );
+      formData.append("description", editedProfile.description);
+      formData.append("linkedinURL", editedProfile.linkedinURL);
+
+      // files
+      if (logoFile) {
+        formData.append("logo", logoFile);
+      }
+      if (coverImageFile) {
+        formData.append("coverImage", coverImageFile);
+      }
+
+      const response = await axios.put(
+        `https://pathfinder-maob.onrender.com/company/${uid}/edit`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      setProfile(response.data);
+      setEditedProfile(response.data);
+      setIsEditing(false);
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleCoverImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCoverImageFile(file);
+      setCoverImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (error)
+    return (
+      <div className="flex justify-center items-center min-h-screen text-red-600">
+        Error: {error}
+      </div>
     );
 
-    setProfile(response.data);
-    setEditedProfile(response.data);
-    setIsEditing(false);
-    toast.success("Profile updated successfully!");
-  } catch (error) {
-    toast.error(error.response?.data?.detail || "Failed to update profile");
-  } finally {
-    setSaving(false);
-  }
-};
+  const displayProfile = isEditing ? editedProfile : profile;
 
-   const handleLogoChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setLogoFile(file);
-    setLogoPreview(URL.createObjectURL(file));
-  }
-};
-
-const handleCoverImageChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setCoverImageFile(file);
-    setCoverImagePreview(URL.createObjectURL(file));
-  }
-};
-
-
-    if(loading){
-        return <Loader/>
-    }
-
-    if (error) return <div className="flex justify-center items-center min-h-screen text-red-600">Error: {error}</div>;
-
-    const displayProfile = isEditing ? editedProfile : profile;
-
-    return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Cover Image Section */}
-            <Back/>
-           <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 border-b border-gray-300">
-    {/* Cover Image */}
-    {displayProfile?.coverImageURL ? (
-        <img
-           src={coverImagePreview || displayProfile?.coverImageURL}
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Cover Image Section */}
+      <Back />
+      <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 border-b border-gray-300">
+        {/* Cover Image */}
+        {displayProfile?.coverImageURL ? (
+          <img
+            src={coverImagePreview || displayProfile?.coverImageURL}
             alt="Cover"
             className="w-full h-full object-cover"
             loading="lazy"
-        />
-    ) : (
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600"></div>
-    )}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+        )}
 
-    {/* Change Cover Button (CENTER) */}
-    {isEditing && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20">
+        {/* Change Cover Button (CENTER) */}
+        {isEditing && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20">
             <label className="cursor-pointer border border-gray-300 bg-white/90 backdrop-blur-sm px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-lg hover:bg-white transition-all duration-300 hover:scale-105">
-                <span className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
-                    <MdEdit className="text-blue-600" />
-                    <span className="hidden sm:inline">Change Cover</span>
-                    <span className="sm:hidden">Change</span>
-                </span>
+              <span className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+                <MdEdit className="text-blue-600" />
+                <span className="hidden sm:inline">Change Cover</span>
+                <span className="sm:hidden">Change</span>
+              </span>
 
-                <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleCoverImageChange}
-                />
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleCoverImageChange}
+              />
             </label>
-        </div>
-    )}
+          </div>
+        )}
 
-    {/* Company Logo Overlay */}
-    <div className="absolute -bottom-12 sm:-bottom-14 md:-bottom-16 left-4 sm:left-8 md:left-12 z-20">
-        <div className="bg-white p-1 rounded-xl shadow-xl relative">
+        {/* Company Logo Overlay */}
+        <div className="absolute -bottom-12 sm:-bottom-14 md:-bottom-16 left-4 sm:left-8 md:left-12 z-20">
+          <div className="bg-white p-1 rounded-xl shadow-xl relative">
             <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 bg-gray-200 rounded-lg flex items-center justify-center">
-                {displayProfile?.logoURL ? (
-                    <img
-                        src={logoPreview || displayProfile?.logoURL}
-                        alt={displayProfile.companyName}
-                        className="w-full h-full object-contain rounded-lg"
-                        loading="lazy"
-                    />
-                ) : (
-                    <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-500">
-                        {displayProfile?.companyName
-                            ? displayProfile.companyName[0]
-                            : <FaBuilding className="text-gray-400 text-2xl sm:text-3xl md:text-4xl" />}
-                    </span>
-                )}
+              {displayProfile?.logoURL ? (
+                <img
+                  src={logoPreview || displayProfile?.logoURL}
+                  alt={displayProfile.companyName}
+                  className="w-full h-full object-contain rounded-lg"
+                  loading="lazy"
+                />
+              ) : (
+                <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-500">
+                  {displayProfile?.companyName ? (
+                    displayProfile.companyName[0]
+                  ) : (
+                    <FaBuilding className="text-gray-400 text-2xl sm:text-3xl md:text-4xl" />
+                  )}
+                </span>
+              )}
             </div>
 
             {/* Edit Logo Button */}
             {isEditing && (
-                <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 sm:p-2 rounded-full cursor-pointer hover:bg-blue-700 z-30">
-                    <MdEdit className="text-sm sm:text-base" />
-                    <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleLogoChange}
-                    />
-                </label>
+              <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 sm:p-2 rounded-full cursor-pointer hover:bg-blue-700 z-30">
+                <MdEdit className="text-sm sm:text-base" />
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                />
+              </label>
             )}
+          </div>
         </div>
-    </div>
-</div>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-18 md:pt-20 pb-6 sm:pb-8">
-                {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-                    {/* Left Column - Company Info */}
-                    <div className="lg:col-span-2 space-y-6">
-                        {/* Company Header */}
-                        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                <div className="flex-1">
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={editedProfile?.companyName || ''}
-                                            onChange={(e) => handleInputChange('companyName', e.target.value)}
-                                            className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 border-b-2 border-blue-500 focus:outline-none w-full"
-                                        />
-                                    ) : (
-                                        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{displayProfile?.companyName}</h1>
-                                    )}
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={editedProfile?.industry || ''}
-                                            onChange={(e) => handleInputChange('industry', e.target.value)}
-                                            className="text-sm sm:text-base text-gray-600 mt-2 border-b border-gray-300 focus:outline-none focus:border-blue-500 w-full"
-                                            placeholder="Industry"
-                                        />
-                                    ) : (
-                                        <p className="text-sm sm:text-base text-gray-600 mt-2 flex items-center gap-2">
-                                            <FaIndustry /> {displayProfile?.industry}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="flex gap-2">
-                                    {isEditing ? (
-                                        <>
-                                            <button 
-                                                onClick={handleSaveProfile}
-                                                disabled={saving}
-                                                className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-                                            >
-                                                <FaSave className="mr-1.5 sm:mr-2" />
-                                                <span className="hidden sm:inline">{saving ? 'Saving...' : 'Save'}</span>
-                                                <span className="sm:hidden">{saving ? '...' : 'Save'}</span>
-                                            </button>
-                                            <button 
-                                                onClick={handleEditToggle}
-                                                disabled={saving}
-                                                className="inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                                            >
-                                                <FaTimes className="mr-1.5 sm:mr-2" />
-                                                <span className="hidden sm:inline">Cancel</span>
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <button 
-                                            onClick={handleEditToggle}
-                                            className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                        >
-                                            <MdEdit className="mr-1.5 sm:mr-2" />
-                                            <span className="hidden sm:inline">Edit Profile</span>
-                                            <span className="sm:hidden">Edit</span>
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <EditableInfoItem 
-                                    icon={<FaMapMarkerAlt />} 
-                                    label="Location" 
-                                    value={displayProfile?.locations}
-                                    isEditing={isEditing}
-                                    onChange={(value) => handleInputChange('locations', value)}
-                                />
-                                <EditableInfoItem 
-                                    icon={<FaUsers />} 
-                                    label="Company Size" 
-                                    value={displayProfile?.companySize}
-                                    isEditing={isEditing}
-                                    onChange={(value) => handleInputChange('companySize', value)}
-                                />
-                                <EditableInfoItem 
-                                    icon={<MdEmail />} 
-                                    label="Work Email" 
-                                    value={displayProfile?.workEmail}
-                                    
-                                    onChange={(value) => handleInputChange('workEmail', value)}
-                                />
-                                <EditableInfoItem 
-                                    icon={<FaGlobe />} 
-                                    label="Website" 
-                                    value={displayProfile?.website}
-                                    isEditing={isEditing}
-                                    isLink={!isEditing}
-                                    onChange={(value) => handleInputChange('website', value)}
-                                />
-                                <EditableInfoItem 
-                                    icon={<FaCalendarAlt />} 
-                                    label="FoundedYear" 
-                                    value={displayProfile?.foundedYear ||""}
-                                    isEditing={isEditing}
-                                    onChange={(value) => handleInputChange('foundedYear', value)}
-                                />
-                                <EditableInfoItem 
-                                    icon={<MdLocationCity />} 
-                                    label="ContactNumber" 
-                                    value={displayProfile?.contactNumber || ''}
-                                    isEditing={isEditing}
-                                    onChange={(value) => handleInputChange('contactNumber', value)}
-                                />
-                                <EditableInfoItem 
-                                    icon={<MdLocationCity />} 
-                                    label="Address" 
-                                    value={displayProfile?.address || ''}
-                                    isEditing={isEditing}
-                                    onChange={(value) => handleInputChange('address', value)}
-                                />
-                            </div>
-                        </div>
-
-                        {/* About Section */}
-                        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-                            <h2 className="text-lg sm:text-xl font-semibold mb-4">About Us</h2>
-                            {isEditing ? (
-                                <textarea
-                                    value={editedProfile?.description || ''}
-                                    onChange={(e) => handleInputChange('description', e.target.value)}
-                                    className="w-full min-h-[150px] p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base"
-                                    placeholder="Company description..."
-                                />
-                            ) : (
-                                <p className="text-sm sm:text-base text-gray-600 whitespace-pre-line">{displayProfile?.description}</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Right Column - Jobs & Social */}
-                    <div className="space-y-6">
-                        {/* Quick Stats */}
-                        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-                            <h2 className="text-base sm:text-lg font-semibold mb-4">Quick Stats</h2>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 sm:gap-3">
-                                <StatCard number={companyJobs.jobs?.length || 0} label="Active Jobs" />
-                                <StatCard number={companyJobs.scheduled || 0} label="Interviews Scheduled" />
-                                <StatCard number="0" label="Hired" />
-                                <StatCard number="0" label="Interview Rejected" />
-                            </div>
-
-                        </div>
-
-                        {/* Social Links */}
-                        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-                            <h2 className="text-base sm:text-lg font-semibold mb-4">Social Media</h2>
-                            <div className="space-y-3">
-                                <EditableSocialLink 
-                                    icon={<FaLinkedin />} 
-                                    platform="LinkedIn" 
-                                    url={displayProfile?.linkedinURL || ''}
-                                    isEditing={isEditing}
-                                    onChange={(value) => handleSocialMediaChange('linkedinURL', value)}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Latest Jobs */}
-                        <LatestJobs 
-                            jobs={companyJobs.jobs || []} 
-                            onJobStatusChange={async (jobId, newStatus) => {
-                                try {
-                                    await axios.patch(
-                                            `https://pathfinder-maob.onrender.com/jobs/${jobId}/status/change`,
-                                            { status: newStatus },
-                                            {
-                                                withCredentials: true,
-                                                headers: { "Content-Type": "application/json" }
-                                            }
-                                            );
-
-                                    // Update local state
-                                    setCompanyJobs(prev => ({
-                                        ...prev,
-                                        jobs: prev.jobs.map(job => 
-                                            job.id === jobId ? { ...job, status: newStatus } : job
-                                        )
-                                    }));
-                                    toast.success(`Job ${newStatus === 'Active' ? 'activated' : 'closed'} successfully!`);
-                                } catch (error) {
-                                    toast.error(error.response?.data?.detail || 'Failed to update job status');
-                                }
-                            }}
-                        />
-                    </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-18 md:pt-20 pb-6 sm:pb-8">
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* Left Column - Company Info */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Company Header */}
+            <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex-1">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedProfile?.companyName || ""}
+                      onChange={(e) =>
+                        handleInputChange("companyName", e.target.value)
+                      }
+                      className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 border-b-2 border-blue-500 focus:outline-none w-full"
+                    />
+                  ) : (
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+                      {displayProfile?.companyName}
+                    </h1>
+                  )}
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedProfile?.industry || ""}
+                      onChange={(e) =>
+                        handleInputChange("industry", e.target.value)
+                      }
+                      className="text-sm sm:text-base text-gray-600 mt-2 border-b border-gray-300 focus:outline-none focus:border-blue-500 w-full"
+                      placeholder="Industry"
+                    />
+                  ) : (
+                    <p className="text-sm sm:text-base text-gray-600 mt-2 flex items-center gap-2">
+                      <FaIndustry /> {displayProfile?.industry}
+                    </p>
+                  )}
                 </div>
+                <div className="flex gap-2">
+                  {isEditing ? (
+                    <>
+                      <button
+                        onClick={handleSaveProfile}
+                        disabled={saving}
+                        className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                      >
+                        <FaSave className="mr-1.5 sm:mr-2" />
+                        <span className="hidden sm:inline">
+                          {saving ? "Saving..." : "Save"}
+                        </span>
+                        <span className="sm:hidden">
+                          {saving ? "..." : "Save"}
+                        </span>
+                      </button>
+                      <button
+                        onClick={handleEditToggle}
+                        disabled={saving}
+                        className="inline-flex items-center px-3 sm:px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                      >
+                        <FaTimes className="mr-1.5 sm:mr-2" />
+                        <span className="hidden sm:inline">Cancel</span>
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={handleEditToggle}
+                      className="inline-flex items-center px-3 sm:px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      <MdEdit className="mr-1.5 sm:mr-2" />
+                      <span className="hidden sm:inline">Edit Profile</span>
+                      <span className="sm:hidden">Edit</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <EditableInfoItem
+                  icon={<FaMapMarkerAlt />}
+                  label="Location"
+                  value={displayProfile?.locations}
+                  isEditing={isEditing}
+                  onChange={(value) => handleInputChange("locations", value)}
+                />
+                <EditableInfoItem
+                  icon={<FaUsers />}
+                  label="Company Size"
+                  value={displayProfile?.companySize}
+                  isEditing={isEditing}
+                  onChange={(value) => handleInputChange("companySize", value)}
+                />
+                <EditableInfoItem
+                  icon={<MdEmail />}
+                  label="Work Email"
+                  value={displayProfile?.workEmail}
+                  onChange={(value) => handleInputChange("workEmail", value)}
+                />
+                <EditableInfoItem
+                  icon={<FaGlobe />}
+                  label="Website"
+                  value={displayProfile?.website}
+                  isEditing={isEditing}
+                  isLink={!isEditing}
+                  onChange={(value) => handleInputChange("website", value)}
+                />
+                <EditableInfoItem
+                  icon={<FaCalendarAlt />}
+                  label="FoundedYear"
+                  value={displayProfile?.foundedYear || ""}
+                  isEditing={isEditing}
+                  onChange={(value) => handleInputChange("foundedYear", value)}
+                />
+                <EditableInfoItem
+                  icon={<MdLocationCity />}
+                  label="ContactNumber"
+                  value={displayProfile?.contactNumber || ""}
+                  isEditing={isEditing}
+                  onChange={(value) =>
+                    handleInputChange("contactNumber", value)
+                  }
+                />
+                <EditableInfoItem
+                  icon={<MdLocationCity />}
+                  label="Address"
+                  value={displayProfile?.address || ""}
+                  isEditing={isEditing}
+                  onChange={(value) => handleInputChange("address", value)}
+                />
+              </div>
             </div>
+
+            {/* About Section */}
+            <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold mb-4">
+                About Us
+              </h2>
+              {isEditing ? (
+                <textarea
+                  value={editedProfile?.description || ""}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
+                  className="w-full min-h-[150px] p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm sm:text-base"
+                  placeholder="Company description..."
+                />
+              ) : (
+                <p className="text-sm sm:text-base text-gray-600 whitespace-pre-line">
+                  {displayProfile?.description}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column - Jobs & Social */}
+          <div className="space-y-6">
+            {/* Quick Stats */}
+            <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4">
+                Quick Stats
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2 sm:gap-3">
+                <StatCard
+                  number={companyJobs.jobs?.length || 0}
+                  label="Active Jobs"
+                />
+                <StatCard
+                  number={companyJobs.scheduled || 0}
+                  label="Interviews Scheduled"
+                />
+                <StatCard number="0" label="Hired" />
+                <StatCard number="0" label="Interview Rejected" />
+              </div>
+            </div>
+
+            {/* Social Links */}
+            <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+              <h2 className="text-base sm:text-lg font-semibold mb-4">
+                Social Media
+              </h2>
+              <div className="space-y-3">
+                <EditableSocialLink
+                  icon={<FaLinkedin />}
+                  platform="LinkedIn"
+                  url={displayProfile?.linkedinURL || ""}
+                  isEditing={isEditing}
+                  onChange={(value) =>
+                    handleSocialMediaChange("linkedinURL", value)
+                  }
+                />
+              </div>
+            </div>
+
+            {/* Latest Jobs */}
+            <LatestJobs
+              jobs={companyJobs.jobs || []}
+              onJobStatusChange={async (jobId, newStatus) => {
+                try {
+                  await axios.patch(
+                    `https://pathfinder-maob.onrender.com/jobs/${jobId}/status/change`,
+                    { status: newStatus },
+                    {
+                      withCredentials: true,
+                      headers: { "Content-Type": "application/json" },
+                    },
+                  );
+
+                  // Update local state
+                  setCompanyJobs((prev) => ({
+                    ...prev,
+                    jobs: prev.jobs.map((job) =>
+                      job.id === jobId ? { ...job, status: newStatus } : job,
+                    ),
+                  }));
+                  toast.success(
+                    `Job ${newStatus === "Active" ? "activated" : "closed"} successfully!`,
+                  );
+                } catch (error) {
+                  toast.error(
+                    error.response?.data?.detail ||
+                      "Failed to update job status",
+                  );
+                }
+              }}
+            />
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 // Helper Components
-const EditableInfoItem = ({ icon, label, value, isLink, isEditing, onChange }) => (
-    <div className="flex items-start sm:items-center gap-2 sm:gap-3">
-        <div className="text-gray-400 text-sm sm:text-base mt-0.5 sm:mt-0 flex-shrink-0">{icon}</div>
-        <div className="flex-1 min-w-0">
-            <p className="text-xs sm:text-sm text-gray-500">{label}</p>
-            {isEditing ? (
-                <input
-                    type="text"
-                    value={value || ''}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="w-full border-b border-gray-300 focus:outline-none focus:border-blue-500 text-gray-900 text-sm sm:text-base"
-                />
-            ) : isLink && value ? (
-                <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm sm:text-base break-all">{value}</a>
-            ) : (
-                <p className="text-gray-900 text-sm sm:text-base break-words">{value || 'Not specified'}</p>
-            )}
-        </div>
+const EditableInfoItem = ({
+  icon,
+  label,
+  value,
+  isLink,
+  isEditing,
+  onChange,
+}) => (
+  <div className="flex items-start sm:items-center gap-2 sm:gap-3">
+    <div className="text-gray-400 text-sm sm:text-base mt-0.5 sm:mt-0 flex-shrink-0">
+      {icon}
     </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-xs sm:text-sm text-gray-500">{label}</p>
+      {isEditing ? (
+        <input
+          type="text"
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full border-b border-gray-300 focus:outline-none focus:border-blue-500 text-gray-900 text-sm sm:text-base"
+        />
+      ) : isLink && value ? (
+        <a
+          href={value}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline text-sm sm:text-base break-all"
+        >
+          {value}
+        </a>
+      ) : (
+        <p className="text-gray-900 text-sm sm:text-base break-words">
+          {value || "Not specified"}
+        </p>
+      )}
+    </div>
+  </div>
 );
 
 const StatCard = ({ number, label }) => (
-    <div className="text-center p-2 sm:p-3 bg-gray-50 rounded-lg">
-        <div className="text-lg sm:text-xl font-bold text-blue-600">{number}</div>
-        <div className="text-xs sm:text-sm text-gray-600">{label}</div>
-    </div>
+  <div className="text-center p-2 sm:p-3 bg-gray-50 rounded-lg">
+    <div className="text-lg sm:text-xl font-bold text-blue-600">{number}</div>
+    <div className="text-xs sm:text-sm text-gray-600">{label}</div>
+  </div>
 );
 
 const EditableSocialLink = ({ icon, platform, url, isEditing, onChange }) => {
-    if (isEditing) {
-        return (
-            <div className="flex items-center gap-2 sm:gap-3 p-2">
-                <span className="text-lg sm:text-xl text-gray-600 flex-shrink-0">{icon}</span>
-                <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm text-gray-500">{platform}</p>
-                    <input
-                        type="url"
-                        value={url}
-                        onChange={(e) => onChange(e.target.value)}
-                        placeholder={`${platform} URL`}
-                        className="w-full border-b border-gray-300 focus:outline-none focus:border-blue-500 text-xs sm:text-sm"
-                    />
-                </div>
-            </div>
-        );
-    }
-
-    if (!url) return null;
-
+  if (isEditing) {
     return (
-        <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 sm:gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
-        >
-            <span className="text-lg sm:text-xl text-gray-600 flex-shrink-0">{icon}</span>
-            <span className="text-sm sm:text-base text-gray-700 break-all">{platform}</span>
-        </a>
+      <div className="flex items-center gap-2 sm:gap-3 p-2">
+        <span className="text-lg sm:text-xl text-gray-600 flex-shrink-0">
+          {icon}
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs sm:text-sm text-gray-500">{platform}</p>
+          <input
+            type="url"
+            value={url}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={`${platform} URL`}
+            className="w-full border-b border-gray-300 focus:outline-none focus:border-blue-500 text-xs sm:text-sm"
+          />
+        </div>
+      </div>
     );
+  }
+
+  if (!url) return null;
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 sm:gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
+    >
+      <span className="text-lg sm:text-xl text-gray-600 flex-shrink-0">
+        {icon}
+      </span>
+      <span className="text-sm sm:text-base text-gray-700 break-all">
+        {platform}
+      </span>
+    </a>
+  );
 };
 
 const LatestJobs = ({ jobs, onJobStatusChange }) => {
-    const [showAll, setShowAll] = useState(false);
-    
-    const displayedJobs = showAll ? jobs : jobs.slice(0, 1);
-    
-    return (
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base sm:text-lg font-semibold">Latest Jobs</h2>
-                {jobs.length > 1 && (
-                    <button 
-                        onClick={() => setShowAll(!showAll)}
-                        className="text-blue-600 text-xs sm:text-sm hover:text-blue-800 font-medium"
-                    >
-                        {showAll ? 'Show Less' : 'View All'}
-                    </button>
-                )}
-            </div>
-            {jobs.length === 0 ? (
-                <p className="text-gray-500 text-sm text-center py-4">No jobs posted yet</p>
-            ) : (
-                <div className="space-y-4">
-                    {displayedJobs.map((job) => (
-                        <JobCard key={job.id} job={job} onStatusChange={onJobStatusChange} />
-                    ))}
-                </div>
-            )}
+  const [showAll, setShowAll] = useState(false);
+
+  const displayedJobs = showAll ? jobs : jobs.slice(0, 1);
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-base sm:text-lg font-semibold">Latest Jobs</h2>
+        {jobs.length > 1 && (
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="text-blue-600 text-xs sm:text-sm hover:text-blue-800 font-medium"
+          >
+            {showAll ? "Show Less" : "View All"}
+          </button>
+        )}
+      </div>
+      {jobs.length === 0 ? (
+        <p className="text-gray-500 text-sm text-center py-4">
+          No jobs posted yet
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {displayedJobs.map((job) => (
+            <JobCard
+              key={job.id}
+              job={job}
+              onStatusChange={onJobStatusChange}
+            />
+          ))}
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 const JobCard = ({ job, onStatusChange }) => {
-    const [isUpdating, setIsUpdating] = useState(false);
-    
-    const handleToggle = async (event) => {
-        const newStatus = event.target.checked ? 'Active' : 'Closed';
-        setIsUpdating(true);
-        try {
-            await onStatusChange(job.id, newStatus);
-        } finally {
-            setIsUpdating(false);
-        }
-    };
-    
-    return (
-        <div className="p-3 sm:p-4 border border-gray-100 rounded-lg hover:border-gray-200 transition-colors">
-            <h3 className="font-medium text-sm sm:text-base text-gray-900 break-words">{job.title}</h3>
-            <div className="mt-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600">
-                <div className="flex items-center gap-1 sm:gap-2">
-                    <MdWork className="flex-shrink-0" />
-                    <span>{job.type}</span>
-                    <span className="text-gray-300 hidden sm:inline">•</span>
-                </div>
-                <span className="sm:ml-0">{job.location}</span>
-                <div className="mt-2 sm:mt-0 sm:ml-auto">
-                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                        <Typography sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, color: job.status === 'Closed' ? '#9ca3af' : '#6b7280' }}>
-                            Closed
-                        </Typography>
-                        <Switch 
-                            size="small"
-                            checked={job.status === 'Active'}
-                            onChange={handleToggle}
-                            disabled={isUpdating}
-                        />
-                        <Typography sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, color: job.status === 'Active' ? '#059669' : '#6b7280' }}>
-                            Active
-                        </Typography>
-                    </Stack>
-                </div>
-            </div>
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleToggle = async (event) => {
+    const newStatus = event.target.checked ? "Active" : "Closed";
+    setIsUpdating(true);
+    try {
+      await onStatusChange(job.id, newStatus);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return (
+    <div className="p-3 sm:p-4 border border-gray-100 rounded-lg hover:border-gray-200 transition-colors">
+      <h3 className="font-medium text-sm sm:text-base text-gray-900 break-words">
+        {job.title}
+      </h3>
+      <div className="mt-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <MdWork className="flex-shrink-0" />
+          <span>{job.type}</span>
+          <span className="text-gray-300 hidden sm:inline">•</span>
         </div>
-    );
+        <span className="sm:ml-0">{job.location}</span>
+        <div className="mt-2 sm:mt-0 sm:ml-auto">
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Typography
+              sx={{
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                color: job.status === "Closed" ? "#9ca3af" : "#6b7280",
+              }}
+            >
+              Closed
+            </Typography>
+            <Switch
+              size="small"
+              checked={job.status === "Active"}
+              onChange={handleToggle}
+              disabled={isUpdating}
+            />
+            <Typography
+              sx={{
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                color: job.status === "Active" ? "#059669" : "#6b7280",
+              }}
+            >
+              Active
+            </Typography>
+          </Stack>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default CompanyProfile;

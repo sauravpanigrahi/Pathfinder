@@ -1,22 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate ,useLocation} from 'react-router-dom';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import { FaCalendarAlt, FaClock, FaVideo, FaMapMarkerAlt, FaEnvelope, FaTimes, FaPlus, FaSearch, FaFilter } from 'react-icons/fa';
-import Application from './Application';
-import BackBar from '../../components/backbutton';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import {
+  FaCalendarAlt,
+  FaClock,
+  FaVideo,
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaTimes,
+  FaPlus,
+  FaSearch,
+  FaFilter,
+} from "react-icons/fa";
+import Application from "./Application";
+import BackBar from "../../components/backbutton";
+import { Trash } from "lucide-react";
+import { formatDateTime } from "../../js/Time";
 const Interview = () => {
   const navigate = useNavigate();
   const [interviews, setInterviews] = useState([]);
-  
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState('all');
-  const companyUID = localStorage.getItem('company UID');
-  const [rescheduleDates, setRescheduleDates] = useState({});
-const [reschedulingId, setReschedulingId] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const companyUID = localStorage.getItem("company UID");
+  const [rescheduleDates, setRescheduleDates] = useState({});
+  const [reschedulingId, setReschedulingId] = useState(null);
 
   // Fetch interviews
   useEffect(() => {
@@ -24,14 +35,22 @@ const [reschedulingId, setReschedulingId] = useState(null);
       try {
         const response = await axios.get(
           `https://pathfinder-maob.onrender.com/interviews/company/${companyUID}`,
-          { withCredentials: true }
+          { withCredentials: true },
         );
-        console.log('Fetched interviews:', response.data);
-        setInterviews(response.data || []);
+
+        console.log("Fetched interviews:", response.data);
+        // ✅ get hidden interview ids from browser storage
+        const hidden =
+          JSON.parse(localStorage.getItem("hiddenInterviews")) || [];
+        // ✅ remove hidden interviews before showing in UI
+        const visibleInterviews = (response.data || []).filter(
+          (interview) => !hidden.includes(interview.id),
+        );
+
+        setInterviews(visibleInterviews);
       } catch (error) {
-        // If endpoint doesn't exist yet, show empty state
         if (error.response?.status !== 404) {
-          console.error('Error fetching interviews:', error);
+          console.error("Error fetching interviews:", error);
         }
         setInterviews([]);
       } finally {
@@ -44,112 +63,106 @@ const [reschedulingId, setReschedulingId] = useState(null);
     }
   }, [companyUID]);
 
-//  console.log("interview=",interviews)
-  
-const handleStatusUpdate = async (interviewId, newStatus) => {
-  try {
-    const payload = { status: newStatus };
-    
-    const newDate = rescheduleDates[interviewId];
-    console.log(interviewId)
-    if (newDate) {
-      payload.interview_datetime = newDate;
+  //  console.log("interview=",interviews)
+
+  const handleStatusUpdate = async (interviewId, newStatus) => {
+    try {
+      const payload = { status: newStatus };
+
+      const newDate = rescheduleDates[interviewId];
+      console.log(interviewId);
+      if (newDate) {
+        payload.interview_datetime = newDate;
+      }
+
+      const response = await axios.put(
+        `https://pathfinder-maob.onrender.com/interviews/${interviewId}/status`,
+        payload,
+        { withCredentials: true },
+      );
+
+      // console.log(response.data); // ✅ actual backend response
+
+      setInterviews((prev) =>
+        prev.map((interview) =>
+          interview.id === interviewId
+            ? {
+                ...interview,
+                status: newStatus,
+                interview_datetime:
+                  payload.interview_datetime || interview.interview_datetime,
+              }
+            : interview,
+        ),
+      );
+
+      toast.success(`Interview ${newStatus} successfully!`);
+    } catch (error) {
+      toast.error("Failed to update interview");
     }
-
-    const response = await axios.put(
-      `https://pathfinder-maob.onrender.com/interviews/${interviewId}/status`,
-      payload,
-      { withCredentials: true }
+  };
+  const deleteinterview = async (interviewId) => {
+    const hidden = JSON.parse(localStorage.getItem("hiddenInterviews")) || []; // JSON.parse convert string in to array. key name is "hiddenInterviews" if null then pass empty array
+    localStorage.setItem(
+      "hiddenInterviews",
+      JSON.stringify([...new Set([...hidden, interviewId])]),
     );
-
-    // console.log(response.data); // ✅ actual backend response
-
-    setInterviews(prev =>
-      prev.map(interview =>
-        interview.id === interviewId
-          ? {
-              ...interview,
-              status: newStatus,
-              interview_datetime:
-                payload.interview_datetime || interview.interview_datetime
-            }
-          : interview
-      )
-    );
-
-    toast.success(`Interview ${newStatus} successfully!`);
-  } catch (error) {
-    toast.error("Failed to update interview");
-  }
-};
-
-  const formatDateTime = (dateTimeString) => {
-    const date = new Date(dateTimeString);
-    return {
-      date: date.toLocaleDateString('en-US', { 
-        weekday: 'short', 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-      }),
-      time: date.toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      })
-    };
+    //JSON.stringify() convert array into string. Basically here hidden array is spread and new id is interted into that array and that array is again converted in to set to avoid duplicates . javascript set() automatic remove duplicate value then it converted into array anf finally JSON.stringify() convert array into string.
+    setInterviews((prev) => prev.filter((i) => i.id !== interviewId)); // it will check and filtered out all fetch interview whose id is equall to interviewId.
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'scheduled':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'rescheduled':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'completed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800 border-red-200';
+      case "scheduled":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "rescheduled":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "completed":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "cancelled":
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getPlatformIcon = (platform) => {
     switch (platform) {
-      case 'google_meet':
-        return '🔵';
-      case 'zoom':
-        return '🔷';
-      case 'offline':
-        return '📍';
+      case "google_meet":
+        return "🔵";
+      case "zoom":
+        return "🔷";
+      case "offline":
+        return "📍";
       default:
-        return '📹';
+        return "📹";
     }
   };
 
   // Filter interviews
-  const filteredInterviews = interviews.filter(interview => {
+  const filteredInterviews = interviews.filter((interview) => {
     const search = searchTerm.toLowerCase();
 
-const matchesSearch =
-  (interview.name || "").toLowerCase().includes(search) ||
-  (interview.role || "").toLowerCase().includes(search);
-    
-    const matchesStatus = statusFilter === 'all' || interview.status === statusFilter;
-    
+    const matchesSearch =
+      (interview.name || "").toLowerCase().includes(search) ||
+      (interview.role || "").toLowerCase().includes(search);
+
+    const matchesStatus =
+      statusFilter === "all" || interview.status === statusFilter;
+
     const matchesDate = (() => {
-      if (dateFilter === 'all') return true;
+      if (dateFilter === "all") return true;
       const interviewDate = new Date(interview.interview_datetime);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
-      if (dateFilter === 'today') {
+
+      if (dateFilter === "today") {
         return interviewDate.toDateString() === today.toDateString();
       }
-      if (dateFilter === 'upcoming') {
+      if (dateFilter === "upcoming") {
         return interviewDate >= today;
       }
-      if (dateFilter === 'past') {
+      if (dateFilter === "past") {
         return interviewDate < today;
       }
       return true;
@@ -159,22 +172,27 @@ const matchesSearch =
   });
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-       <BackBar/>
+      <BackBar />
       <div className="max-w-7xl mx-auto  py-8 px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-         
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">Interview Management</h1>
-              <p className="text-gray-600">Schedule and manage candidate interviews</p>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                Interview Management
+              </h1>
+              <p className="text-gray-600">
+                Schedule and manage candidate interviews
+              </p>
             </div>
             <button
-              onClick={()=>navigate(`/company/interview/schedule`,{
-                state: {
-                  companyUID,
-                }
-              })}
+              onClick={() =>
+                navigate(`/company/interview/schedule`, {
+                  state: {
+                    companyUID,
+                  },
+                })
+              }
               className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               <FaPlus className="w-5 h-5" />
@@ -223,9 +241,11 @@ const matchesSearch =
           {filteredInterviews.length === 0 ? (
             <div className="bg-white rounded-xl shadow-lg p-12 text-center">
               <FaCalendarAlt className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No interviews found</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No interviews found
+              </h3>
               <p className="text-gray-600 mb-6">
-                {interviews.length === 0 
+                {interviews.length === 0
                   ? "Get started by scheduling your first interview"
                   : "Try adjusting your search or filter criteria"}
               </p>
@@ -240,32 +260,36 @@ const matchesSearch =
             </div>
           ) : (
             filteredInterviews.map((interview) => {
-              const { date, time } = formatDateTime(interview.interview_datetime);
+              const { date, time } = formatDateTime(
+                interview.interview_datetime,
+              );
               return (
                 <div
                   key={interview.id}
                   className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden border border-gray-100"
                 >
                   <div className="p-6">
-                    <div className="flex flex-col lg:flex-row justify-between gap-4">
+                    <div className="flex flex-col lg:flex-row justify-between gap-4 ">
                       {/* Left Section - Candidate Info */}
                       <div className="flex-1">
                         <div className="flex items-start gap-4">
                           <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
                             <span className="text-indigo-600 font-bold text-lg">
-                              {interview.name.charAt(0) || 'C'}
+                              {interview.name.charAt(0) || "C"}
                             </span>
-                           
                           </div>
-                           
+
                           <div>
-                            <h1 className="text-xl font-bold text-gray-900">{interview.name}</h1>
+                            <h1 className="text-xl font-bold text-gray-900">
+                              {interview.name}
+                            </h1>
                             <div className="flex  items-center gap-3 mb-2">
-                              
                               <h3 className="text-md text-gray-900">
-                                {interview.role|| 'Candidate'}
+                                {interview.role || "Candidate"}
                               </h3>
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(interview.status)}`}>
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(interview.status)}`}
+                              >
                                 {interview.status}
                               </span>
                             </div>
@@ -282,8 +306,12 @@ const matchesSearch =
                                 <span className="font-medium">{time}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="text-lg">{getPlatformIcon(interview.platform)}</span>
-                                <span className="font-medium capitalize">{interview.platform?.replace('_', ' ')}</span>
+                                <span className="text-lg">
+                                  {getPlatformIcon(interview.platform)}
+                                </span>
+                                <span className="font-medium capitalize">
+                                  {interview.platform?.replace("_", " ")}
+                                </span>
                               </div>
                             </div>
                             {interview.meeting_link && (
@@ -304,8 +332,8 @@ const matchesSearch =
                       </div>
 
                       {/* Right Section - Actions */}
-                      <div className="flex  gap-2 lg:items-start">
-                        {interview.status === 'scheduled' && (
+                      <div className="flex gap-2 lg:items-start">
+                        {interview.status === "scheduled" && (
                           <>
                             <button
                               onClick={() => setReschedulingId(interview.id)}
@@ -315,74 +343,85 @@ const matchesSearch =
                             </button>
 
                             <button
-                              onClick={() => handleStatusUpdate(interview.id, 'completed')}
+                              onClick={() =>
+                                handleStatusUpdate(interview.id, "completed")
+                              }
                               className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm"
                             >
                               Hired
                             </button>
                             <button
-                              onClick={() => handleStatusUpdate(interview.id, 'cancelled')}
+                              onClick={() =>
+                                handleStatusUpdate(interview.id, "cancelled")
+                              }
                               className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors text-sm"
                             >
                               Reject
                             </button>
                           </>
                         )}
-                        {interview.status === 'completed' && (
+                        {interview.status === "completed" && (
                           <>
                             <button
-                              onClick={() => handleStatusUpdate(interview.id, 'cancelled')}
+                              onClick={() =>
+                                handleStatusUpdate(interview.id, "cancelled")
+                              }
                               className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors text-sm"
                             >
                               Reject
                             </button>
-                            
                           </>
                         )}
-                       {reschedulingId === interview.id && (
-                            <div className="flex flex-col gap-2">
-                              <input
-                                type="datetime-local"
-                                value={rescheduleDates[interview.id] || ""}
-                                onChange={(e) =>
-                                  setRescheduleDates(prev => ({
-                                    ...prev,
-                                    [interview.id]: e.target.value
-                                  }))
-                                }
-                                className="w-56 p-2 border rounded"
-                              />
+                        {reschedulingId === interview.id && (
+                          <div className="flex flex-col gap-2">
+                            <input
+                              type="datetime-local"
+                              value={rescheduleDates[interview.id] || ""}
+                              onChange={(e) =>
+                                setRescheduleDates((prev) => ({
+                                  ...prev,
+                                  [interview.id]: e.target.value,
+                                }))
+                              }
+                              className="w-56 p-2 border rounded"
+                            />
 
-                              <button
-                                  onClick={() => {
-                                    handleStatusUpdate(interview.id, 'scheduled');
-                                    setReschedulingId(null);
-                                  }}
-                                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
-                                >
-                                  Submit
-                                </button>
-
-                            </div>
-                          )}
-                        {interview.status === 'cancelled' && (
+                            <button
+                              onClick={() => {
+                                handleStatusUpdate(interview.id, "scheduled");
+                                setReschedulingId(null);
+                              }}
+                              className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
+                            >
+                              Submit
+                            </button>
+                          </div>
+                        )}
+                        {interview.status === "cancelled" && (
                           <>
                             <button
-                              onClick={() => handleStatusUpdate(interview.id, 'completed')}
+                              onClick={() =>
+                                handleStatusUpdate(interview.id, "completed")
+                              }
                               className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm"
                             >
                               Mark Complete
                             </button>
-                             <button
+                            <button
                               onClick={() => setReschedulingId(interview.id)}
                               className="px-4 py-2 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition-colors text-sm"
                             >
                               Reschedule
                             </button>
-
                           </>
                         )}
                       </div>
+                      <button
+                        onClick={() => deleteinterview(interview.id)}
+                        className="flex mt-1"
+                      >
+                        <Trash color="red" strokeWidth={1.25} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -391,12 +430,8 @@ const matchesSearch =
           )}
         </div>
       </div>
-
-     
-      
     </div>
   );
 };
 
 export default Interview;
-

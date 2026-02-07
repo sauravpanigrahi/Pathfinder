@@ -1,4 +1,4 @@
-from fastapi import HTTPException,APIRouter
+from fastapi import HTTPException,APIRouter,BackgroundTasks
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from config.db import  Sessionlocal
@@ -60,7 +60,7 @@ router = APIRouter(
 )   
 
 @router.post("/schedule")
-async def schedule_interview(interview_data: dict, db: Session = Depends(get_db)):
+async def schedule_interview(interview_data: dict, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
     Schedule an interview for a job application.
     Expects interview_data to contain:
@@ -134,7 +134,7 @@ async def schedule_interview(interview_data: dict, db: Session = Depends(get_db)
 
                 try:
                     print("📧 Sending email to:", student.email)
-                    await mail_send(email_subject,student.email, email_body)
+                    background_tasks.add_task(mail_send,email_subject,student.email,email_body)
                     email_sent = True  # ✅ mail actually sent
                 except Exception as mail_error:
                     email_sent = False

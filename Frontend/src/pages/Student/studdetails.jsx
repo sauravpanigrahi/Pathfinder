@@ -1,37 +1,38 @@
-import React, { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import axios from 'axios'
-import { toast } from 'react-toastify'
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function StudDetails() {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const uid = location.state?.uid || JSON.parse(localStorage.getItem('uid')) || null
+  const location = useLocation();
+  const navigate = useNavigate();
+  const uid =
+    location.state?.uid || JSON.parse(localStorage.getItem("uid")) || null;
 
   const [formData, setFormData] = useState({
-    phone_number: '',
-    date_of_birth: '',
-    address: '',
-    bio: '',
-    qualification: '',
-    graduation_year: '',
-    college_university: '',
-    linkedin_url: '',
-    github_url: ''
-  })
+    phone_number: "",
+    date_of_birth: "",
+    address: "",
+    bio: "",
+    qualification: "",
+    graduation_year: "",
+    college_university: "",
+    linkedin_url: "",
+    github_url: "",
+  });
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       if (!uid) {
-        toast.error('Missing user id. Please login again.')
-        navigate('/login/student')
-        return
+        toast.error("Missing user id. Please login again.");
+        navigate("/login/student");
+        return;
       }
       const payload = {
         uid,
@@ -43,27 +44,38 @@ export default function StudDetails() {
         graduation_year: Number(formData.graduation_year),
         college_university: formData.college_university,
         linkedin_url: formData.linkedin_url || null,
-        github_url: formData.github_url || null
-      }
-      await axios.post('https://pathfinder-maob.onrender.com/student/details', payload, {
-        headers: { 'Content-Type': 'application/json' }
-      })
-      toast.success('Details saved')
-      navigate('/home')
+        github_url: formData.github_url || null,
+      };
+      await axios.post(
+        "https://pathfinder-maob.onrender.com/student/details",
+        payload,
+        {
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      toast.success("Details saved");
+      navigate("/home");
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to save details')
+      toast.error(error.response?.data?.detail || "Failed to save details");
     }
-  }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white px-6 sm:px-10 py-10">
       <div className="w-full max-w-2xl">
         <div className="text-center mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold">Complete your profile</h1>
-          <p className="text-gray-500 mt-2 text-sm sm:text-base">This helps us personalize jobs for you.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            Complete your profile
+          </h1>
+          <p className="text-gray-500 mt-2 text-sm sm:text-base">
+            This helps us personalize jobs for you.
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-6">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-6"
+        >
           <input
             type="tel"
             name="phone_number"
@@ -157,5 +169,5 @@ export default function StudDetails() {
         </form>
       </div>
     </div>
-  )
+  );
 }

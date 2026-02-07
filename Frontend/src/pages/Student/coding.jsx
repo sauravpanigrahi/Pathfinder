@@ -6,7 +6,7 @@ import {
   ChevronDown,
   ChevronRight,
   Check,
-  Code
+  Code,
 } from "lucide-react";
 
 const coding = () => {
@@ -21,11 +21,11 @@ const coding = () => {
     try {
       const params = new URLSearchParams({
         category,
-        ...(difficulty && { difficulty })
+        ...(difficulty && { difficulty }),
       });
 
       const res = await fetch(
-        `https://pathfinder-maob.onrender.com/api/coding-questions?${params}`
+        `https://pathfinder-maob.onrender.com/api/coding-questions?${params}`,
       );
 
       if (!res.ok) throw new Error("Failed to fetch");
@@ -47,14 +47,15 @@ const coding = () => {
     const colors = {
       easy: "bg-emerald-50 text-emerald-700 border-emerald-200",
       medium: "bg-amber-50 text-amber-700 border-amber-200",
-      hard: "bg-rose-50 text-rose-700 border-rose-200"
+      hard: "bg-rose-50 text-rose-700 border-rose-200",
     };
-    return colors[level?.toLowerCase()] || "bg-gray-50 text-gray-700 border-gray-200";
+    return (
+      colors[level?.toLowerCase()] || "bg-gray-50 text-gray-700 border-gray-200"
+    );
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50">
-      
       {/* Hero */}
       <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white">
         <div className="mx-auto max-w-6xl px-6 py-16">
@@ -88,7 +89,6 @@ const coding = () => {
 
       {/* Content */}
       <div className="mx-auto max-w-6xl px-6 -mt-8">
-
         {/* Filters */}
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-8">
           <div className="flex items-center gap-2 mb-4">
@@ -142,7 +142,9 @@ const coding = () => {
                       {i + 1}
                     </div>
                     <div>
-                      <span className={`text-xs px-3 py-0.5 rounded-full border ${getDifficultyColor(q.difficulty)}`}>
+                      <span
+                        className={`text-xs px-3 py-0.5 rounded-full border ${getDifficultyColor(q.difficulty)}`}
+                      >
                         {q.difficulty}
                       </span>
                       <h3 className="text-lg font-semibold mt-2">
@@ -164,7 +166,9 @@ const coding = () => {
                   </div>
 
                   <button
-                    onClick={() => setOpenAnswer(openAnswer === q.id ? null : q.id)}
+                    onClick={() =>
+                      setOpenAnswer(openAnswer === q.id ? null : q.id)
+                    }
                     className="text-emerald-600 font-medium text-sm flex items-center gap-2"
                   >
                     {openAnswer === q.id ? <ChevronDown /> : <ChevronRight />}

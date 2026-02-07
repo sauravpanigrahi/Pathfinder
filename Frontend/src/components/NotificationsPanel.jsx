@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 import {
   FaBell,
   FaCheck,
@@ -12,11 +12,16 @@ import {
   FaVideo,
   FaMapMarkerAlt,
   FaTimes,
-  FaClock
-} from 'react-icons/fa';
-import timeAgo from '../js/Time';
+  FaClock,
+} from "react-icons/fa";
+import { timeAgo } from "../js/Time";
 
-const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) => {
+const NotificationsPanel = ({
+  isOpen,
+  onClose,
+  userUID,
+  onUnreadCountChange,
+}) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -32,12 +37,12 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
     try {
       const response = await axios.get(
         `https://pathfinder-maob.onrender.com/notifications/${userUID}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       setNotifications(response.data || []);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
-      toast.error('Failed to load notifications');
+      console.error("Error fetching notifications:", error);
+      toast.error("Failed to load notifications");
     } finally {
       setLoading(false);
     }
@@ -47,13 +52,13 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
     try {
       const response = await axios.get(
         `https://pathfinder-maob.onrender.com/notifications/${userUID}/unread-count`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       const count = response.data.unread_count || 0;
       setUnreadCount(count);
       if (onUnreadCountChange) onUnreadCountChange(count);
     } catch (error) {
-      console.error('Error fetching unread count:', error);
+      console.error("Error fetching unread count:", error);
     }
   };
 
@@ -62,21 +67,21 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
       await axios.patch(
         `https://pathfinder-maob.onrender.com/notifications/${notificationId}/read`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
-      setNotifications(prev =>
-        prev.map(notif =>
-          notif.id === notificationId ? { ...notif, is_read: true } : notif
-        )
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif.id === notificationId ? { ...notif, is_read: true } : notif,
+        ),
       );
-      setUnreadCount(prev => {
+      setUnreadCount((prev) => {
         const newCount = Math.max(0, prev - 1);
         if (onUnreadCountChange) onUnreadCountChange(newCount);
         return newCount;
       });
     } catch (error) {
-      console.error('Error marking notification as read:', error);
-      toast.error('Failed to mark notification as read');
+      console.error("Error marking notification as read:", error);
+      toast.error("Failed to mark notification as read");
     }
   };
 
@@ -85,17 +90,17 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
       await axios.patch(
         `https://pathfinder-maob.onrender.com/notifications/${userUID}/read-all`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
-      setNotifications(prev =>
-        prev.map(notif => ({ ...notif, is_read: true }))
+      setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, is_read: true })),
       );
       setUnreadCount(0);
       if (onUnreadCountChange) onUnreadCountChange(0);
-      toast.success('All notifications marked as read');
+      toast.success("All notifications marked as read");
     } catch (error) {
-      console.error('Error marking all as read:', error);
-      toast.error('Failed to mark all notifications as read');
+      console.error("Error marking all as read:", error);
+      toast.error("Failed to mark all notifications as read");
     }
   };
 
@@ -103,31 +108,33 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
     try {
       await axios.delete(
         `https://pathfinder-maob.onrender.com/notifications/${notificationId}`,
-        { withCredentials: true }
+        { withCredentials: true },
       );
-      const deletedNotif = notifications.find(n => n.id === notificationId);
+      const deletedNotif = notifications.find((n) => n.id === notificationId);
       if (deletedNotif && !deletedNotif.is_read) {
-        setUnreadCount(prev => {
+        setUnreadCount((prev) => {
           const newCount = Math.max(0, prev - 1);
           if (onUnreadCountChange) onUnreadCountChange(newCount);
           return newCount;
         });
       }
-      setNotifications(prev => prev.filter(notif => notif.id !== notificationId));
-      toast.success('Notification deleted');
+      setNotifications((prev) =>
+        prev.filter((notif) => notif.id !== notificationId),
+      );
+      toast.success("Notification deleted");
     } catch (error) {
-      console.error('Error deleting notification:', error);
-      toast.error('Failed to delete notification');
+      console.error("Error deleting notification:", error);
+      toast.error("Failed to delete notification");
     }
   };
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case 'application_accepted':
+      case "application_accepted":
         return <FaCheckCircle className="w-5 h-5 text-green-500" />;
-      case 'interview_scheduled':
+      case "interview_scheduled":
         return <FaCalendarAlt className="w-5 h-5 text-blue-500" />;
-      case 'new_job':
+      case "new_job":
         return <FaBriefcase className="w-5 h-5 text-purple-500" />;
       default:
         return <FaBell className="w-5 h-5 text-gray-500" />;
@@ -136,32 +143,30 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
 
   const getNotificationColor = (type) => {
     switch (type) {
-      case 'application_accepted':
-        return 'bg-green-50 border-green-200 hover:bg-green-100';
-      case 'interview_scheduled':
-        return 'bg-blue-50 border-blue-200 hover:bg-blue-100';
-      case 'new_job':
-        return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
+      case "application_accepted":
+        return "bg-green-50 border-green-200 hover:bg-green-100";
+      case "interview_scheduled":
+        return "bg-blue-50 border-blue-200 hover:bg-blue-100";
+      case "new_job":
+        return "bg-purple-50 border-purple-200 hover:bg-purple-100";
       default:
-        return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
+        return "bg-gray-50 border-gray-200 hover:bg-gray-100";
     }
   };
-
-
 
   const formatInterviewDateTime = (dateString) => {
     if (!dateString) return null;
     const date = new Date(dateString);
     return {
-      date: date.toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric'
+      date: date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
       }),
-      time: date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit'
-      })
+      time: date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
   };
 
@@ -225,22 +230,24 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
                 No notifications yet
               </h3>
               <p className="text-gray-600">
-                You'll see updates about your applications, interviews, and new job opportunities here.
+                You'll see updates about your applications, interviews, and new
+                job opportunities here.
               </p>
             </div>
           ) : (
             <div className="p-4 space-y-3">
               {notifications.map((notification) => {
-                const interviewDateTime = notification.type === 'interview_scheduled' 
-                  ? formatInterviewDateTime(notification.interview_datetime)
-                  : null;
+                const interviewDateTime =
+                  notification.type === "interview_scheduled"
+                    ? formatInterviewDateTime(notification.interview_datetime)
+                    : null;
 
                 return (
                   <div
                     key={notification.id}
                     className={`relative p-4 rounded-lg border-2 transition-all duration-200 ${
                       notification.is_read
-                        ? 'bg-white border-gray-200'
+                        ? "bg-white border-gray-200"
                         : `${getNotificationColor(notification.type)} border-l-4`
                     }`}
                   >
@@ -261,7 +268,7 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
                           <h4 className="font-semibold text-gray-900 text-sm">
                             {notification.title}
                           </h4>
-                         
+
                           <span className="text-xs text-gray-500 flex-shrink-0">
                             {timeAgo(notification.created_at)}
                           </span>
@@ -274,9 +281,16 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
                         {/* Additional Info */}
                         {notification.company_name && (
                           <div className="text-xs text-gray-600 mb-1">
-                            <span className="font-medium">Company:</span> {notification.company_name}
+                            <span className="font-medium">Company:</span>{" "}
+                            {notification.company_name}
                             {notification.job_role && (
-                              <> • <span className="font-medium">Role:</span> {notification.job_role}</>
+                              <>
+                                {" "}
+                                • <span className="font-medium">
+                                  Role:
+                                </span>{" "}
+                                {notification.job_role}
+                              </>
                             )}
                           </div>
                         )}
@@ -287,7 +301,8 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
                             <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
                               <FaClock className="w-4 h-4 text-blue-500" />
                               <span className="font-medium">
-                                {interviewDateTime.date} at {interviewDateTime.time}
+                                {interviewDateTime.date} at{" "}
+                                {interviewDateTime.time}
                               </span>
                             </div>
                             {notification.meeting_link && (
@@ -336,7 +351,8 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
         {notifications.length > 0 && (
           <div className="border-t border-gray-200 px-6 py-3 bg-gray-50">
             <p className="text-xs text-gray-600 text-center">
-              {notifications.length} notification{notifications.length !== 1 ? 's' : ''}
+              {notifications.length} notification
+              {notifications.length !== 1 ? "s" : ""}
               {unreadCount > 0 && ` • ${unreadCount} unread`}
             </p>
           </div>
@@ -347,4 +363,3 @@ const NotificationsPanel = ({ isOpen, onClose, userUID, onUnreadCountChange }) =
 };
 
 export default NotificationsPanel;
-

@@ -25,7 +25,7 @@ class ChatRequest(BaseModel):
     resume_text: str | None = None  # optional field
 router=APIRouter(
     prefix="/resume",
-    tags=["application"]
+    tags=["resume"]
 )
 cloudinary.config(
     cloud_name=os.getenv("CLOUD_NAME"),
